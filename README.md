@@ -1,7 +1,8 @@
 # README
 
 ## Implementation Details
-- Developed using GitHub Copilot with GPT-5 mini (Preview) 
+- Developed using GitHub Copilot with GPT-5 mini (Preview)
+- Rails 8.0.2.1
 - Ruby version: 3.3.8
 - System dependencies (Docker)
 - How to run the test suite: `bundle exec rspec`
