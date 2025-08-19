@@ -57,6 +57,16 @@ req_get() {
   printf '%s\n%s' "$body" "$http_code"
 }
 
+req_delete() {
+  local url=$1; shift
+  local tmp
+  tmp=$(mktemp)
+  http_code=$(curl $CURL_OPTS -w "%{http_code}" -o "$tmp" -X DELETE "$url" "$@")
+  body=$(cat "$tmp")
+  rm -f "$tmp"
+  printf '%s\n%s' "$body" "$http_code"
+}
+
 echo "Starting manual API test against $BASE_URL"
 echo
 
@@ -102,6 +112,54 @@ if [ -z "$listing_id" ]; then
   fail=1
 else
   echo "Listing id: $listing_id"
+fi
+
+# 3a) Non-owner attempts to update listing (should be 403)
+echo
+echo "Non-owner attempts to update listing title (should be 403)..."
+non_owner_update_resp=$(req_patch "$BASE_URL/api/v1/listings/$listing_id" -H "Authorization: $hirer_auth" -H "Content-Type: application/json" -d '{"listing":{"title":"Hacker Edit"}}')
+non_owner_update_code=$(echo "$non_owner_update_resp" | sed -n '2p')
+assert_status 403 "$non_owner_update_code" "Non-owner listing update forbidden"
+
+# 3b) Owner updates listing (should be 200)
+echo
+echo "Owner updates listing title (should be 200)..."
+owner_update_resp=$(req_patch "$BASE_URL/api/v1/listings/$listing_id" -H "Authorization: $owner_auth" -H "Content-Type: application/json" -d '{"listing":{"title":"Manual Test RV (Updated)"}}')
+owner_update_body=$(echo "$owner_update_resp" | sed -n '1p')
+owner_update_code=$(echo "$owner_update_resp" | sed -n '2p')
+assert_status 200 "$owner_update_code" "Owner listing update"
+updated_title=$(echo "$owner_update_body" | jq -r '.title // empty')
+if [ "$updated_title" != "Manual Test RV (Updated)" ]; then
+  echo "WARN: listing title not updated as expected (got '$updated_title')"
+fi
+
+# 3c) Owner creates a temporary listing for destroy tests
+echo
+echo "Owner creates temp listing for destroy tests..."
+temp_listing_resp=$(req_post_json "$BASE_URL/api/v1/listings" '{"listing":{"title":"Temp Destroy","description":"Temp","location":"X","price_per_day":10}}' -H "Authorization: $owner_auth")
+temp_listing_body=$(echo "$temp_listing_resp" | sed -n '1p')
+temp_listing_code=$(echo "$temp_listing_resp" | sed -n '2p')
+assert_status 201 "$temp_listing_code" "Create temp listing"
+temp_listing_id=$(echo "$temp_listing_body" | jq -r '.id // empty')
+
+# 3d) Non-owner attempts to destroy temp listing (403)
+echo
+echo "Non-owner attempts to destroy temp listing (should be 403)..."
+if [ -n "$temp_listing_id" ]; then
+  non_owner_destroy_resp=$(req_delete "$BASE_URL/api/v1/listings/$temp_listing_id" -H "Authorization: $hirer_auth")
+  non_owner_destroy_code=$(echo "$non_owner_destroy_resp" | sed -n '2p')
+  assert_status 403 "$non_owner_destroy_code" "Non-owner destroy forbidden"
+else
+  echo "Skipping non-owner destroy test (no temp listing id)"
+fi
+
+# 3e) Owner destroys temp listing (204)
+echo
+echo "Owner destroys temp listing (should be 204)..."
+if [ -n "$temp_listing_id" ]; then
+  owner_destroy_resp=$(req_delete "$BASE_URL/api/v1/listings/$temp_listing_id" -H "Authorization: $owner_auth")
+  owner_destroy_code=$(echo "$owner_destroy_resp" | sed -n '2p')
+  assert_status 204 "$owner_destroy_code" "Owner destroy listing"
 fi
 
 # 4) Hirer creates booking (happy)
