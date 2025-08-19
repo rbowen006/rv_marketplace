@@ -5,6 +5,13 @@
 - Ruby version: 3.3.8
 - System dependencies (Docker)
 - How to run the test suite: `bundle exec rspec`
+- Included a test file to verify api behaviour: See script/manual_test.sh
+
+## Contents
+- [Development (Docker)](#development-docker)
+- [Swagger API documentation](#swagger-api-documentation)
+- [API examples](#api-examples-curl)
+- [Frontend (React SPA)](#frontend-react-spa) 
 
 ## Development (Docker)
 
@@ -25,7 +32,7 @@ Run the manual smoke test:
 chmod +x script/manual_test.sh
 bash script/manual_test.sh
 ```
-## View Swagger API documentation
+## Swagger API documentation
 
 1. Ensure the app is running (see "Start the app" above).
 2. Open the Swagger UI in your browser:
