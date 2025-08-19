@@ -40,7 +40,7 @@ export function ListingList({ token }) {
           <strong>{l.title}</strong><br />
           {l.description}<br />
           <em>{l.location}</em><br />
-          ${'{'}l.price_per_day{'}'} / day
+          {l.price_per_day != null && <span>{`$${l.price_per_day} / day`}</span>}
         </li>
       ))}
     </ul>

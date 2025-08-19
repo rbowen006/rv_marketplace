@@ -9,6 +9,9 @@
 /.idea
 /.github
 
+# Frontend dependencies
+/frontend/node_modules
+
 # Ignore all environment files.
 /.env*
 
