@@ -1,0 +1,169 @@
+openapi: "3.0.1"
+info:
+  title: "RV Marketplace API V1"
+  version: "v1"
+paths:
+  /api/v1/listings:
+    get:
+      summary: "List listings"
+      tags:
+        - "Listings"
+      responses:
+        "200":
+          description: "listings found"
+    post:
+      summary: "Create listing"
+      tags:
+        - "Listings"
+      parameters:
+        - name: "Authorization"
+          in: "header"
+          schema:
+            type: "string"
+      responses:
+        "201":
+          description: "listing created"
+        "401":
+          description: "unauthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                listing:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    location:
+                      type: string
+                    price_per_day:
+                      type: number
+                  required:
+                    - title
+                    - description
+                    - location
+                    - price_per_day
+  /api/v1/listings/{id}:
+    get:
+      summary: "Retrieves a listing"
+      tags:
+        - "Listings"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "listing found"
+        "404":
+          description: "not found"
+  /api/v1/listings/{listing_id}/bookings:
+    post:
+      summary: "Create booking"
+      tags:
+        - "Bookings"
+      parameters:
+        - name: "listing_id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "Authorization"
+          in: "header"
+          schema:
+            type: "string"
+      responses:
+        "201":
+          description: "booking created"
+        "403":
+          description: "forbidden"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                booking:
+                  type: object
+                  properties:
+                    start_date:
+                      type: string
+                      format: date
+                    end_date:
+                      type: string
+                      format: date
+                  required:
+                    - start_date
+                    - end_date
+  /api/v1/bookings/{id}/confirm:
+    patch:
+      summary: "Confirm booking"
+      tags:
+        - "Bookings"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "Authorization"
+          in: "header"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "booking confirmed"
+  /api/v1/listings/{listing_id}/messages:
+    post:
+      summary: "Create message"
+      tags:
+        - "Messages"
+      parameters:
+        - name: "listing_id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "Authorization"
+          in: "header"
+          schema:
+            type: "string"
+      responses:
+        "201":
+          description: "message created"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                  required:
+                    - content
+    get:
+      summary: "List messages"
+      tags:
+        - "Messages"
+      parameters:
+        - name: "listing_id"
+          in: "path"
+          required: true
+          schema:
+            type: integer
+        - name: "Authorization"
+          in: "header"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "messages listed"

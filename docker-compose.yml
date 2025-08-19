@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    command: bash -lc "bin/rails db:migrate && bin/rails server -b 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app:cached
+      - ./storage:/app/storage
+    environment:
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: 'true'
+    depends_on: []
+
+# Optional: add a db service if you switch to Postgres in future
+# volumes:
+#   db_data: {}
