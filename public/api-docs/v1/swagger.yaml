@@ -1,30 +1,31 @@
-openapi: "3.0.1"
+---
+openapi: 3.0.1
 info:
-  title: "RV Marketplace API V1"
-  version: "v1"
+  title: RV Marketplace API V1
+  version: v1
 paths:
-  /api/v1/listings:
+  "/api/v1/listings":
     get:
-      summary: "List listings"
+      summary: List listings
       tags:
-        - "Listings"
+      - Listings
       responses:
-        "200":
-          description: "listings found"
+        '200':
+          description: listings found
     post:
-      summary: "Create listing"
+      summary: Create listing
       tags:
-        - "Listings"
+      - Listings
       parameters:
-        - name: "Authorization"
-          in: "header"
-          schema:
-            type: "string"
+      - name: Authorization
+        in: header
+        schema:
+          type: string
       responses:
-        "201":
-          description: "listing created"
-        "401":
-          description: "unauthorized"
+        '201':
+          description: listing created
+        '401':
+          description: unauthorized
       requestBody:
         content:
           application/json:
@@ -43,46 +44,105 @@ paths:
                     price_per_day:
                       type: number
                   required:
-                    - title
-                    - description
-                    - location
-                    - price_per_day
-  /api/v1/listings/{id}:
+                  - title
+                  - description
+                  - location
+                  - price_per_day
+  "/api/v1/listings/{id}":
     get:
-      summary: "Retrieves a listing"
+      summary: Retrieves a listing
       tags:
-        - "Listings"
+      - Listings
       parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: integer
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
       responses:
-        "200":
-          description: "listing found"
-        "404":
-          description: "not found"
-  /api/v1/listings/{listing_id}/bookings:
+        '200':
+          description: listing found
+        '404':
+          description: not found
+    put:
+      summary: Update listing
+      tags:
+      - Listings
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: listing updated
+        '403':
+          description: forbidden (non-owner)
+        '401':
+          description: unauthorized (no token)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                listing:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    location:
+                      type: string
+                    price_per_day:
+                      type: number
+    delete:
+      summary: Delete listing
+      tags:
+      - Listings
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+      responses:
+        '204':
+          description: listing deleted
+        '403':
+          description: forbidden (non-owner)
+        '401':
+          description: unauthorized (no token)
+  "/api/v1/listings/{listing_id}/bookings":
     post:
-      summary: "Create booking"
+      summary: Create booking
       tags:
-        - "Bookings"
+      - Bookings
       parameters:
-        - name: "listing_id"
-          in: "path"
-          required: true
-          schema:
-            type: integer
-        - name: "Authorization"
-          in: "header"
-          schema:
-            type: "string"
+      - name: listing_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        schema:
+          type: string
       responses:
-        "201":
-          description: "booking created"
-        "403":
-          description: "forbidden"
+        '201':
+          description: booking created
+        '403':
+          description: forbidden
       requestBody:
         content:
           application/json:
@@ -99,44 +159,48 @@ paths:
                       type: string
                       format: date
                   required:
-                    - start_date
-                    - end_date
-  /api/v1/bookings/{id}/confirm:
+                  - start_date
+                  - end_date
+  "/api/v1/bookings/{id}/confirm":
     patch:
-      summary: "Confirm booking"
+      summary: Confirm booking
       tags:
-        - "Bookings"
+      - Bookings
       parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: integer
-        - name: "Authorization"
-          in: "header"
-          schema:
-            type: "string"
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        schema:
+          type: string
       responses:
-        "200":
-          description: "booking confirmed"
-  /api/v1/listings/{listing_id}/messages:
+        '200':
+          description: booking confirmed
+        '403':
+          description: forbidden (non-owner)
+        '401':
+          description: unauthorized (no token)
+  "/api/v1/listings/{listing_id}/messages":
     post:
-      summary: "Create message"
+      summary: Create message
       tags:
-        - "Messages"
+      - Messages
       parameters:
-        - name: "listing_id"
-          in: "path"
-          required: true
-          schema:
-            type: integer
-        - name: "Authorization"
-          in: "header"
-          schema:
-            type: "string"
+      - name: listing_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        schema:
+          type: string
       responses:
-        "201":
-          description: "message created"
+        '201':
+          description: message created
       requestBody:
         content:
           application/json:
@@ -149,21 +213,21 @@ paths:
                     content:
                       type: string
                   required:
-                    - content
+                  - content
     get:
-      summary: "List messages"
+      summary: List messages
       tags:
-        - "Messages"
+      - Messages
       parameters:
-        - name: "listing_id"
-          in: "path"
-          required: true
-          schema:
-            type: integer
-        - name: "Authorization"
-          in: "header"
-          schema:
-            type: "string"
+      - name: listing_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        schema:
+          type: string
       responses:
-        "200":
-          description: "messages listed"
+        '200':
+          description: messages listed

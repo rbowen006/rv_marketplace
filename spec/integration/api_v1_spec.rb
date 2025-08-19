@@ -70,6 +70,85 @@ RSpec.describe 'API V1', type: :request do
         run_test!
       end
     end
+
+    put 'Update listing' do
+      tags 'Listings'
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :id, in: :path, type: :integer
+      parameter name: :listing, in: :body, schema: {
+        type: :object,
+        properties: {
+          listing: {
+            type: :object,
+            properties: {
+              title: { type: :string },
+              description: { type: :string },
+              location: { type: :string },
+              price_per_day: { type: :number }
+            }
+          }
+        }
+      }
+      parameter name: 'Authorization', in: :header, type: :string
+
+      response '200', 'listing updated' do
+        let(:owner) { create(:user) }
+        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:id) { listing_record.id }
+        let(:Authorization) { "Bearer #{jwt_for(owner)}" }
+        let(:listing) { { listing: { title: 'Updated Title' } } }
+        run_test!
+      end
+
+      response '403', 'forbidden (non-owner)' do
+        let(:owner) { create(:user) }
+        let(:other) { create(:user) }
+        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:id) { listing_record.id }
+        let(:Authorization) { "Bearer #{jwt_for(other)}" }
+        let(:listing) { { listing: { title: 'Hack' } } }
+        run_test!
+      end
+
+      response '401', 'unauthorized (no token)' do
+        let(:listing_record) { create(:rv_listing, user: create(:user)) }
+        let(:id) { listing_record.id }
+        let(:Authorization) { nil }
+        let(:listing) { { listing: { title: 'New' } } }
+        run_test!
+      end
+    end
+
+    delete 'Delete listing' do
+      tags 'Listings'
+      parameter name: :id, in: :path, type: :integer
+      parameter name: 'Authorization', in: :header, type: :string
+
+      response '204', 'listing deleted' do
+        let(:owner) { create(:user) }
+        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:id) { listing_record.id }
+        let(:Authorization) { "Bearer #{jwt_for(owner)}" }
+        run_test!
+      end
+
+      response '403', 'forbidden (non-owner)' do
+        let(:owner) { create(:user) }
+        let(:other) { create(:user) }
+        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:id) { listing_record.id }
+        let(:Authorization) { "Bearer #{jwt_for(other)}" }
+        run_test!
+      end
+
+      response '401', 'unauthorized (no token)' do
+        let(:listing_record) { create(:rv_listing, user: create(:user)) }
+        let(:id) { listing_record.id }
+        let(:Authorization) { nil }
+        run_test!
+      end
+    end
   end
 
   path '/api/v1/listings/{listing_id}/bookings' do
@@ -120,14 +199,35 @@ RSpec.describe 'API V1', type: :request do
     patch 'Confirm booking' do
       tags 'Bookings'
       parameter name: :id, in: :path, type: :integer
+      parameter name: 'Authorization', in: :header, type: :string
+
       response '200', 'booking confirmed' do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
         let(:listing) { create(:rv_listing, user: owner, title: 'y', price_per_day: 20) }
         let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 2, end_date: Date.today + 3, status: 'pending') }
         let(:id) { booking.id }
-        parameter name: 'Authorization', in: :header, type: :string
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
+        run_test!
+      end
+
+      response '403', 'forbidden (non-owner)' do
+        let(:owner) { create(:user) }
+        let(:hirer) { create(:user) }
+        let(:listing) { create(:rv_listing, user: owner) }
+        let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
+        let(:id) { booking.id }
+        let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
+        run_test!
+      end
+
+      response '401', 'unauthorized (no token)' do
+        let(:owner) { create(:user) }
+        let(:hirer) { create(:user) }
+        let(:listing) { create(:rv_listing, user: owner) }
+        let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
+        let(:id) { booking.id }
+        let(:Authorization) { nil }
         run_test!
       end
     end

@@ -99,6 +99,102 @@
             "description": "not found"
           }
         }
+      },
+      "put": {
+        "summary": "Update listing",
+        "tags": [
+          "Listings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "listing updated"
+          },
+          "403": {
+            "description": "forbidden (non-owner)"
+          },
+          "401": {
+            "description": "unauthorized (no token)"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "listing": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "price_per_day": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete listing",
+        "tags": [
+          "Listings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "listing deleted"
+          },
+          "403": {
+            "description": "forbidden (non-owner)"
+          },
+          "401": {
+            "description": "unauthorized (no token)"
+          }
+        }
       }
     },
     "/api/v1/listings/{listing_id}/bookings": {
@@ -188,6 +284,12 @@
         "responses": {
           "200": {
             "description": "booking confirmed"
+          },
+          "403": {
+            "description": "forbidden (non-owner)"
+          },
+          "401": {
+            "description": "unauthorized (no token)"
           }
         }
       }
