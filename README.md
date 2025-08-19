@@ -24,13 +24,17 @@ Run migrations:
 ```bash
 # Setup databases (dev + test)
 docker compose exec web bin/rails db:create db:migrate
-RAILS_ENV=test docker compose exec web bin/rails db:create db:migrate
+# Test DB (ensure env var is inside the container shell)
+docker compose exec web bash -c "RAILS_ENV=test bin/rails db:create db:migrate"
+# Or simply (Rails 6+ convenience):
+docker compose exec web bin/rails db:prepare
 ```
 
 Run the manual smoke test:
 ```bash
 chmod +x script/manual_test.sh
 bash script/manual_test.sh
+# (Script path is 'script/', not 'scripts/')
 ```
 ## Swagger API documentation
 
@@ -152,15 +156,6 @@ curl -i -X POST http://localhost:3000/api/v1/listings/<LISTING_ID>/messages \
 curl -sS -H "Authorization: Bearer <TOKEN>" http://localhost:3000/api/v1/listings/<LISTING_ID>/messages | jq '.'
 ```
 
-### Swagger / OpenAPI
-```bash
-# Open Swagger UI in your browser: http://localhost:3000/api-docs
-# Fetch raw JSON
-curl -sS http://localhost:3000/api-docs/v1/swagger.json | jq '.'
-# Fetch YAML
-curl -sS http://localhost:3000/api-docs/v1/swagger.yaml
-```
-
 ## Frontend (React SPA)
 
 Basic Vite + React app lives in `frontend/` and proxies API calls to Rails (`/api`).
@@ -175,7 +170,7 @@ npm run dev  # http://localhost:5173
 The dev server proxies requests starting with `/api` to `http://localhost:3000` (see `frontend/vite.config.js`). Ensure Rails container is running.
 
 ### CORS
-Configured via `config/initializers/cors.rb`. To override allowed origins:
+Configured via `config/initializers/cors.rb` (ensure this file exists if you added rack-cors).
 ```bash
 ALLOWED_ORIGINS=http://localhost:5173 docker compose up -d
 ```
