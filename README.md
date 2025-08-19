@@ -154,4 +154,35 @@ curl -sS http://localhost:3000/api-docs/v1/swagger.json | jq '.'
 curl -sS http://localhost:3000/api-docs/v1/swagger.yaml
 ```
 
+## Frontend (React SPA)
+
+Basic Vite + React app lives in `frontend/` and proxies API calls to Rails (`/api`).
+
+### Setup & run (development)
+```bash
+cd frontend
+npm install
+npm run dev  # http://localhost:5173
+```
+
+The dev server proxies requests starting with `/api` to `http://localhost:3000` (see `frontend/vite.config.js`). Ensure Rails container is running.
+
+### CORS
+Configured via `config/initializers/cors.rb`. To override allowed origins:
+```bash
+ALLOWED_ORIGINS=http://localhost:5173 docker compose up -d
+```
+
+### Build production bundle
+```bash
+cd frontend
+npm run build
+# Output: frontend/dist
+```
+You can serve the contents of `frontend/dist` via a static host (e.g., Nginx) or copy into `public/`.
+
+### Listing component
+`ListingList.jsx` fetches from `/api/v1/listings` and renders simple cards. Provide a JWT in the input to test authenticated calls (not required for public listing index).
+
+
 
