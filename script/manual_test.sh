@@ -163,9 +163,15 @@ if [ -n "$temp_listing_id" ]; then
 fi
 
 # 4) Hirer creates booking (happy)
+booking_start=$(date -v+30d '+%Y-%m-%d')
+booking_end=$(date -v+34d '+%Y-%m-%d')
+booking_start2=$(date -v+40d '+%Y-%m-%d')
+booking_end2=$(date -v+45d '+%Y-%m-%d')
+booking_start3=$(date -v+50d '+%Y-%m-%d')
+booking_end3=$(date -v+55d '+%Y-%m-%d')
 echo
 echo "Hirer creates booking (happy path)..."
-create_booking_response=$(req_post_json "$BASE_URL/api/v1/listings/$listing_id/bookings" '{"booking":{"start_date":"2025-09-10","end_date":"2025-09-14"}}' -H "Authorization: $hirer_auth")
+create_booking_response=$(req_post_json "$BASE_URL/api/v1/listings/$listing_id/bookings" "{\"booking\":{\"start_date\":\"$booking_start\",\"end_date\":\"$booking_end\"}}" -H "Authorization: $hirer_auth")
 booking_body=$(echo "$create_booking_response" | sed -n '1p')
 booking_code=$(echo "$create_booking_response" | sed -n '2p')
 assert_status 201 "$booking_code" "Hirer booking create"
@@ -179,14 +185,14 @@ fi
 # 5) Owner attempts to create booking (should be forbidden 403)
 echo
 echo "Owner attempts to book own listing (should be 403)..."
-owner_book_response=$(req_post_json "$BASE_URL/api/v1/listings/$listing_id/bookings" '{"booking":{"start_date":"2025-09-20","end_date":"2025-09-25"}}' -H "Authorization: $owner_auth")
+owner_book_response=$(req_post_json "$BASE_URL/api/v1/listings/$listing_id/bookings" "{\"booking\":{\"start_date\":\"$booking_start2\",\"end_date\":\"$booking_end2\"}}" -H "Authorization: $owner_auth")
 owner_book_code=$(echo "$owner_book_response" | sed -n '2p')
 assert_status 403 "$owner_book_code" "Owner booking own listing forbidden"
 
 # 6) Unauthenticated booking attempt (should be 401)
 echo
 echo "Unauthenticated booking attempt (should be 401)..."
-unauth_book_response=$(req_post_json "$BASE_URL/api/v1/listings/$listing_id/bookings" '{"booking":{"start_date":"2025-10-01","end_date":"2025-10-05"}}')
+unauth_book_response=$(req_post_json "$BASE_URL/api/v1/listings/$listing_id/bookings" "{\"booking\":{\"start_date\":\"$booking_start3\",\"end_date\":\"$booking_end3\"}}")
 unauth_book_code=$(echo "$unauth_book_response" | sed -n '2p')
 assert_status 401 "$unauth_book_code" "Unauthenticated booking forbidden"
 
