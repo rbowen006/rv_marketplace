@@ -7,7 +7,7 @@ class User < ApplicationRecord
 
   # Associations for marketplace roles
   # A user can be an owner (has many listings) and/or a hirer (creates bookings/messages)
-  has_many :rv_listings, dependent: :destroy
+  has_many :rv_listings, foreign_key: :owner_id, dependent: :destroy
   has_many :bookings, dependent: :destroy
   has_many :messages, dependent: :destroy
 

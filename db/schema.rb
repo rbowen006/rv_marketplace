@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_19_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_18_041622) do
   create_table "bookings", force: :cascade do |t|
     t.date "start_date"
     t.date "end_date"
@@ -38,10 +38,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_130000) do
     t.text "description"
     t.string "location"
     t.decimal "price_per_day"
-    t.integer "user_id", null: false
+    t.integer "owner_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_rv_listings_on_user_id"
+    t.index ["owner_id"], name: "index_rv_listings_on_owner_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -61,5 +61,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_19_130000) do
   add_foreign_key "bookings", "users"
   add_foreign_key "messages", "rv_listings"
   add_foreign_key "messages", "users"
-  add_foreign_key "rv_listings", "users"
+  add_foreign_key "rv_listings", "users", column: "owner_id"
 end

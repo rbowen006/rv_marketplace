@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Booking, type: :model do
   let(:owner) { create(:user) }
   let(:hirer) { create(:user) }
-  let(:listing) { create(:rv_listing, user: owner) }
+  let(:listing) { create(:rv_listing, owner: owner) }
 
   it 'rejects overlapping bookings' do
     create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 5, end_date: Date.today + 7, status: 'pending')

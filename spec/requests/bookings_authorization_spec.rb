@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Bookings authorization', type: :request do
   let(:owner) { create(:user) }
   let(:hirer) { create(:user) }
-  let!(:listing) { create(:rv_listing, user: owner) }
+  let!(:listing) { create(:rv_listing, owner: owner) }
 
   describe 'POST /api/v1/listings/:listing_id/bookings' do
     let(:params) { { booking: { start_date: Date.today + 1, end_date: Date.today + 3 } } }

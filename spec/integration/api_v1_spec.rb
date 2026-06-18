@@ -61,7 +61,7 @@ RSpec.describe 'API V1', type: :request do
       parameter name: :id, in: :path, type: :integer
 
       response '200', 'listing found' do
-        let(:id) { RvListing.create(title: 't', description: 'd', location: 'l', price_per_day: 10, user_id: User.first&.id || User.create!(email: 'lister@example.com', password: 'password', name: 'Lister').id).id }
+        let(:id) { RvListing.create(title: 't', description: 'd', location: 'l', price_per_day: 10, owner_id: User.first&.id || User.create!(email: 'lister@example.com', password: 'password', name: 'Lister').id).id }
         run_test!
       end
 
@@ -94,7 +94,7 @@ RSpec.describe 'API V1', type: :request do
 
       response '200', 'listing updated' do
         let(:owner) { create(:user) }
-        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:listing_record) { create(:rv_listing, owner: owner) }
         let(:id) { listing_record.id }
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
         let(:listing) { { listing: { title: 'Updated Title' } } }
@@ -104,7 +104,7 @@ RSpec.describe 'API V1', type: :request do
       response '403', 'forbidden (non-owner)' do
         let(:owner) { create(:user) }
         let(:other) { create(:user) }
-        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:listing_record) { create(:rv_listing, owner: owner) }
         let(:id) { listing_record.id }
         let(:Authorization) { "Bearer #{jwt_for(other)}" }
         let(:listing) { { listing: { title: 'Hack' } } }
@@ -112,7 +112,7 @@ RSpec.describe 'API V1', type: :request do
       end
 
       response '401', 'unauthorized (no token)' do
-        let(:listing_record) { create(:rv_listing, user: create(:user)) }
+        let(:listing_record) { create(:rv_listing, owner: create(:user)) }
         let(:id) { listing_record.id }
         let(:Authorization) { nil }
         let(:listing) { { listing: { title: 'New' } } }
@@ -127,7 +127,7 @@ RSpec.describe 'API V1', type: :request do
 
       response '204', 'listing deleted' do
         let(:owner) { create(:user) }
-        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:listing_record) { create(:rv_listing, owner: owner) }
         let(:id) { listing_record.id }
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
         run_test!
@@ -136,14 +136,14 @@ RSpec.describe 'API V1', type: :request do
       response '403', 'forbidden (non-owner)' do
         let(:owner) { create(:user) }
         let(:other) { create(:user) }
-        let(:listing_record) { create(:rv_listing, user: owner) }
+        let(:listing_record) { create(:rv_listing, owner: owner) }
         let(:id) { listing_record.id }
         let(:Authorization) { "Bearer #{jwt_for(other)}" }
         run_test!
       end
 
       response '401', 'unauthorized (no token)' do
-        let(:listing_record) { create(:rv_listing, user: create(:user)) }
+        let(:listing_record) { create(:rv_listing, owner: create(:user)) }
         let(:id) { listing_record.id }
         let(:Authorization) { nil }
         run_test!
@@ -174,7 +174,7 @@ RSpec.describe 'API V1', type: :request do
 
       response '201', 'booking created' do
         let(:owner) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner, title: 'x') }
+        let(:listing) { create(:rv_listing, owner: owner, title: 'x') }
         let(:hirer) { create(:user) }
         let(:listing_id) { listing.id }
         let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
@@ -185,7 +185,7 @@ RSpec.describe 'API V1', type: :request do
       response '403', 'forbidden' do
         # Owner attempting to book their own listing should receive 403
         let(:owner) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner, title: 'owned') }
+        let(:listing) { create(:rv_listing, owner: owner, title: 'owned') }
         let(:listing_id) { listing.id }
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
         # rswag expects the body param to be defined even if not used
@@ -204,7 +204,7 @@ RSpec.describe 'API V1', type: :request do
       response '200', 'booking confirmed' do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner, title: 'y', price_per_day: 20) }
+        let(:listing) { create(:rv_listing, owner: owner, title: 'y', price_per_day: 20) }
         let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 2, end_date: Date.today + 3, status: 'pending') }
         let(:id) { booking.id }
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
@@ -214,7 +214,7 @@ RSpec.describe 'API V1', type: :request do
       response '403', 'forbidden (non-owner)' do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner) }
+        let(:listing) { create(:rv_listing, owner: owner) }
         let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
         let(:id) { booking.id }
         let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
@@ -224,7 +224,7 @@ RSpec.describe 'API V1', type: :request do
       response '401', 'unauthorized (no token)' do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner) }
+        let(:listing) { create(:rv_listing, owner: owner) }
         let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
         let(:id) { booking.id }
         let(:Authorization) { nil }
@@ -255,7 +255,7 @@ RSpec.describe 'API V1', type: :request do
 
       response '201', 'message created' do
         let(:owner) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner, title: 'x') }
+        let(:listing) { create(:rv_listing, owner: owner, title: 'x') }
         let(:hirer) { create(:user) }
         let(:listing_id) { listing.id }
         let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
@@ -271,7 +271,7 @@ RSpec.describe 'API V1', type: :request do
 
       response '200', 'messages listed' do
         let(:owner) { create(:user) }
-        let(:listing) { create(:rv_listing, user: owner, title: 'x') }
+        let(:listing) { create(:rv_listing, owner: owner, title: 'x') }
         let(:listing_id) { listing.id }
         parameter name: 'Authorization', in: :header, type: :string
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }

@@ -4,6 +4,6 @@ FactoryBot.define do
     description { Faker::Lorem.sentence }
     location { Faker::Address.city }
     price_per_day { 100.0 }
-    association :user
+    association :owner, factory: :user
   end
 end

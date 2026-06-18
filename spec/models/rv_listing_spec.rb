@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe RvListing, type: :model do
-  it { should belong_to(:user) }
+  it { should belong_to(:owner) }
   it { should have_many(:bookings) }
   it { should have_many(:messages) }
 

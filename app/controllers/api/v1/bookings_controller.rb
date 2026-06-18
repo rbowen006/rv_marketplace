@@ -7,14 +7,14 @@ module Api
       def index
         # Bookings where user is hirer OR owner of the listing
         @bookings = Booking.joins(:rv_listing)
-                           .where('bookings.user_id = ? OR rv_listings.user_id = ?', current_user.id, current_user.id)
+                           .where('bookings.user_id = ? OR rv_listings.owner_id = ?', current_user.id, current_user.id)
         render json: @bookings
       end
 
       # POST /api/v1/listings/:listing_id/bookings
       def create
         @listing = RvListing.find(params[:listing_id])
-        if @listing.user_id == current_user.id
+        if @listing.owner_id == current_user.id
           return render json: { error: 'Owners cannot book their own listing' }, status: :forbidden
         end
 
@@ -37,7 +37,7 @@ module Api
 
       # PATCH /api/v1/bookings/:id/confirm
       def confirm
-        unless @booking.rv_listing.user_id == current_user.id
+        unless @booking.rv_listing.owner_id == current_user.id
           return render json: { error: 'Only listing owner can confirm' }, status: :forbidden
         end
 
@@ -47,7 +47,7 @@ module Api
 
       # PATCH /api/v1/bookings/:id/reject
       def reject
-        unless @booking.rv_listing.user_id == current_user.id
+        unless @booking.rv_listing.owner_id == current_user.id
           return render json: { error: 'Only listing owner can reject' }, status: :forbidden
         end
 

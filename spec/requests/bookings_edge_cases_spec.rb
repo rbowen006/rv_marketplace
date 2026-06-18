@@ -4,7 +4,7 @@ RSpec.describe 'Bookings edge cases', type: :request do
   let(:owner) { create(:user) }
   let(:hirer1) { create(:user) }
   let(:hirer2) { create(:user) }
-  let!(:listing) { create(:rv_listing, user: owner) }
+  let!(:listing) { create(:rv_listing, owner: owner) }
 
   context 'concurrent booking attempts' do
     it 'prevents overlapping when two hirers try to book the same dates' do

@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Listings API', type: :request do
   let(:owner) { create(:user) }
   let(:other_user) { create(:user) }
-  let!(:listing) { create(:rv_listing, user: owner) }
+  let!(:listing) { create(:rv_listing, owner: owner) }
 
   describe 'GET /api/v1/listings' do
     it 'returns listings' do

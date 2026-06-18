@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Bookings API', type: :request do
   let(:owner) { create(:user) }
   let(:hirer) { create(:user) }
-  let!(:listing) { create(:rv_listing, user: owner) }
+  let!(:listing) { create(:rv_listing, owner: owner) }
 
   it 'prevents owner from creating booking on own listing' do
     post '/users/sign_in', params: { user: { email: owner.email, password: 'password' } }.to_json, headers: { 'Content-Type' => 'application/json' }

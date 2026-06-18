@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Messages API', type: :request do
   let(:owner) { create(:user) }
   let(:hirer) { create(:user) }
-  let!(:listing) { create(:rv_listing, user: owner) }
+  let!(:listing) { create(:rv_listing, owner: owner) }
 
   it 'allows authenticated users to post messages on a listing' do
     post '/users/sign_in', params: { user: { email: hirer.email, password: 'password' } }.to_json, headers: { 'Content-Type' => 'application/json' }

@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Listings authorization', type: :request do
   let(:owner) { create(:user) }
   let(:other_user) { create(:user) }
-  let!(:listing) { create(:rv_listing, user: owner) }
+  let!(:listing) { create(:rv_listing, owner: owner) }
 
   describe 'POST /api/v1/listings' do
     it 'rejects unauthenticated create' do
@@ -16,7 +16,7 @@ RSpec.describe 'Listings authorization', type: :request do
       post '/api/v1/listings', params: { listing: { title: 'X', description: 'D', location: 'L', price_per_day: 10 } }.to_json, headers: headers
       expect(response).to have_http_status(:created)
       body = JSON.parse(response.body)
-      expect(body['user_id']).to eq(owner.id)
+      expect(body['owner_id']).to eq(owner.id)
     end
   end
 
