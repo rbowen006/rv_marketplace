@@ -68,3 +68,9 @@ group :development, :test do
   gem 'rswag-ui', '2.16.0'
   gem 'rswag-specs', '2.16.0'
 end
+
+# Language Server Protocol
+group :development do
+  gem "ruby-lsp", "~> 0.26.9"
+  gem "ruby-lsp-rails", "~> 0.4.8"
+end
