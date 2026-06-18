@@ -10,17 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_18_041622) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_18_042842) do
   create_table "bookings", force: :cascade do |t|
     t.date "start_date"
     t.date "end_date"
     t.string "status", default: "pending", null: false
-    t.integer "user_id", null: false
+    t.integer "hirer_id", null: false
     t.integer "rv_listing_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["hirer_id"], name: "index_bookings_on_hirer_id"
     t.index ["rv_listing_id"], name: "index_bookings_on_rv_listing_id"
-    t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -58,7 +58,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_041622) do
   end
 
   add_foreign_key "bookings", "rv_listings"
-  add_foreign_key "bookings", "users"
+  add_foreign_key "bookings", "users", column: "hirer_id"
   add_foreign_key "messages", "rv_listings"
   add_foreign_key "messages", "users"
   add_foreign_key "rv_listings", "users", column: "owner_id"

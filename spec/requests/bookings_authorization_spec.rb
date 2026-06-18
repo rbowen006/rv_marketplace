@@ -27,7 +27,7 @@ RSpec.describe 'Bookings authorization', type: :request do
   end
 
   describe 'PATCH /api/v1/bookings/:id/confirm and reject' do
-    let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 3) }
+    let(:booking) { create(:booking, rv_listing: listing, hirer: hirer, start_date: Date.today + 1, end_date: Date.today + 3) }
 
     it 'forbids non-owner from confirming' do
       headers = auth_header_for(hirer)
@@ -44,7 +44,7 @@ RSpec.describe 'Bookings authorization', type: :request do
 
     it 'allows owner to reject' do
       # Create a fresh booking
-      b = create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 5, end_date: Date.today + 7)
+      b = create(:booking, rv_listing: listing, hirer: hirer, start_date: Date.today + 5, end_date: Date.today + 7)
       headers = auth_header_for(owner)
       patch "/api/v1/bookings/#{b.id}/reject", headers: headers
       expect(response).to have_http_status(:ok)

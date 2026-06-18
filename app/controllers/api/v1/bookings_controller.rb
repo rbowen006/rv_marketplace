@@ -7,7 +7,7 @@ module Api
       def index
         # Bookings where user is hirer OR owner of the listing
         @bookings = Booking.joins(:rv_listing)
-                           .where('bookings.user_id = ? OR rv_listings.owner_id = ?', current_user.id, current_user.id)
+                           .where('bookings.hirer_id = ? OR rv_listings.owner_id = ?', current_user.id, current_user.id)
         render json: @bookings
       end
 
@@ -24,7 +24,7 @@ module Api
           @listing.bookings.lock(true).to_a
 
           booking = @listing.bookings.build(booking_params)
-          booking.user = current_user
+          booking.hirer = current_user
           booking.status = 'pending'
 
           unless booking.save

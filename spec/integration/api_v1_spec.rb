@@ -205,7 +205,7 @@ RSpec.describe 'API V1', type: :request do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
         let(:listing) { create(:rv_listing, owner: owner, title: 'y', price_per_day: 20) }
-        let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 2, end_date: Date.today + 3, status: 'pending') }
+        let(:booking) { create(:booking, rv_listing: listing, hirer: hirer, start_date: Date.today + 2, end_date: Date.today + 3, status: 'pending') }
         let(:id) { booking.id }
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
         run_test!
@@ -215,7 +215,7 @@ RSpec.describe 'API V1', type: :request do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
         let(:listing) { create(:rv_listing, owner: owner) }
-        let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
+        let(:booking) { create(:booking, rv_listing: listing, hirer: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
         let(:id) { booking.id }
         let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
         run_test!
@@ -225,7 +225,7 @@ RSpec.describe 'API V1', type: :request do
         let(:owner) { create(:user) }
         let(:hirer) { create(:user) }
         let(:listing) { create(:rv_listing, owner: owner) }
-        let(:booking) { create(:booking, rv_listing: listing, user: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
+        let(:booking) { create(:booking, rv_listing: listing, hirer: hirer, start_date: Date.today + 1, end_date: Date.today + 2, status: 'pending') }
         let(:id) { booking.id }
         let(:Authorization) { nil }
         run_test!

@@ -1,5 +1,5 @@
 class Booking < ApplicationRecord
-  belongs_to :user
+  belongs_to :hirer, class_name: 'User'
   belongs_to :rv_listing
 
   STATUSES = %w[pending confirmed rejected cancelled].freeze
@@ -32,6 +32,6 @@ class Booking < ApplicationRecord
   public
 
   def as_json(options = {})
-    super({ only: [:id, :start_date, :end_date, :status, :user_id, :rv_listing_id] }.merge(options))
+    super({ only: [:id, :start_date, :end_date, :status, :hirer_id, :rv_listing_id] }.merge(options))
   end
 end
