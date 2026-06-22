@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :listings do
+        resources :images, only: [:create, :destroy]
         resources :bookings, only: [:create]
         resources :messages, only: [:index, :create]
       end
