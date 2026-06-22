@@ -1,6 +1,6 @@
 export function SearchBar({ filters, onChange, onSearch }) {
   return (
-    <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
+    <div className="sticky top-[73px] z-10 bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
       <div className="max-w-4xl mx-auto flex items-center rounded-full border border-gray-300 shadow-sm divide-x divide-gray-300 bg-white">
         <div className="flex-1 px-5 py-3">
           <label className="block text-xs font-semibold text-gray-700">Where</label>
