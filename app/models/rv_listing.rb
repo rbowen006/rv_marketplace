@@ -3,7 +3,7 @@ class RvListing < ApplicationRecord
 
   belongs_to :owner, class_name: 'User'
   has_many :bookings, dependent: :destroy
-  has_many :messages, dependent: :destroy
+  has_many :chats, dependent: :destroy
   has_many_attached :images
 
   validates :title, :description, :location, :price_per_day, presence: true

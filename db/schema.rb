@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_18_110536) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_22_103032) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,13 +51,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_110536) do
     t.index ["rv_listing_id"], name: "index_bookings_on_rv_listing_id"
   end
 
+  create_table "chats", force: :cascade do |t|
+    t.integer "hirer_id", null: false
+    t.integer "owner_id", null: false
+    t.integer "rv_listing_id"
+    t.integer "booking_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_chats_on_booking_id"
+    t.index ["hirer_id"], name: "index_chats_on_hirer_id"
+    t.index ["owner_id"], name: "index_chats_on_owner_id"
+    t.index ["rv_listing_id"], name: "index_chats_on_rv_listing_id"
+  end
+
   create_table "messages", force: :cascade do |t|
     t.text "content"
     t.integer "user_id", null: false
-    t.integer "rv_listing_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["rv_listing_id"], name: "index_messages_on_rv_listing_id"
+    t.integer "chat_id", null: false
+    t.datetime "read_at"
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
@@ -89,7 +103,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_110536) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bookings", "rv_listings"
   add_foreign_key "bookings", "users", column: "hirer_id"
-  add_foreign_key "messages", "rv_listings"
+  add_foreign_key "chats", "bookings"
+  add_foreign_key "chats", "rv_listings"
+  add_foreign_key "chats", "users", column: "hirer_id"
+  add_foreign_key "chats", "users", column: "owner_id"
+  add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
   add_foreign_key "rv_listings", "users", column: "owner_id"
 end

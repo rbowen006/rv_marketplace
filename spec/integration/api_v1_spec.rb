@@ -233,9 +233,9 @@ RSpec.describe 'API V1', type: :request do
     end
   end
 
-  path '/api/v1/listings/{listing_id}/messages' do
-    post 'Create message' do
-      tags 'Messages'
+  path '/api/v1/listings/{listing_id}/chats' do
+    post 'Start or resume a chat about a listing' do
+      tags 'Chats'
       consumes 'application/json'
       parameter name: :listing_id, in: :path, type: :integer
       parameter name: :message, in: :body, schema: {
@@ -243,38 +243,67 @@ RSpec.describe 'API V1', type: :request do
         properties: {
           message: {
             type: :object,
-            properties: {
-              content: { type: :string }
-            },
+            properties: { content: { type: :string } },
             required: ['content']
           }
         }
       }
-
       parameter name: 'Authorization', in: :header, type: :string
 
-      response '201', 'message created' do
+      response '201', 'chat created' do
         let(:owner) { create(:user) }
         let(:listing) { create(:rv_listing, owner: owner, title: 'x') }
         let(:hirer) { create(:user) }
         let(:listing_id) { listing.id }
         let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
-        let(:message) { { message: { content: 'hi' } } }
+        let(:message) { { message: { content: 'Is this available?' } } }
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v1/chats/{chat_id}/messages' do
+    get 'List messages in a chat' do
+      tags 'Messages'
+      produces 'application/json'
+      parameter name: :chat_id, in: :path, type: :integer
+      parameter name: 'Authorization', in: :header, type: :string
+
+      response '200', 'messages listed' do
+        let(:owner) { create(:user) }
+        let(:hirer) { create(:user) }
+        let(:listing) { create(:rv_listing, owner: owner) }
+        let(:chat) { create(:chat, hirer: hirer, owner: owner, rv_listing: listing) }
+        let(:chat_id) { chat.id }
+        let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
         run_test!
       end
     end
 
-    get 'List messages' do
+    post 'Send a message in a chat' do
       tags 'Messages'
-      produces 'application/json'
-      parameter name: :listing_id, in: :path, type: :integer
+      consumes 'application/json'
+      parameter name: :chat_id, in: :path, type: :integer
+      parameter name: :message, in: :body, schema: {
+        type: :object,
+        properties: {
+          message: {
+            type: :object,
+            properties: { content: { type: :string } },
+            required: ['content']
+          }
+        }
+      }
+      parameter name: 'Authorization', in: :header, type: :string
 
-      response '200', 'messages listed' do
+      response '201', 'message created' do
         let(:owner) { create(:user) }
-        let(:listing) { create(:rv_listing, owner: owner, title: 'x') }
-        let(:listing_id) { listing.id }
-        parameter name: 'Authorization', in: :header, type: :string
-        let(:Authorization) { "Bearer #{jwt_for(owner)}" }
+        let(:hirer) { create(:user) }
+        let(:listing) { create(:rv_listing, owner: owner) }
+        let(:chat) { create(:chat, hirer: hirer, owner: owner, rv_listing: listing) }
+        let(:chat_id) { chat.id }
+        let(:Authorization) { "Bearer #{jwt_for(hirer)}" }
+        let(:message) { { message: { content: 'Any discount?' } } }
         run_test!
       end
     end
