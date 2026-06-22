@@ -29,9 +29,13 @@ A hire period (start date to end date) requested by a Hirer for a specific Listi
 _Avoid_: Reservation, order, hire request
 
 **Chat**:
-A conversation thread between a Hirer and an Owner. Initiated by the Hirer; the Owner may only respond after first contact (preventing unsolicited outreach). Not bound to a single Listing — topics may shift across an Owner's Listings. May result in a Booking.
+A conversation thread between a Hirer and an Owner. One unbooked Chat may exist per hirer-owner pair at a time — it persists like a phone thread and is reused for future contact with the same Owner. Has a subject (the RV the Hirer is currently enquiring about, changeable pre-booking). When a Booking is made, the Chat is linked to that Booking and is no longer the active thread; new contact starts a fresh Chat. Initiated by the Hirer; the Owner may only respond after first contact.
 _Avoid_: Thread, conversation, enquiry, messaging
 
+**Chat subject**:
+The RV a Chat is currently about, stored as `rv_listing_id` on Chat. Set when the Chat is created (from the Listing page the Hirer contacted the Owner from). Can be updated if the Hirer switches enquiry to a different RV. Superseded (but retained) once a Booking is made.
+_Avoid_: Topic, listing reference
+
 **Message**:
-An individual message within a Chat.
+An individual message within a Chat. Records which User sent it, the content, and a nullable `read_at` timestamp for unread tracking.
 _Avoid_: Post, reply, comment
