@@ -4,6 +4,7 @@ RSpec.describe User, type: :model do
   it { should have_many(:rv_listings) }
   it { should have_many(:bookings) }
   it { should have_many(:messages) }
+  it { should have_one_attached(:avatar) }
 
   it 'validates presence of name and email' do
     user = User.new

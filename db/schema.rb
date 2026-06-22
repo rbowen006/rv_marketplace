@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_22_103032) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_22_114009) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -83,6 +83,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_22_103032) do
     t.integer "owner_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "max_guests", default: 1, null: false
+    t.boolean "pet_friendly", default: false, null: false
+    t.float "latitude"
+    t.float "longitude"
     t.index ["owner_id"], name: "index_rv_listings_on_owner_id"
   end
 

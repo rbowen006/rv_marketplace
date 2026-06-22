@@ -39,3 +39,15 @@ _Avoid_: Topic, listing reference
 **Message**:
 An individual message within a Chat. Records which User sent it, the content, and a nullable `read_at` timestamp for unread tracking.
 _Avoid_: Post, reply, comment
+
+**Max guests**:
+The maximum number of people a Listing can accommodate. An attribute of a Listing, used by Hirers to filter search results.
+_Avoid_: Capacity, occupancy, sleeps
+
+**Pet friendly**:
+A boolean attribute of a Listing indicating whether pets are permitted. Displayed as an icon on Listing cards.
+_Avoid_: Pets allowed, animals welcome
+
+**Distance from search location**:
+The kilometres between a Listing's stored location (the Owner's location where the RV is kept) and the Hirer's desired destination. Used to sort and display search results. Indicates how far the Owner must drive/tow the RV to the destination, or how far the Hirer must travel to collect it. Calculated from geocoded coordinates; lat/lng stored on Listing.
+_Avoid_: Distance to destination, proximity

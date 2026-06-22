@@ -10,7 +10,7 @@ class User < ApplicationRecord
   has_many :rv_listings, foreign_key: :owner_id, dependent: :destroy
   has_many :bookings, foreign_key: :hirer_id, dependent: :destroy
   has_many :messages, dependent: :destroy
+  has_one_attached :avatar
 
-  # Attributes: name and email (email handled by Devise). Ensure presence of name.
   validates :name, presence: true
 end
