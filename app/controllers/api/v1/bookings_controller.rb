@@ -5,10 +5,11 @@ module Api
 
       # GET /api/v1/bookings
       def index
-        # Bookings where user is hirer OR owner of the listing
         @bookings = Booking.joins(:rv_listing)
+                           .includes(:hirer, rv_listing: :owner)
                            .where('bookings.hirer_id = ? OR rv_listings.owner_id = ?', current_user.id, current_user.id)
-        render json: @bookings
+                           .order(created_at: :desc)
+        render json: @bookings.map { |b| b.as_json(include_participants: true) }
       end
 
       # POST /api/v1/listings/:listing_id/bookings

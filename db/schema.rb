@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_22_114009) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_23_050702) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -58,8 +58,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_22_114009) do
     t.integer "booking_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "last_message_at"
+    t.text "last_message_content"
+    t.datetime "hirer_last_read_at"
+    t.datetime "owner_last_read_at"
     t.index ["booking_id"], name: "index_chats_on_booking_id"
+    t.index ["hirer_id", "last_message_at"], name: "index_chats_on_hirer_id_and_last_message_at"
     t.index ["hirer_id"], name: "index_chats_on_hirer_id"
+    t.index ["owner_id", "last_message_at"], name: "index_chats_on_owner_id_and_last_message_at"
     t.index ["owner_id"], name: "index_chats_on_owner_id"
     t.index ["rv_listing_id"], name: "index_chats_on_rv_listing_id"
   end

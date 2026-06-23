@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-export function SignInModal({ onClose }) {
+export function SignInModal({ onClose, onSuccess }) {
   const { signIn, signUp } = useAuth();
   const [tab, setTab] = useState('signin');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -20,7 +20,7 @@ export function SignInModal({ onClose }) {
       } else {
         await signUp(form.name, form.email, form.password);
       }
-      onClose();
+      (onSuccess ?? onClose)();
     } catch (err) {
       setError(err.message);
     } finally {

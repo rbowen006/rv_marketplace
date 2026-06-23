@@ -10,6 +10,7 @@ class RvListing < ApplicationRecord
 
   def as_json(options = {})
     super({ only: [ :id, :title, :description, :location, :price_per_day, :owner_id, :max_guests, :pet_friendly, :latitude, :longitude ] }.merge(options)).merge(
+      "owner" => { "id" => owner_id, "name" => owner.name },
       "images" => images.attachments.map { |a| { id: a.id, url: rails_blob_path(a.blob, only_path: true) } }
     )
   end

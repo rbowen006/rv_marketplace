@@ -10,6 +10,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true
+      },
+      '/users': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
       }
     }
   }

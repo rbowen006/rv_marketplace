@@ -13,9 +13,17 @@ class Chat < ApplicationRecord
       new(hirer: hirer, owner: owner)
   end
 
-  def as_json(include_messages: false, **options)
-    base = super({ only: [:id, :hirer_id, :owner_id, :rv_listing_id, :booking_id] }.merge(options))
+  def as_json(include_messages: false, include_participants: false, **options)
+    base = super({
+      only: [:id, :hirer_id, :owner_id, :rv_listing_id, :booking_id,
+             :last_message_at, :last_message_content, :hirer_last_read_at, :owner_last_read_at]
+    }.merge(options))
     base['messages'] = messages.order(:created_at).as_json if include_messages
+    if include_participants
+      base['hirer'] = { id: hirer.id, name: hirer.name }
+      base['owner'] = { id: owner.id, name: owner.name }
+      base['listing_title'] = rv_listing&.title
+    end
     base
   end
 

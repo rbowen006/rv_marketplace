@@ -37,8 +37,16 @@ The RV a Chat is currently about, stored as `rv_listing_id` on Chat. Set when th
 _Avoid_: Topic, listing reference
 
 **Message**:
-An individual message within a Chat. Records which User sent it, the content, and a nullable `read_at` timestamp for unread tracking.
+An individual message within a Chat. Records which User sent it and the content.
 _Avoid_: Post, reply, comment
+
+**Unread message**:
+A Message that has not yet been seen by its recipient. Used to highlight Chats in the Inbox and to display read receipts within the Chat thread.
+_Avoid_: New message, unseen message
+
+**Inbox**:
+The view where a User sees all their Chats, split by role — Chats where they are the Hirer, and Chats where they are the Owner. Both roles are always shown, even if one has no Chats.
+_Avoid_: Messages page, chat list, message centre
 
 **Max guests**:
 The maximum number of people a Listing can accommodate. An attribute of a Listing, used by Hirers to filter search results.

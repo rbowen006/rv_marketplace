@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
     }
     const jwt = res.headers.get('Authorization')?.split(' ').at(-1);
     const body = await res.json();
-    const userData = { name: body.data?.name ?? email, email };
+    const userData = { id: body.user?.id, name: body.user?.name ?? email, email };
     setToken(jwt);
     setUser(userData);
     localStorage.setItem('rv_token', jwt);
@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
       throw new Error(body.errors?.[0] ?? 'Registration failed');
     }
     const jwt = res.headers.get('Authorization')?.split(' ').at(-1);
-    const userData = { name, email };
+    const userData = { id: body.user?.id, name, email };
     setToken(jwt);
     setUser(userData);
     localStorage.setItem('rv_token', jwt);

@@ -31,7 +31,13 @@ class Booking < ApplicationRecord
   end
   public
 
-  def as_json(options = {})
-    super({ only: [:id, :start_date, :end_date, :status, :hirer_id, :rv_listing_id] }.merge(options))
+  def as_json(include_participants: false, **options)
+    base = super({ only: [:id, :start_date, :end_date, :status, :hirer_id, :rv_listing_id] }.merge(options))
+    if include_participants
+      base['hirer'] = { id: hirer.id, name: hirer.name }
+      base['owner'] = { id: rv_listing.owner.id, name: rv_listing.owner.name }
+      base['listing_title'] = rv_listing.title
+    end
+    base
   end
 end

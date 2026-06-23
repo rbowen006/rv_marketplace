@@ -54,6 +54,32 @@ RSpec.describe 'Chats API', type: :request do
     end
   end
 
+  describe 'GET /api/v1/chats' do
+    let!(:chat_as_hirer) { create(:chat, hirer: hirer, owner: owner, rv_listing: listing) }
+    let!(:chat_as_owner) { create(:chat, hirer: create(:user), owner: owner, rv_listing: listing) }
+    let!(:msg) { create(:message, chat: chat_as_hirer, user: hirer, content: 'Latest message') }
+
+    it 'returns chats split into as_hirer and as_owner with inbox fields' do
+      get '/api/v1/chats', headers: { 'Authorization' => "Bearer #{hirer_token}" }
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body['as_hirer'].map { |c| c['id'] }).to include(chat_as_hirer.id)
+      expect(body['as_owner']).to be_empty
+
+      chat_row = body['as_hirer'].find { |c| c['id'] == chat_as_hirer.id }
+      expect(chat_row['last_message_content']).to eq('Latest message')
+      expect(chat_row['last_message_at']).to be_present
+      expect(chat_row).to have_key('hirer_last_read_at')
+      expect(chat_row).to have_key('owner_last_read_at')
+    end
+
+    it 'blocks unauthenticated requests' do
+      get '/api/v1/chats'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   describe 'POST /api/v1/chats/:id/messages' do
     let!(:chat) { create(:chat, hirer: hirer, owner: owner, rv_listing: listing) }
 
@@ -87,6 +113,22 @@ RSpec.describe 'Chats API', type: :request do
 
       expect(response).to have_http_status(:forbidden)
     end
+
+    it 'blocks unauthenticated requests' do
+      post "/api/v1/chats/#{chat.id}/messages",
+           params: { message: { content: 'Hello' } }.to_json,
+           headers: { 'Content-Type' => 'application/json' }
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'GET /api/v1/chats/:id' do
+    let!(:chat) { create(:chat, hirer: hirer, owner: owner, rv_listing: listing) }
+
+    it 'blocks unauthenticated requests' do
+      get "/api/v1/chats/#{chat.id}"
+      expect(response).to have_http_status(:unauthorized)
+    end
   end
 
   describe 'GET /api/v1/chats/:id/messages' do
@@ -106,6 +148,17 @@ RSpec.describe 'Chats API', type: :request do
           headers: { 'Authorization' => "Bearer #{owner_token}" }
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'marks the other participant\'s messages as read and updates chat read timestamp' do
+      owner_msg = create(:message, chat: chat, user: owner, content: 'Hi from owner')
+      expect(owner_msg.read_at).to be_nil
+
+      get "/api/v1/chats/#{chat.id}/messages",
+          headers: { 'Authorization' => "Bearer #{hirer_token}" }
+
+      expect(owner_msg.reload.read_at).to be_present
+      expect(chat.reload.hirer_last_read_at).to be_present
     end
 
     it 'blocks unauthenticated requests' do
