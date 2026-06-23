@@ -76,4 +76,5 @@ end
 group :development do
   gem "ruby-lsp", "~> 0.26.9"
   gem "ruby-lsp-rails", "~> 0.4.8"
+  gem "letter_opener"
 end

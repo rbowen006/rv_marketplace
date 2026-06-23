@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { SearchBar } from '../components/SearchBar';
 import { ListingGrid } from '../components/ListingGrid';
+import { SignInModal } from '../components/SignInModal';
 
 export function BrowsePage() {
   const [allListings, setAllListings] = useState([]);
@@ -8,6 +10,8 @@ export function BrowsePage() {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({ location: '', checkIn: '', checkOut: '', guests: '' });
   const [searched, setSearched] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showSignIn, setShowSignIn] = useState(searchParams.get('reset') === '1');
 
   useEffect(() => {
     fetch('/api/v1/listings')
@@ -27,6 +31,11 @@ export function BrowsePage() {
       })
     : allListings;
 
+  function closeSignIn() {
+    setShowSignIn(false);
+    setSearchParams({});
+  }
+
   return (
     <div>
       <SearchBar
@@ -37,6 +46,7 @@ export function BrowsePage() {
       <main className="max-w-screen-xl mx-auto">
         <ListingGrid listings={visibleListings} loading={loading} error={error} />
       </main>
+      {showSignIn && <SignInModal onClose={closeSignIn} />}
     </div>
   );
 }
