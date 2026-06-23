@@ -8,6 +8,16 @@ class Chat < ApplicationRecord
 
   validate :one_unbooked_chat_per_hirer_owner_pair
 
+  def self.resync_inbox_fields!
+    latest = Message.select('chat_id, content, MAX(created_at) AS max_at').group(:chat_id)
+    latest.each do |row|
+      where(id: row.chat_id).update_all(
+        last_message_at: row.max_at,
+        last_message_content: row.content
+      )
+    end
+  end
+
   def self.find_or_initialize_unbooked(hirer, owner)
     find_by(hirer_id: hirer.id, owner_id: owner.id, booking_id: nil) ||
       new(hirer: hirer, owner: owner)
