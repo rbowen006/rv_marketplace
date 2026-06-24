@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useUnreadCount } from '../context/UnreadContext';
 import { Link } from 'react-router-dom';
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
+  const unreadCount = useUnreadCount();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -45,9 +47,14 @@ export function UserMenu() {
           <Link
             to="/chats"
             onClick={() => setOpen(false)}
-            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline"
+            className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline"
           >
             Messages
+            {unreadCount > 0 && (
+              <span className="bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-0.5 flex items-center justify-center leading-none">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Link>
           <Link
             to="/listings/new"

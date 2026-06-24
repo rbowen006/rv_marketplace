@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useUnreadCount } from '../context/UnreadContext';
 import { SignInModal } from './SignInModal';
 import { UserMenu } from './UserMenu';
 
 export function Header() {
   const { user } = useAuth();
+  const unreadCount = useUnreadCount();
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -22,6 +24,19 @@ export function Header() {
           >
             List your RV
           </Link>
+          {user && (
+            <Link to="/chats" className="relative text-gray-500 hover:text-gray-800 p-1">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-0.5 flex items-center justify-center leading-none">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
           {user ? (
             <UserMenu />
           ) : (
