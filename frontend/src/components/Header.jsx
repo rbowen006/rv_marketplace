@@ -13,9 +13,9 @@ export function Header() {
   return (
     <>
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
-        <Link to="/" className="flex items-center gap-2 text-rose-500 font-bold text-xl no-underline">
-          <span>🚐</span>
-          <span>RV Marketplace</span>
+        <Link to="/" className="flex items-center gap-2 no-underline">
+          <img src="/trekr.png" alt="Trekr" className="h-10 w-10" />
+          <span className="text-rose-500 font-bold text-xl">Trekr</span>
         </Link>
         <nav className="flex items-center gap-4">
           <Link
