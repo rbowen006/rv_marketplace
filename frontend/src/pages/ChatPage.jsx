@@ -58,7 +58,6 @@ export function ChatPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setChat(data);
-      setMessages(data.messages ?? []);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -70,9 +69,9 @@ export function ChatPage() {
     loadChat();
   }, [loadChat]);
 
-  // Poll for new messages every 5 seconds
+  // Fetch messages immediately on mount, then poll every 5 seconds to catch new messages
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const poll = async () => {
       try {
         const res = await fetch(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
         if (!res.ok) return;
@@ -81,7 +80,9 @@ export function ChatPage() {
       } catch {
         // silent — don't surface poll errors
       }
-    }, 5000);
+    };
+    poll();
+    const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
   }, [id, token]);
 
