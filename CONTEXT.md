@@ -1,4 +1,4 @@
-# RV Marketplace
+# Trekr
 
 A two-sided marketplace where Owners list recreational vehicles for hire and Hirers discover and book them.
 

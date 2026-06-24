@@ -9,7 +9,7 @@ RSpec.configure do |config|
     'v1/swagger.json' => {
       openapi: '3.0.1',
       info: {
-        title: 'RV Marketplace API V1',
+        title: 'Trekr API V1',
         version: 'v1'
       },
       paths: {}

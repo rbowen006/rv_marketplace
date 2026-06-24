@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot manual test script for RV Marketplace API
+# One-shot manual test script for Trekr API
 # Requires: bash, curl, jq
 # Usage: bash scripts/manual_test.sh
 
