@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useUnreadCount } from '../context/UnreadContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
   const unreadCount = useUnreadCount();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -65,7 +66,7 @@ export function UserMenu() {
           </Link>
           <div className="border-t border-gray-100 mt-1 pt-1">
             <button
-              onClick={() => { signOut(); setOpen(false); }}
+              onClick={() => { signOut(); setOpen(false); navigate('/'); }}
               className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
             >
               Sign out
