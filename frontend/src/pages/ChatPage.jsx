@@ -2,6 +2,41 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
+function formatTimestampLabel(date) {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterdayStart = new Date(todayStart - 24 * 60 * 60 * 1000);
+  const weekAgoStart = new Date(todayStart - 6 * 24 * 60 * 60 * 1000);
+  const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+  if (date >= todayStart) return `Today at ${timeStr}`;
+  if (date >= yesterdayStart) return `Yesterday at ${timeStr}`;
+  if (date >= weekAgoStart) return `${date.toLocaleDateString([], { weekday: 'long' })} at ${timeStr}`;
+
+  const dateStr = date.toLocaleDateString([], {
+    month: 'short',
+    day: 'numeric',
+    ...(date.getFullYear() !== now.getFullYear() ? { year: 'numeric' } : {}),
+  });
+  return `${dateStr} at ${timeStr}`;
+}
+
+function groupMessages(messages) {
+  const result = [];
+  let prevDate = null;
+  for (const msg of messages) {
+    const msgDate = new Date(msg.created_at);
+    if (prevDate === null || msgDate - prevDate >= ONE_HOUR_MS) {
+      result.push({ type: 'label', key: `label-${msg.id}`, text: formatTimestampLabel(msgDate) });
+    }
+    result.push({ type: 'message', ...msg });
+    prevDate = msgDate;
+  }
+  return result;
+}
+
 export function ChatPage() {
   const { id } = useParams();
   const { token, user } = useAuth();
@@ -103,10 +138,17 @@ export function ChatPage() {
         {messages.length === 0 && (
           <p className="text-center text-sm text-gray-400 py-8">No messages yet.</p>
         )}
-        {messages.map(msg => {
-          const mine = msg.user_id === user?.id;
+        {groupMessages(messages).map(item => {
+          if (item.type === 'label') {
+            return (
+              <div key={item.key} className="text-xs text-gray-400 text-center py-1 select-none">
+                {item.text}
+              </div>
+            );
+          }
+          const mine = item.user_id === user?.id;
           return (
-            <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+            <div key={item.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`max-w-xs lg:max-w-sm px-4 py-2 rounded-2xl text-sm leading-relaxed ${
                   mine
@@ -114,7 +156,7 @@ export function ChatPage() {
                     : 'bg-gray-100 text-gray-900 rounded-bl-sm'
                 }`}
               >
-                {msg.content}
+                {item.content}
               </div>
             </div>
           );
