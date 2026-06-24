@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useUnreadCount } from '../context/UnreadContext';
 import { SignInModal } from './SignInModal';
@@ -8,6 +8,7 @@ import { UserMenu } from './UserMenu';
 export function Header() {
   const { user } = useAuth();
   const unreadCount = useUnreadCount();
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -18,12 +19,12 @@ export function Header() {
           <span className="text-rose-500 font-bold text-xl">Trekr</span>
         </Link>
         <nav className="flex items-center gap-4">
-          <Link
-            to="/listings/new"
-            className="text-sm font-medium text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-full transition-colors no-underline"
+          <button
+            onClick={() => user ? navigate('/listings/new') : setShowModal(true)}
+            className="text-sm font-medium text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-full transition-colors"
           >
             List your RV
-          </Link>
+          </button>
           {user && (
             <Link to="/chats" className="relative text-gray-500 hover:text-gray-800 p-1">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

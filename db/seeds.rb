@@ -2,13 +2,13 @@ SEEDS_DIR = Rails.root.join('db', 'seeds', 'images')
 
 # Realistic Australian listing data to replace test placeholders
 TEST_LISTING_UPDATES = {
-  1  => { title: 'Sunshine Coast Surf Van',        location: 'Noosa Heads, QLD',    price_per_day: 149.00, max_guests: 2, pet_friendly: false },
-  2  => { title: 'Blue Mountains Escape',          location: 'Katoomba, NSW',        price_per_day: 175.00, max_guests: 4, pet_friendly: true  },
-  4  => { title: 'Byron Bay Retro Campervan',      location: 'Byron Bay, NSW',       price_per_day: 195.00, max_guests: 2, pet_friendly: true  },
-  6  => { title: 'Alpine Adventure Van',           location: 'Thredbo, NSW',         price_per_day: 185.00, max_guests: 3, pet_friendly: false },
-  8  => { title: 'Margaret River Weekend Retreat', location: 'Margaret River, WA',   price_per_day: 165.00, max_guests: 2, pet_friendly: true  },
-  10 => { title: 'Great Ocean Road Classic',       location: 'Lorne, VIC',           price_per_day: 210.00, max_guests: 2, pet_friendly: false },
-  12 => { title: 'Kakadu Family Motorhome',        location: 'Darwin, NT',           price_per_day: 220.00, max_guests: 6, pet_friendly: false },
+  1  => { title: 'Sunshine Coast Surf Van',        rv_type: :caravan,       town: 'Noosa Heads',    state: 'QLD', postcode: '4567', price_per_day: 149.00, max_guests: 2, pet_friendly: false },
+  2  => { title: 'Blue Mountains Escape',          rv_type: :caravan,       town: 'Katoomba',       state: 'NSW', postcode: '2780', price_per_day: 175.00, max_guests: 4, pet_friendly: true  },
+  4  => { title: 'Byron Bay Retro Campervan',      rv_type: :motorhome,     town: 'Byron Bay',      state: 'NSW', postcode: '2481', price_per_day: 195.00, max_guests: 2, pet_friendly: true  },
+  6  => { title: 'Alpine Adventure Van',           rv_type: :camper_trailer, town: 'Thredbo',       state: 'NSW', postcode: '2625', price_per_day: 185.00, max_guests: 3, pet_friendly: false },
+  8  => { title: 'Margaret River Weekend Retreat', rv_type: :caravan,       town: 'Margaret River', state: 'WA',  postcode: '6285', price_per_day: 165.00, max_guests: 2, pet_friendly: true  },
+  10 => { title: 'Great Ocean Road Classic',       rv_type: :motorhome,     town: 'Lorne',          state: 'VIC', postcode: '3232', price_per_day: 210.00, max_guests: 2, pet_friendly: false },
+  12 => { title: 'Kakadu Family Motorhome',        rv_type: :motorhome,     town: 'Darwin',         state: 'NT',  postcode: '0800', price_per_day: 220.00, max_guests: 6, pet_friendly: false },
 }.freeze
 
 IMAGE_ASSIGNMENTS = {

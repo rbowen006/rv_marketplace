@@ -77,7 +77,7 @@ export function ListingDetailPage() {
         </Link>
 
         <h1 className="text-2xl font-bold text-gray-900 mb-2">{listing.title}</h1>
-        <p className="text-gray-500 text-sm mb-6">{listing.location}</p>
+        <p className="text-gray-500 text-sm mb-6">{[listing.town, listing.state, listing.postcode].filter(Boolean).join(', ')}</p>
 
         {/* Image gallery */}
         <div className="mb-8">

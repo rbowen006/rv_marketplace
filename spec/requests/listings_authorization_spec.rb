@@ -6,14 +6,18 @@ RSpec.describe 'Listings authorization', type: :request do
   let!(:listing) { create(:rv_listing, owner: owner) }
 
   describe 'POST /api/v1/listings' do
+    let(:listing_params) do
+      { listing: { title: 'X', description: 'D', rv_type: 'caravan', town: 'Sydney', state: 'NSW', postcode: '2000', price_per_day: 10, max_guests: 2 } }
+    end
+
     it 'rejects unauthenticated create' do
-      post '/api/v1/listings', params: { listing: { title: 'X', description: 'D', location: 'L', price_per_day: 10 } }.to_json, headers: { 'Content-Type' => 'application/json' }
+      post '/api/v1/listings', params: listing_params.to_json, headers: { 'Content-Type' => 'application/json' }
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'allows authenticated user to create (becomes owner)' do
       headers = auth_header_for(owner)
-      post '/api/v1/listings', params: { listing: { title: 'X', description: 'D', location: 'L', price_per_day: 10 } }.to_json, headers: headers
+      post '/api/v1/listings', params: listing_params.to_json, headers: headers
       expect(response).to have_http_status(:created)
       body = JSON.parse(response.body)
       expect(body['owner_id']).to eq(owner.id)

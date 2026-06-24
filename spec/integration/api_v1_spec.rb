@@ -27,10 +27,13 @@ RSpec.describe 'API V1', type: :request do
             properties: {
               title: { type: :string },
               description: { type: :string },
-              location: { type: :string },
+              rv_type: { type: :string },
+              town: { type: :string },
+              state: { type: :string },
+              postcode: { type: :string },
               price_per_day: { type: :number }
             },
-            required: ['title','description','location','price_per_day']
+            required: ['title','description','rv_type','town','state','postcode','price_per_day','max_guests']
           }
         }
       }
@@ -40,7 +43,7 @@ RSpec.describe 'API V1', type: :request do
       response '201', 'listing created' do
         let(:user) { create(:user, name: 'Rswag') }
         let(:Authorization) { "Bearer #{jwt_for(user)}" }
-        let(:listing) { { listing: { title: 'X', description: 'D', location: 'L', price_per_day: 100 } } }
+        let(:listing) { { listing: { title: 'X', description: 'D', rv_type: 'caravan', town: 'Sydney', state: 'NSW', postcode: '2000', price_per_day: 100, max_guests: 2 } } }
         run_test!
       end
 
@@ -61,7 +64,7 @@ RSpec.describe 'API V1', type: :request do
       parameter name: :id, in: :path, type: :integer
 
       response '200', 'listing found' do
-        let(:id) { RvListing.create(title: 't', description: 'd', location: 'l', price_per_day: 10, owner_id: User.first&.id || User.create!(email: 'lister@example.com', password: 'password', name: 'Lister').id).id }
+        let(:id) { RvListing.create(title: 't', description: 'd', rv_type: :caravan, town: 'Sydney', state: 'NSW', postcode: '2000', price_per_day: 10, max_guests: 2, owner_id: User.first&.id || User.create!(email: 'lister@example.com', password: 'password', name: 'Lister').id).id }
         run_test!
       end
 
@@ -84,7 +87,10 @@ RSpec.describe 'API V1', type: :request do
             properties: {
               title: { type: :string },
               description: { type: :string },
-              location: { type: :string },
+              rv_type: { type: :string },
+              town: { type: :string },
+              state: { type: :string },
+              postcode: { type: :string },
               price_per_day: { type: :number }
             }
           }

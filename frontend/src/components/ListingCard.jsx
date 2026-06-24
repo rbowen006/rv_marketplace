@@ -28,7 +28,7 @@ export function ListingCard({ listing }) {
         </div>
 
         <p className="text-gray-500 text-sm mt-0.5">
-          {listing.location}
+          {[listing.town, listing.state].filter(Boolean).join(', ')}
         </p>
 
         <div className="flex items-center gap-1.5 mt-1">

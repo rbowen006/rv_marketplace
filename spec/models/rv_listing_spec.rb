@@ -7,7 +7,9 @@ RSpec.describe RvListing, type: :model do
 
   it { should validate_presence_of(:title) }
   it { should validate_presence_of(:description) }
-  it { should validate_presence_of(:location) }
+  it { should validate_presence_of(:town) }
+  it { should validate_presence_of(:state) }
+  it { should validate_presence_of(:postcode) }
   it { should validate_presence_of(:price_per_day) }
   it { should validate_presence_of(:max_guests) }
 

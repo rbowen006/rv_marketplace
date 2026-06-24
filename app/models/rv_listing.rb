@@ -6,10 +6,12 @@ class RvListing < ApplicationRecord
   has_many :chats, dependent: :destroy
   has_many_attached :images
 
-  validates :title, :description, :location, :price_per_day, :max_guests, presence: true
+  enum :rv_type, { caravan: 0, motorhome: 1, camper_trailer: 2 }
+
+  validates :title, :description, :rv_type, :town, :state, :postcode, :price_per_day, :max_guests, presence: true
 
   def as_json(options = {})
-    super({ only: [ :id, :title, :description, :location, :price_per_day, :owner_id, :max_guests, :pet_friendly, :latitude, :longitude ] }.merge(options)).merge(
+    super({ only: [ :id, :title, :description, :rv_type, :town, :state, :postcode, :price_per_day, :owner_id, :max_guests, :pet_friendly, :latitude, :longitude ] }.merge(options)).merge(
       "owner" => { "id" => owner_id, "name" => owner.name },
       "images" => images.attachments.map { |a| { id: a.id, url: rails_blob_path(a.blob, only_path: true) } }
     )

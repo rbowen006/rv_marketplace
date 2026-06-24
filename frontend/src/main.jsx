@@ -11,6 +11,7 @@ import { BookingsPage } from './pages/BookingsPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { InboxPage } from './pages/InboxPage';
+import { NewListingPage } from './pages/NewListingPage';
 import './index.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               <Route path="/bookings" element={<BookingsPage />} />
               <Route path="/chats" element={<InboxPage />} />
               <Route path="/chats/:id" element={<ChatPage />} />
+              <Route path="/listings/new" element={<NewListingPage />} />
             </Routes>
           </div>
         </UnreadProvider>

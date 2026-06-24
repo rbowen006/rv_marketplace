@@ -15,22 +15,37 @@ RSpec.describe 'Listings API', type: :request do
   end
 
   describe 'POST /api/v1/listings' do
-    let(:params) { { listing: { title: 'X', description: 'D', location: 'L', price_per_day: 123 } } }
+    let(:valid_params) do
+      { listing: { title: 'Cozy Caravan', description: 'A lovely caravan', rv_type: 'caravan',
+                   town: 'Byron Bay', state: 'NSW', postcode: '2481',
+                   price_per_day: 150, max_guests: 4 } }
+    end
 
     it 'requires auth' do
-      post '/api/v1/listings', params: params.to_json, headers: { 'Content-Type' => 'application/json' }
+      post '/api/v1/listings', params: valid_params.to_json, headers: { 'Content-Type' => 'application/json' }
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'allows owner to create listing' do
+    it 'owner can create a listing with rv_type, town, state and postcode' do
       post '/users/sign_in', params: { user: { email: owner.email, password: 'password' } }.to_json, headers: { 'Content-Type' => 'application/json' }
       token = response.headers['Authorization']&.split(' ')&.last
-      expect(token).to be_present
 
-      post '/api/v1/listings', params: params.to_json, headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{token}" }
+      post '/api/v1/listings', params: valid_params.to_json, headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{token}" }
       expect(response).to have_http_status(:created)
       body = JSON.parse(response.body)
-      expect(body['title']).to eq('X')
+      expect(body['title']).to eq('Cozy Caravan')
+      expect(body['rv_type']).to eq('caravan')
+      expect(body['town']).to eq('Byron Bay')
+      expect(body['state']).to eq('NSW')
+      expect(body['postcode']).to eq('2481')
+    end
+
+    it 'returns 422 when required fields are missing' do
+      post '/users/sign_in', params: { user: { email: owner.email, password: 'password' } }.to_json, headers: { 'Content-Type' => 'application/json' }
+      token = response.headers['Authorization']&.split(' ')&.last
+
+      post '/api/v1/listings', params: { listing: { title: 'X' } }.to_json, headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{token}" }
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 

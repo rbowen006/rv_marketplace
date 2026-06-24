@@ -23,8 +23,9 @@ export function BrowsePage() {
 
   const visibleListings = searched
     ? allListings.filter(l => {
+        const locationStr = [l.town, l.state, l.postcode].filter(Boolean).join(', ').toLowerCase();
         const matchesLocation = !filters.location ||
-          l.location?.toLowerCase().includes(filters.location.toLowerCase());
+          locationStr.includes(filters.location.toLowerCase());
         const matchesGuests = !filters.guests ||
           (l.max_guests != null && l.max_guests >= parseInt(filters.guests, 10));
         return matchesLocation && matchesGuests;

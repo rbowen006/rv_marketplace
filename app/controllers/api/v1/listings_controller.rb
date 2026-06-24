@@ -48,7 +48,7 @@ module Api
       end
 
       def listing_params
-        params.require(:listing).permit(:title, :description, :location, :price_per_day, :max_guests, :pet_friendly, :latitude, :longitude, images: [])
+        params.require(:listing).permit(:title, :description, :rv_type, :town, :state, :postcode, :price_per_day, :max_guests, :pet_friendly, :latitude, :longitude, images: [])
       end
     end
   end
