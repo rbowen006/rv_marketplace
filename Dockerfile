@@ -4,10 +4,9 @@ FROM ruby:3.3.11-slim
 RUN apt-get update -qq \
     && apt-get install -y --no-install-recommends \
         build-essential \
-        libsqlite3-dev \
         libyaml-dev \
         pkg-config \
-        sqlite3 \
+        libpq-dev \
         nodejs \
         git \
         curl \

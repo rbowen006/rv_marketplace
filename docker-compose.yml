@@ -11,7 +11,25 @@ services:
     environment:
       RAILS_ENV: development
       RAILS_LOG_TO_STDOUT: 'true'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
 
-# Optional: add a db service if you switch to Postgres in future
-# volumes:
-#   db_data: {}
+  db:
+    image: postgres:16-bookworm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rv_marketplace_development
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data: {}

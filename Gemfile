@@ -2,8 +2,8 @@ source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2", ">= 8.0.2.1"
-# Use sqlite3 as the database for Active Record
-gem "sqlite3", ">= 2.1"
+# Use PostgreSQL as the database for Active Record
+gem "pg", "~> 1.5"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
@@ -50,26 +50,26 @@ group :development, :test do
 end
 
 # Authentication
-gem 'devise'
-gem 'devise-jwt'
+gem "devise"
+gem "devise-jwt"
 
 # API testing and development
 group :development, :test do
-  gem 'rspec-rails'
-  gem 'factory_bot_rails'
-  gem 'faker'
-  gem 'shoulda-matchers'
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
+  gem "shoulda-matchers"
 end
 
 # Ensure bundler is available
-gem 'bundler'
+gem "bundler"
 
 # API documentation
 group :development, :test do
   # API documentation - pin to stable rswag 2.16.x to avoid using prerelease
-  gem 'rswag-api', '2.16.0'
-  gem 'rswag-ui', '2.16.0'
-  gem 'rswag-specs', '2.16.0'
+  gem "rswag-api", "2.16.0"
+  gem "rswag-ui", "2.16.0"
+  gem "rswag-specs", "2.16.0"
 end
 
 # Language Server Protocol
