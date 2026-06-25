@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useChats } from '../context/UnreadContext';
 
 function formatTimestamp(isoString) {
   if (!isoString) return '';
@@ -60,19 +61,14 @@ function ChatRow({ chat, role }) {
 }
 
 export function InboxPage() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [chats, setChats] = useState({ as_hirer: [], as_owner: [] });
-  const [loading, setLoading] = useState(true);
+  const { chats, initialized } = useChats();
   const [activeTab, setActiveTab] = useState('hirer');
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
-    fetch('/api/v1/chats', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
-      .then(setChats)
-      .finally(() => setLoading(false));
-  }, [user, token, navigate]);
+  }, [user, navigate]);
 
   const tabs = [
     { key: 'hirer', label: 'As Hirer', chats: chats.as_hirer },
@@ -102,7 +98,7 @@ export function InboxPage() {
         ))}
       </div>
 
-      {loading ? (
+      {!initialized ? (
         <p className="px-6 py-12 text-center text-sm text-gray-400">Loading…</p>
       ) : activeChats.length === 0 ? (
         <p className="px-6 py-12 text-center text-sm text-gray-400">Message inbox is empty</p>
