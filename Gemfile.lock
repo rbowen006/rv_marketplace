@@ -324,6 +324,8 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
+    redis-client (0.30.0)
+      connection_pool
     regexp_parser (2.12.0)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -399,6 +401,12 @@ GEM
     securerandom (0.4.1)
     shoulda-matchers (7.0.1)
       activesupport (>= 7.1)
+    sidekiq (8.1.6)
+      connection_pool (>= 3.0.0)
+      json (>= 2.16.0)
+      logger (>= 1.7.0)
+      rack (>= 3.2.0)
+      redis-client (>= 0.29.0)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -488,6 +496,7 @@ DEPENDENCIES
   ruby-lsp (~> 0.26.9)
   ruby-lsp-rails (~> 0.4.8)
   shoulda-matchers
+  sidekiq (~> 8.0)
   solid_cable
   solid_cache
   solid_queue

@@ -4,8 +4,10 @@ source "https://rubygems.org"
 gem "rails", "~> 8.0.2", ">= 8.0.2.1"
 # Use PostgreSQL as the database for Active Record
 gem "pg", "~> 1.5"
+gem "sidekiq", "~> 8.0"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 

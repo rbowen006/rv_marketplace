@@ -1,22 +1,32 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: Dockerfile
+  volumes:
+    - .:/app:cached # cached: The container may cache mounted source files for better performance.
+    - ./storage:/app/storage
+  environment:
+    RAILS_ENV: development
+    RAILS_LOG_TO_STDOUT: 'true'
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: password
+    POSTGRES_HOST: db
+    REDIS_URL: redis://redis:6379/0
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *app
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app:cached # cached:The container may cache the mounted (all source) files for better performance.
-      - ./storage:/app/storage
-    environment:
-      RAILS_ENV: development
-      RAILS_LOG_TO_STDOUT: 'true'
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST: db
-    depends_on:
-      db:
-        condition: service_healthy
+
+  sidekiq:
+    <<: *app
+    command: bundle exec sidekiq
 
   db:
     image: postgres:16-bookworm
@@ -31,5 +41,9 @@ services:
       POSTGRES_DB: rv_marketplace_development
     volumes:
       - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-bookworm
+
 volumes:
   db_data: {}
