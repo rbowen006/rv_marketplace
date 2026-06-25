@@ -32,7 +32,8 @@ Rails API for an RV/caravan marketplace, backed by PostgreSQL and containerised 
 Build and start the full local stack:
 
 ```bash
-docker compose up --build
+docker compose up --build        # attach (logs stream to terminal)
+docker compose up --build -d     # detached (runs in background)
 ```
 
 This starts:
@@ -46,6 +47,12 @@ Prepare the database:
 
 ```bash
 docker compose exec web bin/rails db:prepare
+```
+
+Optionally load sample listings with Australian data and images:
+
+```bash
+docker compose exec web bin/rails db:seed
 ```
 
 Run the test suite:
@@ -117,7 +124,7 @@ curl -sS http://localhost:3000/api-docs/v1/swagger.json | jq '.info.title'  # re
 
 ## API Examples (curl)
 
-Replace <TOKEN>, <LISTING_ID>, and <BOOKING_ID> with values returned by the API.
+Replace `<TOKEN>`, `<LISTING_ID>`, `<BOOKING_ID>`, and `<CHAT_ID>` with values returned by the API.
 
 ### Auth / Users
 ```bash
@@ -181,10 +188,11 @@ curl -i -X DELETE http://localhost:3000/api/v1/listings/<LISTING_ID> \
 ### Bookings
 ```bash
 # Create a booking (hirer, not owner)
+# Note: start_date must be today or in the future — past dates will return 422.
 curl -i -X POST http://localhost:3000/api/v1/listings/<LISTING_ID>/bookings \
    -H "Content-Type: application/json" \
    -H "Authorization: Bearer <TOKEN>" \
-   -d '{"booking":{"start_date":"2025-09-10","end_date":"2025-09-14"}}'
+   -d '{"booking":{"start_date":"2026-09-10","end_date":"2026-09-14"}}'
 
 # Confirm a booking (owner only)
 curl -i -X PATCH http://localhost:3000/api/v1/bookings/<BOOKING_ID>/confirm \
@@ -236,14 +244,14 @@ npm install
 npm run dev  # http://localhost:5173
 ```
 
-The dev server proxies requests starting with `/api` to `http://localhost:3000` (see `frontend/vite.config.js`). Ensure Rails container is running.
+The dev server proxies `/api`, `/users`, and `/rails` to `http://localhost:3000` (see `frontend/vite.config.js`). This covers both the API routes and the Devise auth endpoints. Ensure the Rails container is running.
 
 ### CORS
 
-Configured via `config/initializers/cors.rb`.
+Configured via `config/initializers/cors.rb`. The default allowed origin is `http://localhost:5173`, so no extra configuration is needed for local development. Override it for other environments:
 
 ```bash
-ALLOWED_ORIGINS=http://localhost:5173 docker compose up -d
+ALLOWED_ORIGINS=https://yourapp.example.com docker compose up -d
 ```
 
 ### Build Production Bundle
@@ -255,6 +263,3 @@ npm run build
 ```
 
 You can serve the contents of `frontend/dist` via a static host (e.g., Nginx) or copy into `public/`.
-
-### Listing component
-`ListingList.jsx` fetches from `/api/v1/listings` and renders simple cards. Provide a JWT in the input to test authenticated calls (not required for public listing index).
