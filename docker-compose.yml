@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app:cached
+      - .:/app:cached # cached:The container may cache the mounted (all source) files for better performance.
       - ./storage:/app/storage
     environment:
       RAILS_ENV: development
