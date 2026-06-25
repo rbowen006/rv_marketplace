@@ -5,6 +5,384 @@
     "version": "v1"
   },
   "paths": {
+    "/up": {
+      "get": {
+        "summary": "Health check",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "application is healthy"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Register user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "user registered"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "password_confirmation": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "email",
+                      "password",
+                      "password_confirmation",
+                      "name"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update user registration",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user updated"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "password_confirmation": {
+                        "type": "string"
+                      },
+                      "current_password": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user registration",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "user updated"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "password_confirmation": {
+                        "type": "string"
+                      },
+                      "current_password": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user registration",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "user deleted"
+          }
+        }
+      }
+    },
+    "/users/sign_in": {
+      "post": {
+        "summary": "Sign in",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "signed in — JWT returned in the `Authorization: Bearer <token>` response header",
+            "headers": {
+              "Authorization": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Bearer JWT token. Use this value as `Authorization: Bearer <token>` in subsequent requests."
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "password": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "email",
+                      "password"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/sign_out": {
+      "delete": {
+        "summary": "Sign out",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "signed out"
+          }
+        }
+      }
+    },
+    "/users/password": {
+      "post": {
+        "summary": "Request password reset",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "reset instructions accepted"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    },
+                    "required": [
+                      "email"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Reset password",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "password reset"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "reset_password_token": {
+                        "type": "string"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "password_confirmation": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "reset_password_token",
+                      "password",
+                      "password_confirmation"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Reset password",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "password reset"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "reset_password_token": {
+                        "type": "string"
+                      },
+                      "password": {
+                        "type": "string"
+                      },
+                      "password_confirmation": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "reset_password_token",
+                      "password",
+                      "password_confirmation"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/listings": {
       "get": {
         "summary": "List listings",
@@ -54,18 +432,45 @@
                       "description": {
                         "type": "string"
                       },
-                      "location": {
+                      "rv_type": {
+                        "type": "string"
+                      },
+                      "town": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "postcode": {
                         "type": "string"
                       },
                       "price_per_day": {
                         "type": "number"
+                      },
+                      "max_guests": {
+                        "type": "integer"
+                      },
+                      "pet_friendly": {
+                        "type": "boolean"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "nullable": true
                       }
                     },
                     "required": [
                       "title",
                       "description",
-                      "location",
-                      "price_per_day"
+                      "rv_type",
+                      "town",
+                      "state",
+                      "postcode",
+                      "price_per_day",
+                      "max_guests"
                     ]
                   }
                 }
@@ -148,13 +553,135 @@
                       "description": {
                         "type": "string"
                       },
-                      "location": {
+                      "rv_type": {
+                        "type": "string"
+                      },
+                      "town": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "postcode": {
                         "type": "string"
                       },
                       "price_per_day": {
                         "type": "number"
+                      },
+                      "max_guests": {
+                        "type": "integer"
+                      },
+                      "pet_friendly": {
+                        "type": "boolean"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "nullable": true
                       }
-                    }
+                    },
+                    "required": [
+                      "title",
+                      "description",
+                      "rv_type",
+                      "town",
+                      "state",
+                      "postcode",
+                      "price_per_day",
+                      "max_guests"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update listing",
+        "tags": [
+          "Listings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "listing updated"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "listing": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "rv_type": {
+                        "type": "string"
+                      },
+                      "town": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "postcode": {
+                        "type": "string"
+                      },
+                      "price_per_day": {
+                        "type": "number"
+                      },
+                      "max_guests": {
+                        "type": "integer"
+                      },
+                      "pet_friendly": {
+                        "type": "boolean"
+                      },
+                      "latitude": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description",
+                      "rv_type",
+                      "town",
+                      "state",
+                      "postcode",
+                      "price_per_day",
+                      "max_guests"
+                    ]
                   }
                 }
               }
@@ -193,6 +720,83 @@
           },
           "401": {
             "description": "unauthorized (no token)"
+          }
+        }
+      }
+    },
+    "/api/v1/listings/{listing_id}/images": {
+      "post": {
+        "summary": "Attach listing images",
+        "tags": [
+          "Images"
+        ],
+        "parameters": [
+          {
+            "name": "listing_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "images attached"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "array"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/listings/{listing_id}/images/{id}": {
+      "delete": {
+        "summary": "Delete listing image",
+        "tags": [
+          "Images"
+        ],
+        "parameters": [
+          {
+            "name": "listing_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "image deleted"
           }
         }
       }
@@ -294,15 +898,205 @@
         }
       }
     },
-    "/api/v1/listings/{listing_id}/messages": {
+    "/api/v1/bookings/{id}/reject": {
+      "patch": {
+        "summary": "Reject booking",
+        "tags": [
+          "Bookings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "booking rejected"
+          },
+          "403": {
+            "description": "forbidden (non-owner)"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings": {
+      "get": {
+        "summary": "List bookings for current user",
+        "tags": [
+          "Bookings"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "bookings listed"
+          }
+        }
+      }
+    },
+    "/api/v1/chats": {
+      "get": {
+        "summary": "List chats for current user",
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "chats listed"
+          }
+        }
+      }
+    },
+    "/api/v1/chats/{id}": {
+      "get": {
+        "summary": "Show chat",
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "chat found"
+          }
+        }
+      }
+    },
+    "/api/v1/listings/{listing_id}/chats": {
       "post": {
-        "summary": "Create message",
+        "summary": "Start or resume a chat about a listing",
+        "tags": [
+          "Chats"
+        ],
+        "parameters": [
+          {
+            "name": "listing_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "chat created"
+          },
+          "200": {
+            "description": "chat resumed (existing chat between same hirer and owner)"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "object",
+                    "properties": {
+                      "content": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "content"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chats/{chat_id}/messages": {
+      "get": {
+        "summary": "List messages in a chat",
         "tags": [
           "Messages"
         ],
         "parameters": [
           {
-            "name": "listing_id",
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "messages listed"
+          }
+        }
+      },
+      "post": {
+        "summary": "Send a message in a chat",
+        "tags": [
+          "Messages"
+        ],
+        "parameters": [
+          {
+            "name": "chat_id",
             "in": "path",
             "required": true,
             "schema": {
@@ -342,34 +1136,6 @@
                 }
               }
             }
-          }
-        }
-      },
-      "get": {
-        "summary": "List messages",
-        "tags": [
-          "Messages"
-        ],
-        "parameters": [
-          {
-            "name": "listing_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "Authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "messages listed"
           }
         }
       }
