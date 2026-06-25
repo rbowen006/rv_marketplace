@@ -1,6 +1,6 @@
 # Trekr RV Marketplace
 
-Rails API for an RV/caravan marketplace, backed by PostgreSQL and containerised with Docker Compose. The local stack runs Rails, PostgreSQL, Redis, and Sidekiq as separate services.
+Trekr is a full-stack RV/caravan marketplace with a Rails API, React/Vite frontend, PostgreSQL persistence, Redis-backed Sidekiq jobs, and a Docker Compose development stack.
 
 <p align="center">
   <img src="docs/assets/trekr-icon.png" alt="Trekr app icon" width="180">
