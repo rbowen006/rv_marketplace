@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import { useChats } from '../context/UnreadContext';
 
 export function ContactOwnerModal({ listingId, listingTitle, onClose }) {
   const { token } = useAuth();
   const apiFetch = useApiFetch();
+  const { refreshChats } = useChats();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -31,6 +33,7 @@ export function ContactOwnerModal({ listingId, listingTitle, onClose }) {
         body: JSON.stringify({ message: { content: message.trim() } }),
       });
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
+      refreshChats();
       navigate(`/chats/${data.id}`);
     } catch (err) {
       setError(err.message);

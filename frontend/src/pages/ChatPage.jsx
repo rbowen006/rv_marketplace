@@ -121,7 +121,7 @@ export function ChatPage() {
     <div className="max-w-2xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-200 flex-shrink-0">
-        <Link to="/" className="text-gray-400 hover:text-gray-700 text-sm mr-1">←</Link>
+        <Link to="/chats" className="text-gray-400 hover:text-gray-700 text-sm mr-1">←</Link>
         <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-semibold text-sm flex-shrink-0">
           {otherParticipant?.name?.[0]?.toUpperCase() ?? '?'}
         </div>
