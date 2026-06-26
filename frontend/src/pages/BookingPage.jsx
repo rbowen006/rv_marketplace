@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApiFetch } from '../lib/useApiFetch';
 
 function daysBetween(start, end) {
   if (!start || !end) return 0;
@@ -11,6 +12,7 @@ function daysBetween(start, end) {
 export function BookingPage() {
   const { id } = useParams();
   const { token } = useAuth();
+  const apiFetch = useApiFetch();
   const navigate = useNavigate();
 
   const [listing, setListing] = useState(null);
@@ -22,9 +24,8 @@ export function BookingPage() {
   const [confirmed, setConfirmed] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/v1/listings/${id}`)
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then(setListing)
+    apiFetch(`/api/v1/listings/${id}`)
+      .then(({ res, data }) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); setListing(data); })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
@@ -37,12 +38,11 @@ export function BookingPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/v1/listings/${id}/bookings`, {
+      const { res, data } = await apiFetch(`/api/v1/listings/${id}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ booking: { start_date: startDate, end_date: endDate } }),
       });
-      const data = await res.json();
       if (!res.ok) throw new Error((data.errors || [data.error]).flat().join(', '));
       setConfirmed(data);
     } catch (err) {

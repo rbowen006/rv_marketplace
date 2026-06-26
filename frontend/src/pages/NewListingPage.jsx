@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApiFetch } from '../lib/useApiFetch';
 
 const AU_STATES = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'];
 const RV_TYPES = [
@@ -11,6 +12,7 @@ const RV_TYPES = [
 
 export function NewListingPage({ onSignInRequired }) {
   const { token, user } = useAuth();
+  const apiFetch = useApiFetch();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -64,17 +66,13 @@ export function NewListingPage({ onSignInRequired }) {
       Object.entries(form).forEach(([k, v]) => body.append(`listing[${k}]`, v));
       images.forEach(img => body.append('listing[images][]', img));
 
-      const res = await fetch('/api/v1/listings', {
+      const { res, data } = await apiFetch('/api/v1/listings', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body,
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.errors?.join(', ') ?? 'Failed to create listing');
-      }
-      const listing = await res.json();
-      navigate(`/listings/${listing.id}`);
+      if (!res.ok) throw new Error(data.errors?.join(', ') ?? 'Failed to create listing');
+      navigate(`/listings/${data.id}`);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -25,9 +25,9 @@ const messagesData = [
 function renderChatPage() {
   global.fetch = vi.fn((url) => {
     if (url.includes('/messages')) {
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(messagesData) });
+      return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(messagesData)) });
     }
-    return Promise.resolve({ ok: true, json: () => Promise.resolve(chatData) });
+    return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(chatData)) });
   });
 
   render(

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApiFetch } from '../lib/useApiFetch';
 
 export function ContactOwnerModal({ listingId, listingTitle, onClose }) {
   const { token } = useAuth();
+  const apiFetch = useApiFetch();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -23,12 +25,11 @@ export function ContactOwnerModal({ listingId, listingTitle, onClose }) {
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/v1/listings/${listingId}/chats`, {
+      const { res, data } = await apiFetch(`/api/v1/listings/${listingId}/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ message: { content: message.trim() } }),
       });
-      const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
       navigate(`/chats/${data.id}`);
     } catch (err) {

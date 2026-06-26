@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApiFetch } from '../lib/useApiFetch';
 
 const STATUS_STYLES = {
   pending:   'bg-yellow-100 text-yellow-800',
@@ -73,6 +74,7 @@ function BookingRow({ booking, role, onAction }) {
 
 export function BookingsPage() {
   const { user, token } = useAuth();
+  const apiFetch = useApiFetch();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,19 +82,17 @@ export function BookingsPage() {
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
-    fetch('/api/v1/bookings', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
-      .then(setBookings)
+    apiFetch('/api/v1/bookings', { headers: { Authorization: `Bearer ${token}` } })
+      .then(({ data }) => setBookings(data))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
 
   async function handleAction(bookingId, action) {
-    const res = await fetch(`/api/v1/bookings/${bookingId}/${action}`, {
+    const { res, data: updated } = await apiFetch(`/api/v1/bookings/${bookingId}/${action}`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;
-    const updated = await res.json();
     setBookings(prev => prev.map(b => b.id === updated.id ? { ...b, status: updated.status } : b));
   }
 

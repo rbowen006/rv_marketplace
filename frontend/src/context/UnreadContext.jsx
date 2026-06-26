@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
+import { useApiFetch } from '../lib/useApiFetch';
 
 const UnreadContext = createContext(0);
 const ChatsContext = createContext({ chats: { as_hirer: [], as_owner: [] }, initialized: false });
 
 export function UnreadProvider({ children }) {
   const { token, user } = useAuth();
+  const apiFetch = useApiFetch();
   const [unreadCount, setUnreadCount] = useState(0);
   const [chats, setChats] = useState({ as_hirer: [], as_owner: [] });
   const [initialized, setInitialized] = useState(false);
@@ -20,14 +22,13 @@ export function UnreadProvider({ children }) {
 
     async function fetchUnread() {
       try {
-        const res = await fetch('/api/v1/chats', {
+        const { res, data } = await apiFetch('/api/v1/chats', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
           setInitialized(true);
           return;
         }
-        const data = await res.json();
         setChats(data);
         let count = 0;
         for (const chat of data.as_hirer ?? []) {
