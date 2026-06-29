@@ -1,3 +1,5 @@
+return unless Rails.env.development? || Rails.env.test?
+
 Rswag::Api.configure do |c|
 
   # Specify a root folder where Swagger JSON files are located

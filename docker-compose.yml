@@ -2,6 +2,7 @@ x-app: &app
   build:
     context: .
     dockerfile: Dockerfile
+    target: development
   volumes:
     - .:/app:cached # cached: The container may cache mounted source files for better performance.
     - ./storage:/app/storage

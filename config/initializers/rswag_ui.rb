@@ -1,3 +1,5 @@
+return unless Rails.env.development? || Rails.env.test?
+
 Rswag::Ui.configure do |c|
 
   # List the Swagger endpoints that you want to be documented through the
