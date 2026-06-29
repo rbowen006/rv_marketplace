@@ -12,24 +12,27 @@ Trekr is a full-stack RV/caravan marketplace with a Rails API, React/Vite fronte
 
 ## Implementation Details
 - Developed using Claude Code with Matt Pocock's agent skills
-- Rails 8.0.5
-- Ruby 3.3.11 in Docker
-- PostgreSQL 16
-- Redis 7
-- Sidekiq 8
-- React + Vite frontend in `frontend/`
+- Rails 8.0.5 · Ruby 3.3.11 in Docker
+- PostgreSQL 16 · Redis 7 · Sidekiq 8
+- Devise + devise-jwt for token authentication
+- Active Storage for listing image uploads
+- Rswag for OpenAPI/Swagger spec generation
+- React 18 + Vite 8 frontend in `frontend/`
+- Tailwind CSS 4 for styling
 
 ## Contents
 - [Development With Docker](#development-with-docker)
+- [Local Production-Like Run](#local-production-like-run)
 - [Useful Docker Commands](#useful-docker-commands)
 - [Background Jobs](#background-jobs)
 - [Swagger API Documentation](#swagger-api-documentation)
 - [API Examples](#api-examples-curl)
 - [Frontend](#frontend)
+- [Further Reading](#further-reading)
 
 ## Development With Docker
 
-Build and start the full local stack:
+Build and start the Rails development stack:
 
 ```bash
 docker compose up --build        # attach (logs stream to terminal)
@@ -42,6 +45,8 @@ This starts:
 - `db`: PostgreSQL, available to other containers as `db`
 - `redis`: Redis, available to other containers as `redis`
 - `sidekiq`: background worker using Redis
+
+The development Compose file builds the `development` Dockerfile target, sets `RAILS_ENV=development`, and bind-mounts the local repo into `/app`, so Rails sees code changes from your editor.
 
 Prepare the database:
 
@@ -60,6 +65,66 @@ Run the test suite:
 ```bash
 docker compose exec web bundle exec rspec
 ```
+
+Stop the development stack:
+
+```bash
+docker compose down
+```
+
+## Local Production-Like Run
+
+Use this when you want to test the Rails backend the way it will run from the production Docker image.
+
+Create a local env file. This file is ignored by git:
+
+```bash
+cat > .env.local <<'EOF'
+export POSTGRES_USER="postgres"
+export POSTGRES_PASSWORD="local_production_password"
+export SECRET_KEY_BASE="replace-with-a-stable-local-secret"
+EOF
+```
+
+Only `POSTGRES_PASSWORD` is required — `build.sh` auto-generates a random `SECRET_KEY_BASE` if you omit it, but a new random value is used on every run, which invalidates any existing sessions. Set a stable value if you're testing repeatedly.
+
+For a stable local `SECRET_KEY_BASE`, generate one with:
+
+```bash
+openssl rand -hex 64
+```
+
+Start the local production-like stack:
+
+```bash
+source .env.local
+./build.sh
+```
+
+This builds the `production` Dockerfile target, sets `RAILS_ENV=production`, prepares the production database, and starts Rails plus Sidekiq. Rails is available at http://localhost:3000.
+
+Health check:
+
+```bash
+curl http://localhost:3000/up
+```
+
+Stop the production-like stack:
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+Delete the local production database and storage volumes:
+
+```bash
+docker compose -f docker-compose.prod.yml down -v
+```
+
+Development vs production-like Docker:
+
+- Development uses `docker-compose.yml`, `RAILS_ENV=development`, and a bind mount from the repo into `/app`.
+- Production-like uses `docker-compose.prod.yml`, `RAILS_ENV=production`, named volumes, and app code baked into the Docker image.
 
 ## Useful Docker Commands
 
@@ -83,6 +148,17 @@ docker compose exec web bin/rails db:prepare
 ```
 
 `docker compose down -v` deletes Compose-managed volumes, including the local PostgreSQL data volume.
+
+Production-like stack equivalents:
+
+```bash
+source .env.local
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f web
+docker compose -f docker-compose.prod.yml logs -f sidekiq
+docker compose -f docker-compose.prod.yml exec web bin/rails console
+docker compose -f docker-compose.prod.yml down
+```
 
 ## Background Jobs
 
@@ -183,6 +259,16 @@ curl -i -X PUT http://localhost:3000/api/v1/listings/<LISTING_ID> \
 # Delete a listing (owner only)
 curl -i -X DELETE http://localhost:3000/api/v1/listings/<LISTING_ID> \
    -H "Authorization: Bearer <TOKEN>"
+
+# Upload images to a listing (owner only, multipart)
+curl -i -X POST http://localhost:3000/api/v1/listings/<LISTING_ID>/images \
+   -H "Authorization: Bearer <TOKEN>" \
+   -F "images[]=@/path/to/photo1.jpg" \
+   -F "images[]=@/path/to/photo2.jpg"
+
+# Delete an image from a listing (owner only)
+curl -i -X DELETE http://localhost:3000/api/v1/listings/<LISTING_ID>/images/<IMAGE_ID> \
+   -H "Authorization: Bearer <TOKEN>"
 ```
 
 ### Bookings
@@ -246,6 +332,13 @@ npm run dev  # http://localhost:5173
 
 The dev server proxies `/api`, `/users`, and `/rails` to `http://localhost:3000` (see `frontend/vite.config.js`). This covers both the API routes and the Devise auth endpoints. Ensure the Rails container is running.
 
+Run frontend tests:
+
+```bash
+cd frontend
+npm test
+```
+
 ### CORS
 
 Configured via `config/initializers/cors.rb`. The default allowed origin is `http://localhost:5173`, so no extra configuration is needed for local development. Override it for other environments:
@@ -253,6 +346,20 @@ Configured via `config/initializers/cors.rb`. The default allowed origin is `htt
 ```bash
 ALLOWED_ORIGINS=https://yourapp.example.com docker compose up -d
 ```
+
+### Active Storage (Image Uploads)
+
+Listing image uploads use Rails Active Storage. In development and the local production-like stack, files are stored on disk (`local` service). The production Rails config defaults to Amazon S3 (`amazon`). To use S3 in production, set:
+
+```bash
+ACTIVE_STORAGE_SERVICE=amazon
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=...
+AWS_BUCKET=...
+```
+
+See `config/storage.yml` for service definitions.
 
 ### Build Production Bundle
 
@@ -262,4 +369,9 @@ npm run build
 # Output: frontend/dist
 ```
 
-You can serve the contents of `frontend/dist` via a static host (e.g., Nginx) or copy into `public/`.
+The production Docker image (`docker-compose.prod.yml`) contains only the Rails API — the frontend is not bundled into it. You must build and serve `frontend/dist` separately, for example via Nginx, a CDN, or by copying it into Rails `public/` before building the image.
+
+## Further Reading
+
+- [`CONTEXT.md`](CONTEXT.md) — ubiquitous language and domain glossary (Listing, Booking, Hirer, Owner, etc.)
+- [`docs/adr/`](docs/adr/) — Architecture Decision Records covering key design choices (chat model, JWT expiry, search UX, and more)
