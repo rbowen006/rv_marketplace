@@ -50,6 +50,18 @@ RSpec.describe 'Listings API', type: :request do
   end
 
   describe 'PUT /api/v1/listings/:id' do
+    it 'does not remove attached images when updating other fields' do
+      listing.images.attach(fixture_file_upload('test.png', 'image/png'))
+      expect(listing.images.count).to eq(1)
+
+      put "/api/v1/listings/#{listing.id}",
+          params: { listing: { title: 'Updated Title' } }.to_json,
+          headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{auth_token_for(owner)}" }
+
+      expect(response).to have_http_status(:ok)
+      expect(listing.reload.images.count).to eq(1)
+    end
+
     it 'prevents non-owner from updating' do
       post '/users/sign_in', params: { user: { email: other_user.email, password: 'password' } }.to_json, headers: { 'Content-Type' => 'application/json' }
       token = response.headers['Authorization']&.split(' ')&.last

@@ -139,7 +139,12 @@ export function ListingDetailPage() {
             </p>
 
             {isOwner ? (
-              <p className="mt-4 text-sm text-center text-gray-400">This is your listing.</p>
+              <Link
+                to={`/listings/${id}/edit`}
+                className="mt-4 block w-full text-center border border-gray-300 hover:border-gray-400 text-gray-800 font-semibold py-3 rounded-xl transition-colors text-sm"
+              >
+                Edit listing
+              </Link>
             ) : (
               <div className="mt-4 space-y-3">
                 <button
