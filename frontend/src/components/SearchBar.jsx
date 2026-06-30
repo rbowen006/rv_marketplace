@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -17,10 +17,10 @@ function whoLabel(guests, pets) {
   return parts.join(' · ');
 }
 
-function whenLabel(checkIn, checkOut) {
-  if (!checkIn) return 'Any week';
-  if (!checkOut) return `${monthAbbr(checkIn)} ${checkIn.getDate()}`;
-  return `${monthAbbr(checkIn)} ${checkIn.getDate()} – ${monthAbbr(checkOut)} ${checkOut.getDate()}`;
+function whenLabel(dateFrom, dateTo) {
+  if (!dateFrom) return 'Any week';
+  if (!dateTo) return `${monthAbbr(dateFrom)} ${dateFrom.getDate()}`;
+  return `${monthAbbr(dateFrom)} ${dateFrom.getDate()} – ${monthAbbr(dateTo)} ${dateTo.getDate()}`;
 }
 
 function isSameDay(a, b) {
@@ -35,13 +35,13 @@ function inRange(date, start, end) {
   return date > start && date < end;
 }
 
-function CalendarMonth({ year, month, checkIn, checkOut, hoverDate, onDayClick, onDayHover }) {
+function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, onDayHover }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const rangeEnd = checkOut || hoverDate;
+  const rangeEnd = dateTo || hoverDate;
 
   const cells = [];
   for (let i = 0; i < firstDay; i++) cells.push(null);
@@ -62,9 +62,9 @@ function CalendarMonth({ year, month, checkIn, checkOut, hoverDate, onDayClick, 
           if (!date) return <div key={`empty-${i}`} />;
 
           const isPast = date < today;
-          const isStart = isSameDay(date, checkIn);
-          const isEnd = isSameDay(date, checkOut);
-          const isMid = !isPast && checkIn && inRange(date, checkIn, rangeEnd);
+          const isStart = isSameDay(date, dateFrom);
+          const isEnd = isSameDay(date, dateTo);
+          const isMid = !isPast && dateFrom && inRange(date, dateFrom, rangeEnd);
 
           let cls = 'w-full aspect-square flex items-center justify-center text-sm cursor-pointer select-none ';
           if (isPast) {
@@ -95,7 +95,7 @@ function CalendarMonth({ year, month, checkIn, checkOut, hoverDate, onDayClick, 
   );
 }
 
-function WhenPanel({ checkIn, checkOut, onCheckIn, onCheckOut, onClose }) {
+function WhenPanel({ dateFrom, dateTo, onDateFrom, onDateTo, onClose }) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -105,14 +105,14 @@ function WhenPanel({ checkIn, checkOut, onCheckIn, onCheckOut, onClose }) {
   const rightYear = viewMonth === 11 ? viewYear + 1 : viewYear;
 
   function handleDayClick(date) {
-    if (!checkIn || (checkIn && checkOut)) {
-      onCheckIn(date);
-      onCheckOut(null);
-    } else if (date > checkIn) {
-      onCheckOut(date);
+    if (!dateFrom || (dateFrom && dateTo)) {
+      onDateFrom(date);
+      onDateTo(null);
+    } else if (date > dateFrom) {
+      onDateTo(date);
       onClose();
     } else {
-      onCheckIn(date);
+      onDateFrom(date);
     }
   }
 
@@ -139,15 +139,15 @@ function WhenPanel({ checkIn, checkOut, onCheckIn, onCheckOut, onClose }) {
         <div className="flex gap-8">
           <CalendarMonth
             year={viewYear} month={viewMonth}
-            checkIn={checkIn} checkOut={checkOut}
-            hoverDate={!checkIn || checkOut ? null : hoverDate}
+            dateFrom={dateFrom} dateTo={dateTo}
+            hoverDate={!dateFrom || dateTo ? null : hoverDate}
             onDayClick={handleDayClick}
             onDayHover={setHoverDate}
           />
           <CalendarMonth
             year={rightYear} month={rightMonth}
-            checkIn={checkIn} checkOut={checkOut}
-            hoverDate={!checkIn || checkOut ? null : hoverDate}
+            dateFrom={dateFrom} dateTo={dateTo}
+            hoverDate={!dateFrom || dateTo ? null : hoverDate}
             onDayClick={handleDayClick}
             onDayHover={setHoverDate}
           />
@@ -164,14 +164,28 @@ function WhenPanel({ checkIn, checkOut, onCheckIn, onCheckOut, onClose }) {
   );
 }
 
+function parseDate(str) {
+  if (!str) return null;
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function formatLocalDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export function SearchBar() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activePanel, setActivePanel] = useState(null);
-  const [location, setLocation] = useState('');
-  const [checkIn, setCheckIn] = useState(null);
-  const [checkOut, setCheckOut] = useState(null);
-  const [guests, setGuests] = useState(0);
-  const [pets, setPets] = useState(false);
+  const [location, setLocation] = useState(() => searchParams.get('location') || '');
+  const [dateFrom, setDateFrom] = useState(() => parseDate(searchParams.get('dateFrom')));
+  const [dateTo, setDateTo] = useState(() => parseDate(searchParams.get('dateTo')));
+  const [guests, setGuests] = useState(() => parseInt(searchParams.get('guests') || '0', 10));
+  const [pets, setPets] = useState(() => searchParams.get('pets') === '1');
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -187,8 +201,8 @@ export function SearchBar() {
   function handleSearch() {
     const params = new URLSearchParams();
     if (location) params.set('location', location);
-    if (checkIn) params.set('checkIn', checkIn.toISOString().split('T')[0]);
-    if (checkOut) params.set('checkOut', checkOut.toISOString().split('T')[0]);
+    if (dateFrom) params.set('dateFrom', formatLocalDate(dateFrom));
+    if (dateTo) params.set('dateTo', formatLocalDate(dateTo));
     if (guests > 0) params.set('guests', String(guests));
     if (pets) params.set('pets', '1');
     navigate('/' + (params.toString() ? '?' + params.toString() : ''));
@@ -215,7 +229,7 @@ export function SearchBar() {
           className={`w-48 px-6 py-3 text-left hover:bg-gray-50 transition-colors ${isActive('when') ? 'bg-gray-50' : ''}`}
         >
           <span className="block text-xs font-semibold text-gray-700">When</span>
-          <span className="block text-gray-500 truncate">{whenLabel(checkIn, checkOut)}</span>
+          <span className="block text-gray-500 truncate">{whenLabel(dateFrom, dateTo)}</span>
         </button>
 
         <button
@@ -255,10 +269,10 @@ export function SearchBar() {
       {/* When panel */}
       {isActive('when') && (
         <WhenPanel
-          checkIn={checkIn}
-          checkOut={checkOut}
-          onCheckIn={setCheckIn}
-          onCheckOut={setCheckOut}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFrom={setDateFrom}
+          onDateTo={setDateTo}
           onClose={() => setActivePanel(null)}
         />
       )}

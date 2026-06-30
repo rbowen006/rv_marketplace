@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 
@@ -14,11 +14,19 @@ export function BookingPage() {
   const { token } = useAuth();
   const apiFetch = useApiFetch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const today = new Date().toISOString().split('T')[0];
+
+  function validFutureDate(str) {
+    return str && str >= today ? str : '';
+  }
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const initialDateFrom = validFutureDate(searchParams.get('dateFrom'));
+  const [startDate, setStartDate] = useState(initialDateFrom);
+  const [endDate, setEndDate] = useState(initialDateFrom ? validFutureDate(searchParams.get('dateTo')) : '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [confirmed, setConfirmed] = useState(null);
@@ -72,22 +80,21 @@ export function BookingPage() {
     );
   }
 
-  const today = new Date().toISOString().split('T')[0];
-
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <Link to={`/listings/${id}`} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-6">
+      <Link to={`/listings/${id}${searchParams.toString() ? '?' + searchParams.toString() : ''}`} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-6">
         ← Back to listing
       </Link>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Reserve {listing.title}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Book {listing.title}</h1>
       <p className="text-gray-500 text-sm mb-8">${listing.price_per_day} / night</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+            <label htmlFor="date-from" className="block text-sm font-medium text-gray-700 mb-1">Date From</label>
             <input
+              id="date-from"
               type="date"
               required
               min={today}
@@ -97,8 +104,9 @@ export function BookingPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+            <label htmlFor="date-to" className="block text-sm font-medium text-gray-700 mb-1">Date To</label>
             <input
+              id="date-to"
               type="date"
               required
               min={startDate || today}
