@@ -18,11 +18,12 @@ RSpec.describe 'Listings API', type: :request do
     let(:valid_params) do
       { listing: { title: 'Cozy Caravan', description: 'A lovely caravan', rv_type: 'caravan',
                    town: 'Byron Bay', state: 'NSW', postcode: '2481',
-                   price_per_day: 150, max_guests: 4 } }
+                   price_per_day: 150, max_guests: 4,
+                   images: [ fixture_file_upload('test.png', 'image/png') ] } }
     end
 
     it 'requires auth' do
-      post '/api/v1/listings', params: valid_params.to_json, headers: { 'Content-Type' => 'application/json' }
+      post '/api/v1/listings', params: valid_params
       expect(response).to have_http_status(:unauthorized)
     end
 
@@ -30,7 +31,7 @@ RSpec.describe 'Listings API', type: :request do
       post '/users/sign_in', params: { user: { email: owner.email, password: 'password' } }.to_json, headers: { 'Content-Type' => 'application/json' }
       token = response.headers['Authorization']&.split(' ')&.last
 
-      post '/api/v1/listings', params: valid_params.to_json, headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{token}" }
+      post '/api/v1/listings', params: valid_params, headers: { 'Authorization' => "Bearer #{token}" }
       expect(response).to have_http_status(:created)
       body = JSON.parse(response.body)
       expect(body['title']).to eq('Cozy Caravan')
@@ -52,14 +53,14 @@ RSpec.describe 'Listings API', type: :request do
   describe 'PUT /api/v1/listings/:id' do
     it 'does not remove attached images when updating other fields' do
       listing.images.attach(fixture_file_upload('test.png', 'image/png'))
-      expect(listing.images.count).to eq(1)
+      expect(listing.images.count).to eq(2)
 
       put "/api/v1/listings/#{listing.id}",
           params: { listing: { title: 'Updated Title' } }.to_json,
           headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{auth_token_for(owner)}" }
 
       expect(response).to have_http_status(:ok)
-      expect(listing.reload.images.count).to eq(1)
+      expect(listing.reload.images.count).to eq(2)
     end
 
     it 'prevents non-owner from updating' do

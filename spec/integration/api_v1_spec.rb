@@ -254,23 +254,45 @@ RSpec.describe 'API V1', type: :request do
 
     post 'Create listing' do
       tags 'Listings'
-      consumes 'application/json'
-      parameter name: :listing, in: :body, schema: LISTING_SCHEMA
+      consumes 'multipart/form-data'
+      parameter name: 'listing[title]', in: :formData, type: :string
+      parameter name: 'listing[description]', in: :formData, type: :string
+      parameter name: 'listing[rv_type]', in: :formData, type: :string
+      parameter name: 'listing[town]', in: :formData, type: :string
+      parameter name: 'listing[state]', in: :formData, type: :string
+      parameter name: 'listing[postcode]', in: :formData, type: :string
+      parameter name: 'listing[price_per_day]', in: :formData, type: :number
+      parameter name: 'listing[max_guests]', in: :formData, type: :integer
+      parameter name: 'listing[images][]', in: :formData, type: :file
 
       parameter name: 'Authorization', in: :header, type: :string
 
       response '201', 'listing created' do
         let(:user) { create(:user, name: 'Rswag') }
         let(:Authorization) { "Bearer #{jwt_for(user)}" }
-        let(:listing) { { listing: { title: 'X', description: 'D', rv_type: 'caravan', town: 'Sydney', state: 'NSW', postcode: '2000', price_per_day: 100, max_guests: 2 } } }
+        let(:'listing[title]') { 'X' }
+        let(:'listing[description]') { 'D' }
+        let(:'listing[rv_type]') { 'caravan' }
+        let(:'listing[town]') { 'Sydney' }
+        let(:'listing[state]') { 'NSW' }
+        let(:'listing[postcode]') { '2000' }
+        let(:'listing[price_per_day]') { 100 }
+        let(:'listing[max_guests]') { 2 }
+        let(:'listing[images][]') { Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/test.png"), "image/png") }
         run_test!
       end
 
       response '401', 'unauthorized' do
-        # No Authorization header provided for this example
         let(:Authorization) { nil }
-        # rswag requires declared body params to have corresponding lets, provide empty
-        let(:listing) { {} }
+        let(:'listing[title]') { nil }
+        let(:'listing[description]') { nil }
+        let(:'listing[rv_type]') { nil }
+        let(:'listing[town]') { nil }
+        let(:'listing[state]') { nil }
+        let(:'listing[postcode]') { nil }
+        let(:'listing[price_per_day]') { nil }
+        let(:'listing[max_guests]') { nil }
+        let(:'listing[images][]') { nil }
         run_test!
       end
     end
@@ -283,7 +305,7 @@ RSpec.describe 'API V1', type: :request do
       parameter name: :id, in: :path, type: :integer
 
       response '200', 'listing found' do
-        let(:id) { RvListing.create(title: 't', description: 'd', rv_type: :caravan, town: 'Sydney', state: 'NSW', postcode: '2000', price_per_day: 10, max_guests: 2, owner_id: User.first&.id || User.create!(email: 'lister@example.com', password: 'password', name: 'Lister').id).id }
+        let(:id) { create(:rv_listing).id }
         run_test!
       end
 

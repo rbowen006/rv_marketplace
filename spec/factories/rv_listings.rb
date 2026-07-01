@@ -10,5 +10,13 @@ FactoryBot.define do
     max_guests { 4 }
     pet_friendly { false }
     association :owner, factory: :user
+
+    after(:build) do |listing|
+      listing.images.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/test.png")),
+        filename: "test.png",
+        content_type: "image/png"
+      )
+    end
   end
 end
