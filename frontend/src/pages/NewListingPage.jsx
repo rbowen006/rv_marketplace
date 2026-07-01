@@ -23,6 +23,7 @@ export function NewListingPage({ onSignInRequired }) {
   }
 
   async function handleCreate(fields, images) {
+    if (!images.length) throw new Error('At least one photo is required');
     const body = new FormData();
     Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, v));
     images.forEach(img => body.append('listing[images][]', img));

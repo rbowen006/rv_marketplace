@@ -21,6 +21,8 @@ IMAGE_ASSIGNMENTS = {
   10 => '210010.jpg',
   12 => '14523224.jpg',
   13 => '5809280.jpg',
+  14 => '9143451.jpg',
+  15 => '210010.jpg',
 }.freeze
 
 puts "\n== Updating listing metadata =="
