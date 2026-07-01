@@ -13,6 +13,7 @@ x-app: &app
     POSTGRES_PASSWORD: password
     POSTGRES_HOST: db
     REDIS_URL: redis://redis:6379/0
+    ANTHROPIC_API_KEY:
   depends_on:
     db:
       condition: service_healthy
