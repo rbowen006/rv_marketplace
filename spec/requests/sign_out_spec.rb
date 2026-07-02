@@ -9,4 +9,10 @@ RSpec.describe 'DELETE /users/sign_out', type: :request do
 
     expect(response).to have_http_status(:no_content)
   end
+
+  it 'does not crash when the Authorization token is malformed' do
+    delete '/users/sign_out', headers: { 'Authorization' => 'Bearer garbage.invalid.token' }
+
+    expect(response).to have_http_status(:no_content)
+  end
 end
