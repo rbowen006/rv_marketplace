@@ -58,6 +58,13 @@ export function UserMenu() {
             )}
           </Link>
           <Link
+            to="/my-listings"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline"
+          >
+            My listings
+          </Link>
+          <Link
             to="/listings/new"
             onClick={() => setOpen(false)}
             className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 no-underline"
