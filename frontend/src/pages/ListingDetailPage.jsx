@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SignInModal } from '../components/SignInModal';
 import { ContactOwnerModal } from '../components/ContactOwnerModal';
@@ -8,6 +8,8 @@ export function ListingDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const qs = searchParams.toString();
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ export function ListingDetailPage() {
 
   function triggerAction(action) {
     if (action === 'book') {
-      navigate(`/listings/${id}/book`);
+      navigate(`/listings/${id}/book${qs ? '?' + qs : ''}`);
     } else if (action === 'contact') {
       setShowContact(true);
     }
@@ -72,7 +74,7 @@ export function ListingDetailPage() {
       )}
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <Link to="/" className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-4">
+        <Link to={`/${qs ? '?' + qs : ''}`} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-4">
           ← Back to listings
         </Link>
 
@@ -137,14 +139,19 @@ export function ListingDetailPage() {
             </p>
 
             {isOwner ? (
-              <p className="mt-4 text-sm text-center text-gray-400">This is your listing.</p>
+              <Link
+                to={`/listings/${id}/edit`}
+                className="mt-4 block w-full text-center border border-gray-300 hover:border-gray-400 text-gray-800 font-semibold py-3 rounded-xl transition-colors text-sm"
+              >
+                Edit listing
+              </Link>
             ) : (
               <div className="mt-4 space-y-3">
                 <button
                   onClick={() => requireAuth('book')}
                   className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-xl transition-colors"
                 >
-                  Reserve
+                  Book
                 </button>
                 <button
                   onClick={() => requireAuth('contact')}

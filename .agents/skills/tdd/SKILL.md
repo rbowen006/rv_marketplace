@@ -97,6 +97,16 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 
 **Never refactor while RED.** Get to GREEN first.
 
+### 5. Ship
+
+After all tests pass and any refactoring is done, always follow this sequence before considering the work complete:
+
+1. **Code review** — run `/code-review` on the changes and address any findings
+2. **Verify** — run `/verify` to confirm the feature works in the running app
+3. **Commit** — only after review and verify both pass
+
+Do not commit until both `/code-review` and `/verify` have been done. Do not prompt the user to commit — wait for them to confirm review and verify are done first.
+
 ## Checklist Per Cycle
 
 ```

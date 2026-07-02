@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUnreadCount } from '../context/UnreadContext';
 import { SignInModal } from './SignInModal';
 import { UserMenu } from './UserMenu';
+import { SearchBar } from './SearchBar';
 
 export function Header() {
   const { user } = useAuth();
@@ -13,12 +14,15 @@ export function Header() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
-        <Link to="/" className="flex items-center gap-2 no-underline">
+      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+        <Link to="/" className="flex items-center gap-2 no-underline shrink-0">
           <img src="/trekr.png" alt="Trekr" className="h-10 w-10" />
           <span className="text-rose-500 font-bold text-xl">Trekr</span>
         </Link>
-        <nav className="flex items-center gap-4">
+        <div className="flex-1 flex justify-center px-6">
+          <SearchBar />
+        </div>
+        <nav className="flex items-center gap-4 shrink-0">
           <button
             onClick={() => user ? navigate('/listings/new') : setShowModal(true)}
             className="text-sm font-medium text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-full transition-colors"

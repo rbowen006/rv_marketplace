@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApiFetch } from '../lib/useApiFetch';
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
@@ -40,6 +41,7 @@ function groupMessages(messages) {
 export function ChatPage() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const apiFetch = useApiFetch();
 
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -54,9 +56,8 @@ export function ChatPage() {
 
   const loadChat = useCallback(async () => {
     try {
-      const res = await fetch(`/api/v1/chats/${id}`, { headers: authHeaders });
+      const { res, data } = await apiFetch(`/api/v1/chats/${id}`, { headers: authHeaders });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
       setChat(data);
     } catch (e) {
       setError(e.message);
@@ -73,9 +74,8 @@ export function ChatPage() {
   useEffect(() => {
     const poll = async () => {
       try {
-        const res = await fetch(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
+        const { res, data } = await apiFetch(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
         if (!res.ok) return;
-        const data = await res.json();
         setMessages(data);
       } catch {
         // silent — don't surface poll errors
@@ -95,13 +95,12 @@ export function ChatPage() {
     if (!draft.trim()) return;
     setSending(true);
     try {
-      const res = await fetch(`/api/v1/chats/${id}/messages`, {
+      const { res, data: msg } = await apiFetch(`/api/v1/chats/${id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ message: { content: draft.trim() } }),
       });
       if (!res.ok) throw new Error('Failed to send');
-      const msg = await res.json();
       setMessages(prev => [...prev, msg]);
       setDraft('');
       inputRef.current?.focus();
@@ -122,7 +121,7 @@ export function ChatPage() {
     <div className="max-w-2xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-200 flex-shrink-0">
-        <Link to="/" className="text-gray-400 hover:text-gray-700 text-sm mr-1">←</Link>
+        <Link to="/chats" className="text-gray-400 hover:text-gray-700 text-sm mr-1">←</Link>
         <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-semibold text-sm flex-shrink-0">
           {otherParticipant?.name?.[0]?.toUpperCase() ?? '?'}
         </div>

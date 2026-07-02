@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
-  mount Rswag::Ui::Engine => '/api-docs'
-  mount Rswag::Api::Engine => '/api-docs'
+  if Rails.env.development? || Rails.env.test?
+    mount Rswag::Ui::Engine => '/api-docs'
+    mount Rswag::Api::Engine => '/api-docs'
+  end
+
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations',
@@ -21,6 +24,9 @@ Rails.application.routes.draw do
         resources :images, only: [:create, :destroy]
         resources :bookings, only: [:create]
         resources :chats, only: [:create]
+        collection do
+          post :generate_description, to: 'description_generator#create'
+        end
       end
 
       resources :chats, only: [:index, :show] do

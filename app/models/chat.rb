@@ -9,7 +9,11 @@ class Chat < ApplicationRecord
   validate :one_unbooked_chat_per_hirer_owner_pair
 
   def self.resync_inbox_fields!
-    latest = Message.select('chat_id, content, MAX(created_at) AS max_at').group(:chat_id)
+    latest = Message.from(
+      Message.select('DISTINCT ON (chat_id) chat_id, content, created_at AS max_at')
+             .order('chat_id, created_at DESC'),
+      :messages
+    )
     latest.each do |row|
       where(id: row.chat_id).update_all(
         last_message_at: row.max_at,

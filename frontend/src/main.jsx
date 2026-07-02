@@ -12,6 +12,7 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { InboxPage } from './pages/InboxPage';
 import { NewListingPage } from './pages/NewListingPage';
+import { EditListingPage } from './pages/EditListingPage';
 import './index.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
               <Route path="/chats" element={<InboxPage />} />
               <Route path="/chats/:id" element={<ChatPage />} />
               <Route path="/listings/new" element={<NewListingPage />} />
+              <Route path="/listings/:id/edit" element={<EditListingPage />} />
             </Routes>
           </div>
         </UnreadProvider>

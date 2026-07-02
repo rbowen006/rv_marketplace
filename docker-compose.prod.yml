@@ -1,0 +1,56 @@
+name: rv_marketplace_prod
+
+x-prod-app: &prod-app
+  build:
+    context: .
+    dockerfile: Dockerfile
+    target: production
+  environment:
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: "true"
+    SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+    ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-local}
+    RAILS_FORCE_SSL: ${RAILS_FORCE_SSL:-false}
+    RAILS_ASSUME_SSL: ${RAILS_ASSUME_SSL:-false}
+    POSTGRES_USER: ${POSTGRES_USER}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    POSTGRES_HOST: db
+    REDIS_URL: redis://redis:6379/0
+  volumes:
+    - prod_storage:/app/storage
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  web:
+    <<: *prod-app
+    ports:
+      - "3000:3000"
+
+  sidekiq:
+    <<: *prod-app
+    command: bundle exec sidekiq
+
+  db:
+    image: postgres:16-bookworm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: rv_marketplace_production
+    volumes:
+      - prod_db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.4-bookworm
+
+volumes:
+  prod_db_data: {}
+  prod_storage: {}

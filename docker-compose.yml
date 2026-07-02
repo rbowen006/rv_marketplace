@@ -2,6 +2,7 @@ x-app: &app
   build:
     context: .
     dockerfile: Dockerfile
+    target: development
   volumes:
     - .:/app:cached # cached: The container may cache mounted source files for better performance.
     - ./storage:/app/storage
@@ -12,6 +13,7 @@ x-app: &app
     POSTGRES_PASSWORD: password
     POSTGRES_HOST: db
     REDIS_URL: redis://redis:6379/0
+    ANTHROPIC_API_KEY:
   depends_on:
     db:
       condition: service_healthy
@@ -41,9 +43,13 @@ services:
       POSTGRES_DB: rv_marketplace_development
     volumes:
       - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432" # Note: This is mapped to a different port so Postgres works as normal on your host machine
 
   redis:
     image: redis:7-bookworm
+    ports:
+      - "6379:6379"
 
 volumes:
   db_data: {}

@@ -55,12 +55,17 @@ end
 gem "devise"
 gem "devise-jwt"
 
+# AI
+gem "anthropic"
+gem "json-schema"
+
 # API testing and development
 group :development, :test do
   gem "rspec-rails"
   gem "factory_bot_rails"
   gem "faker"
   gem "shoulda-matchers"
+  gem "webmock"
 end
 
 # Ensure bundler is available

@@ -24,7 +24,7 @@ module Api
       end
 
       def update
-        if @listing.update(listing_params)
+        if @listing.update(update_listing_params)
           render json: @listing
         else
           render_unprocessable(@listing)
@@ -47,8 +47,14 @@ module Api
         render json: { error: 'Not authorized' }, status: :forbidden
       end
 
+      LISTING_FIELDS = %i[title description rv_type town state postcode price_per_day max_guests pet_friendly latitude longitude].freeze
+
       def listing_params
-        params.require(:listing).permit(:title, :description, :rv_type, :town, :state, :postcode, :price_per_day, :max_guests, :pet_friendly, :latitude, :longitude, images: [])
+        params.require(:listing).permit(*LISTING_FIELDS, images: [])
+      end
+
+      def update_listing_params
+        params.require(:listing).permit(*LISTING_FIELDS)
       end
     end
   end

@@ -30,7 +30,7 @@ RSpec.describe 'Listing Images API', type: :request do
            headers: auth_bearer(owner)
       expect(response).to have_http_status(:created)
       body = JSON.parse(response.body)
-      expect(body['images'].length).to eq(1)
+      expect(body['images'].length).to eq(2)
       expect(body['images'].first).to include('id', 'url')
     end
   end

@@ -1,10 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 export function ListingCard({ listing }) {
+  const [searchParams] = useSearchParams();
   const primaryImage = listing.images?.[0]?.url;
+  const qs = searchParams.toString();
 
   return (
-    <Link to={`/listings/${listing.id}`} className="block group no-underline text-inherit">
+    <Link to={`/listings/${listing.id}${qs ? '?' + qs : ''}`} className="block group no-underline text-inherit">
       <div className="rounded-xl overflow-hidden">
         <div className="aspect-square bg-gray-200 overflow-hidden">
           {primaryImage ? (
