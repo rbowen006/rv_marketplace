@@ -26,7 +26,7 @@ All AI services inherit from `Ai::BaseAiService`. The base class implements the 
 1. `validate_input!` — subclass raises `Ai::InputError` if required fields are missing or invalid
 2. Load system prompt from `app/prompts/<PROMPT_FEATURE>/<PROMPT_VERSION>.txt`
 3. `build_user_message` — subclass returns a structured hash (listing fields, chat history, etc.)
-4. Call Claude — system prompt as the system turn, user message as the user turn, assistant turn prefilled with `"{"` to coerce JSON output
+4. Call Claude — system prompt as the system turn, user message as the sole user turn (see JSON Output Reliability — assistant-turn prefill was removed as of the Claude 4.6 model generation and is no longer used)
 5. Parse the JSON response
 6. Validate against `output_schema` using the `json-schema` gem
 7. Return the validated data hash
@@ -51,11 +51,17 @@ Prompts live in `app/prompts/<feature>/<version>.txt` — never hardcoded in ser
 
 ### JSON Output Reliability
 
-Two techniques combined:
-1. System prompt explicitly instructs Claude to respond with valid JSON only, no prose, no markdown.
-2. The assistant turn is prefilled with `"{"` so Claude continues from an open brace.
+Originally two techniques combined: a system prompt instruction plus an assistant-turn prefill (`{role: "assistant", content: "{"}`) so Claude would continue from an open brace, guaranteeing JSON-only output at the API level.
 
-The `json-schema` gem validates the parsed response against the subclass-defined schema before the data is used. If validation fails, `Ai::OutputError` is raised.
+**Revised 2026-07-02:** assistant-turn prefill is rejected outright (HTTP 400: "This model does not support assistant message prefill") on `claude-sonnet-4-6` and every model since the Claude 4.6 generation — confirmed via a live `/verify` call against the real API; all 155 WebMock-backed unit tests still passed beforehand because the stubbed responses never exercised the real request shape. The prefill message and the corresponding `"{" + response.text` reassembly were removed from `BaseAiService#invoke_claude`.
+
+Current mechanism — one technique, not two:
+1. System prompt explicitly instructs Claude to respond with valid JSON only, no prose, no markdown.
+2. The `json-schema` gem validates the parsed response against the subclass-defined schema before the data is used. If validation fails, `Ai::OutputError` is raised.
+
+**Known limitation:** this is a *weaker* guarantee than the original design — nothing at the request level forces JSON-shaped output anymore; malformed output is only caught after the round trip, via schema validation. Anthropic's documented replacement for prefill is API-enforced structured output (`output_config.format` with a JSON schema) or forced `tool_choice` — both would restore a hard guarantee, and both could reuse the `output_schema` each subclass already defines. Deliberately deferred in favor of the smaller fix above; revisit before adding features that depend on tighter reliability than "validated after the fact." Filed as a known limitation rather than a bug, since the schema-validation safety net already existed and continues to catch the failure mode, just later than before.
+
+**Also known:** when Claude's response is truncated (`stop_reason: "max_tokens"`), the resulting parse failure is reported as a generic `Ai::OutputError, "Claude returned invalid JSON"` with no indication the real cause was hitting the token cap. Minor debuggability gap, predates this revision, not addressed here.
 
 ### Error Handling
 
