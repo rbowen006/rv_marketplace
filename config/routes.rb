@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         resources :bookings, only: [:create]
         resources :chats, only: [:create]
         collection do
+          get :mine
           post :generate_description, to: 'description_generator#create'
         end
       end

@@ -125,6 +125,22 @@ RSpec.describe 'Chats API', type: :request do
   describe 'GET /api/v1/chats/:id' do
     let!(:chat) { create(:chat, hirer: hirer, owner: owner, rv_listing: listing) }
 
+    it 'allows a participant to read the chat' do
+      get "/api/v1/chats/#{chat.id}", headers: { 'Authorization' => "Bearer #{hirer_token}" }
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['id']).to eq(chat.id)
+    end
+
+    it 'forbids a non-participant from reading the chat' do
+      outsider = create(:user)
+      post '/users/sign_in', params: { user: { email: outsider.email, password: 'password' } }.to_json,
+           headers: { 'Content-Type' => 'application/json' }
+      outsider_token = response.headers['Authorization']&.split(' ')&.last
+
+      get "/api/v1/chats/#{chat.id}", headers: { 'Authorization' => "Bearer #{outsider_token}" }
+      expect(response).to have_http_status(:forbidden)
+    end
+
     it 'blocks unauthenticated requests' do
       get "/api/v1/chats/#{chat.id}"
       expect(response).to have_http_status(:unauthorized)

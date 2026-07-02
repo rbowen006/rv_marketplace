@@ -10,6 +10,11 @@ module Api
         render json: @listings
       end
 
+      def mine
+        @listings = current_user.rv_listings
+        render json: @listings
+      end
+
       def show
         render json: @listing
       end
