@@ -8,6 +8,10 @@ const RV_TYPES = [
   { value: 'motorhome', label: 'Motorhome' },
   { value: 'camper_trailer', label: 'Camper Trailer' },
 ];
+// Kept in sync by hand with Ai::DescriptionGenerator::REQUIRED_FIELDS
+// (app/services/ai/description_generator.rb) — no shared schema between
+// frontend and backend, so a mismatch here won't fail loudly.
+const GENERATE_REQUIRED_FIELDS = ['rv_type', 'town', 'state', 'max_guests'];
 
 export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listingId }) {
   const { token } = useAuth();
@@ -29,6 +33,44 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
   const [previews, setPreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
+
+  const canGenerate = GENERATE_REQUIRED_FIELDS.every(f => String(fields[f]).trim() !== '');
+
+  async function handleGenerateDescription() {
+    if (fields.description.trim() !== '' && !window.confirm('This will replace the current description. Continue?')) {
+      return;
+    }
+
+    setGenerating(true);
+    setGenerateError(null);
+    try {
+      const { res, data } = await apiFetch('/api/v1/listings/generate_description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          rv_type: fields.rv_type,
+          town: fields.town,
+          state: fields.state,
+          max_guests: fields.max_guests,
+          pet_friendly: fields.pet_friendly,
+          price_per_day: fields.price_per_day,
+        }),
+      });
+
+      if (!res.ok) {
+        setGenerateError(data.message ?? 'Failed to generate description');
+        return;
+      }
+
+      setFields(prev => ({ ...prev, description: data.data.description }));
+    } catch {
+      setGenerateError('Failed to generate description');
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   function handleField(e) {
     const { name, value, type, checked } = e.target;
@@ -97,7 +139,13 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
         <textarea id="description" name="description" value={fields.description} onChange={handleField} required rows={4}
+          disabled={generating}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400" />
+        <button type="button" disabled={!canGenerate || generating || submitting} onClick={handleGenerateDescription}
+          className="mt-2 text-sm px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors">
+          {generating ? 'Generating…' : 'Generate description'}
+        </button>
+        {generateError && <p className="mt-1 text-sm text-red-600">{generateError}</p>}
       </div>
 
       <div>
@@ -195,7 +243,7 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
         )}
       </div>
 
-      <button type="submit" disabled={submitting}
+      <button type="submit" disabled={submitting || generating}
         className="w-full bg-rose-500 hover:bg-rose-600 disabled:bg-rose-300 text-white font-semibold py-3 rounded-full text-sm transition-colors">
         {submitting ? 'Saving…' : submitLabel}
       </button>

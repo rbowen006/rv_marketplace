@@ -3,6 +3,9 @@ module Ai
     PROMPT_FEATURE = "description_generator"
     PROMPT_VERSION = "v1"
 
+    # Kept in sync by hand with GENERATE_REQUIRED_FIELDS
+    # (frontend/src/components/ListingForm.jsx) — no shared schema between
+    # backend and frontend, so a mismatch here won't fail loudly.
     REQUIRED_FIELDS = %i[rv_type town state max_guests].freeze
 
     def initialize(rv_type: nil, town: nil, state: nil, max_guests: nil, pet_friendly: false, price_per_day: nil, user: nil)
