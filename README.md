@@ -10,8 +10,32 @@ Trekr is a full-stack RV/caravan marketplace with a Rails API, React/Vite fronte
   <img src="docs/assets/trekr-home.png" alt="Trekr marketplace home page" width="900">
 </p>
 
+## 🤖 AI
+
+Trekr is AI-native in two senses:
+
+**Built with AI** — developed with [Claude Code](https://claude.com/claude-code) driving a test-first workflow (grill → TDD → code-review → verify) via a set of agent skills for design, review, and QA.
+
+**AI-powered features** — Trekr ships real LLM features on a reusable, production-style service layer (`Ai::BaseAiService`) with:
+
+- **Prompt versioning** — prompts are versioned files in `app/prompts/`, never hardcoded
+- **Observability & cost tracking** — every Claude call logs tokens, latency, and estimated cost to an `ai_requests` table
+- **Guardrails** — input/output validation with graceful failures
+- **Human-in-the-loop** — AI drafts; the user edits and accepts (nothing auto-saves)
+
+| Feature | Status |
+|---|---|
+| ✨ **Listing Description Generator** — drafts a listing description from RV attributes | ✅ Shipped |
+| 🔎 Natural-language search | 🗺️ Planned |
+| 💬 Smart chat replies for owners | 🗺️ Planned |
+| 💲 Pricing suggestions | 🗺️ Planned |
+| 🧭 Trip-planning assistant (RAG) | 🗺️ Planned |
+| 🤖 AI concierge (agentic + tool use) | 🗺️ Planned |
+| 🔌 MCP server | 🗺️ Planned |
+
+See [docs/ai-integrations.md](docs/ai-integrations.md) for the full design brief.
+
 ## Implementation Details
-- Developed using Claude Code with Matt Pocock's agent skills
 - Rails 8.0.5 · Ruby 3.3.11 in Docker
 - PostgreSQL 16 · Redis 7 · Sidekiq 8
 - Devise + devise-jwt for token authentication
