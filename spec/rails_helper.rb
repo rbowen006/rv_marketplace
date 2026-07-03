@@ -48,6 +48,10 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
+  # The test cache store is :memory_store (persists across examples in a process),
+  # so clear it before each example to keep rate-limit counters from leaking.
+  config.before(:each) { Rails.cache.clear }
+
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
 
