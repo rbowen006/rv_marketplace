@@ -1,6 +1,14 @@
 module Api
   module V1
     class DescriptionGeneratorController < BaseController
+      # Cap paid Claude calls per user (see ADR-0010). Runs after authenticate_user!,
+      # so current_user is available. Backed by Rails.cache (Solid Cache in prod).
+      RATE_LIMIT_WINDOW = 1.hour
+
+      rate_limit to: 10, within: RATE_LIMIT_WINDOW,
+                 by: -> { current_user.id },
+                 with: -> { render_rate_limited }
+
       def create
         data = Ai::DescriptionGenerator.call(**generator_params, user: current_user)
         render json: { status: "success", data: data }, status: :ok
@@ -13,6 +21,12 @@ module Api
       end
 
       private
+
+      def render_rate_limited
+        response.set_header("Retry-After", RATE_LIMIT_WINDOW.to_i.to_s)
+        render json: { status: "fail", message: "Rate limit exceeded. Please try again later." },
+               status: :too_many_requests
+      end
 
       def generator_params
         p = params.permit(:rv_type, :town, :state, :max_guests, :pet_friendly, :price_per_day)

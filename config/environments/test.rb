@@ -20,7 +20,10 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  config.cache_store = :null_store
+  # Was :null_store; the memory store lets rate-limit (ActionController::RateLimiting)
+  # counters actually increment in specs. The suite clears the cache between examples
+  # (see rails_helper) so counters never leak across tests.
+  config.cache_store = :memory_store
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
