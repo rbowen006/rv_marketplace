@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         resources :chats, only: [:create]
         collection do
           get :mine
+          post :search
           post :generate_description, to: 'description_generator#create'
         end
       end

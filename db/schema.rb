@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_01_115729) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_03_121000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -45,7 +46,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_01_115729) do
   create_table "ai_requests", force: :cascade do |t|
     t.string "feature", null: false
     t.string "model", null: false
-    t.string "prompt_version", null: false
+    t.string "prompt_version"
     t.integer "input_tokens"
     t.integer "output_tokens"
     t.integer "latency_ms"
@@ -89,6 +90,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_01_115729) do
     t.index ["owner_id", "last_message_at"], name: "index_chats_on_owner_id_and_last_message_at"
     t.index ["owner_id"], name: "index_chats_on_owner_id"
     t.index ["rv_listing_id"], name: "index_chats_on_rv_listing_id"
+  end
+
+  create_table "listing_embeddings", force: :cascade do |t|
+    t.bigint "rv_listing_id", null: false
+    t.vector "embedding", limit: 768
+    t.text "document"
+    t.string "model"
+    t.string "content_hash"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["rv_listing_id"], name: "index_listing_embeddings_on_rv_listing_id", unique: true
   end
 
   create_table "messages", force: :cascade do |t|
@@ -142,6 +154,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_01_115729) do
   add_foreign_key "chats", "rv_listings"
   add_foreign_key "chats", "users", column: "hirer_id"
   add_foreign_key "chats", "users", column: "owner_id"
+  add_foreign_key "listing_embeddings", "rv_listings"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
   add_foreign_key "rv_listings", "users", column: "owner_id"
