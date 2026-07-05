@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { InboxPage } from './InboxPage';
 import * as AuthContext from '../context/AuthContext';
+import type { AuthContextValue } from '../types/auth';
+
+const setAuth = (v: Partial<AuthContextValue>) =>
+  vi.mocked(AuthContext.useAuth).mockReturnValue(v as AuthContextValue);
 import * as UnreadContext from '../context/UnreadContext';
 
 vi.mock('../context/AuthContext', () => ({
@@ -24,7 +28,7 @@ function renderPage() {
 
 describe('InboxPage', () => {
   beforeEach(() => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: { id: 1, name: 'Hirer' }, token: 'test-token' });
+    setAuth({ user: { id: 1, name: 'Hirer' }, token: 'test-token' });
   });
 
   afterEach(() => {

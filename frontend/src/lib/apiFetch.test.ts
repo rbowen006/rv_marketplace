@@ -6,13 +6,13 @@ describe('apiFetch', () => {
   });
 
   it('sends Accept: application/json on every request', async () => {
-    global.fetch = vi.fn(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve({ ok: true, text: () => Promise.resolve('{}') })
-    );
+    ) as unknown as typeof fetch;
 
     await apiFetch('/api/v1/chats');
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       '/api/v1/chats',
       expect.objectContaining({
         headers: expect.objectContaining({ Accept: 'application/json' }),
@@ -21,9 +21,9 @@ describe('apiFetch', () => {
   });
 
   it('returns the parsed JSON body as data', async () => {
-    global.fetch = vi.fn(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve({ ok: true, text: () => Promise.resolve('{"id":7}') })
-    );
+    ) as unknown as typeof fetch;
 
     const { data } = await apiFetch('/api/v1/chats');
 
@@ -31,9 +31,9 @@ describe('apiFetch', () => {
   });
 
   it('returns empty object as data when body is not valid JSON', async () => {
-    global.fetch = vi.fn(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve({ ok: false, text: () => Promise.resolve('Signature has expired') })
-    );
+    ) as unknown as typeof fetch;
 
     const { res, data } = await apiFetch('/api/v1/chats');
 
@@ -42,15 +42,15 @@ describe('apiFetch', () => {
   });
 
   it('merges caller-provided headers without overwriting Accept', async () => {
-    global.fetch = vi.fn(() =>
+    globalThis.fetch = vi.fn(() =>
       Promise.resolve({ ok: true, text: () => Promise.resolve('{}') })
-    );
+    ) as unknown as typeof fetch;
 
     await apiFetch('/api/v1/chats', {
       headers: { Authorization: 'Bearer tok', 'Content-Type': 'application/json' },
     });
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       '/api/v1/chats',
       expect.objectContaining({
         headers: expect.objectContaining({

@@ -1,21 +1,28 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import type { ChatsCollection, ChatsContextValue } from '../types/auth';
 
-const UnreadContext = createContext(0);
-const ChatsContext = createContext({ chats: { as_hirer: [], as_owner: [] }, initialized: false, refreshChats: () => {} });
+const EMPTY_CHATS: ChatsCollection = { as_hirer: [], as_owner: [] };
 
-export function UnreadProvider({ children }) {
+const UnreadContext = createContext<number>(0);
+const ChatsContext = createContext<ChatsContextValue>({
+  chats: EMPTY_CHATS,
+  initialized: false,
+  refreshChats: async () => {},
+});
+
+export function UnreadProvider({ children }: { children: ReactNode }) {
   const { token, user } = useAuth();
   const apiFetch = useApiFetch();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [chats, setChats] = useState({ as_hirer: [], as_owner: [] });
+  const [chats, setChats] = useState<ChatsCollection>(EMPTY_CHATS);
   const [initialized, setInitialized] = useState(false);
 
   const fetchUnread = useCallback(async () => {
     if (!token || !user) return;
     try {
-      const { res, data } = await apiFetch('/api/v1/chats', {
+      const { res, data } = await apiFetch<ChatsCollection>('/api/v1/chats', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -40,7 +47,7 @@ export function UnreadProvider({ children }) {
   useEffect(() => {
     if (!token || !user) {
       setUnreadCount(0);
-      setChats({ as_hirer: [], as_owner: [] });
+      setChats(EMPTY_CHATS);
       setInitialized(false);
       return;
     }
