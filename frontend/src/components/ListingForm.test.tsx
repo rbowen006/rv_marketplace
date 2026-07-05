@@ -1,17 +1,18 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ListingForm } from './ListingForm';
+import type { ListingFormProps } from '../types/listing-form';
 
 vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ token: 'test-token', user: { id: 1 } }),
 }));
 
-let mockApiFetch;
+let mockApiFetch: ReturnType<typeof vi.fn>;
 vi.mock('../lib/useApiFetch', () => ({
   useApiFetch: () => mockApiFetch,
 }));
 
-function renderForm(props = {}) {
+function renderForm(props: Partial<ListingFormProps> = {}) {
   render(
     <MemoryRouter>
       <ListingForm
@@ -70,7 +71,7 @@ describe('ListingForm', () => {
   });
 
   it('calls onSubmit with field values and empty images array when submitted', async () => {
-    const onSubmit = vi.fn().mockResolvedValue();
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderForm({
       initialValues: { title: 'My Caravan', rv_type: 'caravan', town: 'Sydney',
         state: 'NSW', postcode: '2000', price_per_day: 100, max_guests: 2 },
@@ -200,7 +201,7 @@ describe('ListingForm', () => {
     });
 
     it('shows "Generating…", and disables both the Generate and Submit buttons, while the call is in flight', async () => {
-      let resolveFetch;
+      let resolveFetch: (value: unknown) => void;
       mockApiFetch = vi.fn().mockReturnValue(new Promise(resolve => { resolveFetch = resolve; }));
       renderForm({
         initialValues: { rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: 4 },
@@ -211,7 +212,7 @@ describe('ListingForm', () => {
       expect(await screen.findByRole('button', { name: /generating/i })).toBeDisabled();
       expect(screen.getByRole('button', { name: /save listing/i })).toBeDisabled();
 
-      resolveFetch({ res: { ok: true }, data: { status: 'success', data: { description: 'Done.' } } });
+      resolveFetch!({ res: { ok: true }, data: { status: 'success', data: { description: 'Done.' } } });
       await waitFor(() =>
         expect(screen.getByRole('button', { name: /generate description/i })).toBeEnabled()
       );
@@ -248,7 +249,7 @@ describe('ListingForm', () => {
     });
 
     it('disables the description textarea while generating, so a manual edit cannot be silently clobbered', async () => {
-      let resolveFetch;
+      let resolveFetch: (value: unknown) => void;
       mockApiFetch = vi.fn().mockReturnValue(new Promise(resolve => { resolveFetch = resolve; }));
       renderForm({
         initialValues: { rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: 4 },
@@ -258,7 +259,7 @@ describe('ListingForm', () => {
 
       await waitFor(() => expect(screen.getByLabelText(/description/i)).toBeDisabled());
 
-      resolveFetch({ res: { ok: true }, data: { status: 'success', data: { description: 'Done.' } } });
+      resolveFetch!({ res: { ok: true }, data: { status: 'success', data: { description: 'Done.' } } });
       await waitFor(() => expect(screen.getByLabelText(/description/i)).toBeEnabled());
     });
   });

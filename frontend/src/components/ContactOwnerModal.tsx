@@ -1,27 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { useChats } from '../context/UnreadContext';
 
-export function ContactOwnerModal({ listingId, listingTitle, onClose }) {
+interface ContactOwnerModalProps {
+  listingId: number;
+  listingTitle: string;
+  onClose: () => void;
+}
+
+export function ContactOwnerModal({ listingId, listingTitle, onClose }: ContactOwnerModalProps) {
   const { token } = useAuth();
   const apiFetch = useApiFetch();
   const { refreshChats } = useChats();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const textareaRef = useRef(null);
+  const [error, setError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     textareaRef.current?.focus();
-    function onKey(e) { if (e.key === 'Escape') onClose(); }
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!message.trim()) return;
     setError(null);
@@ -36,7 +42,7 @@ export function ContactOwnerModal({ listingId, listingTitle, onClose }) {
       refreshChats();
       navigate(`/chats/${data.id}`);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
       setSubmitting(false);
     }
   }

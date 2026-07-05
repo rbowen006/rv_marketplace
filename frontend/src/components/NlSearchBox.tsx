@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useApiFetch } from '../lib/useApiFetch';
 import { ListingGrid } from './ListingGrid';
+import type { ListingSummary } from '../types/listing';
 
 // The active natural-language query lives in the URL (?q=). Both this box and the
 // structured header SearchBar derive from the URL, so only one is ever populated
@@ -12,9 +13,9 @@ export function NlSearchBox() {
   const rawQuery = searchParams.get('q') || '';
   const query = rawQuery.trim(); // a whitespace-only ?q= is not a real search
   const [input, setInput] = useState(rawQuery);
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<ListingSummary[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   // Bumped to re-run the fetch when the query is resubmitted unchanged (retry).
   const [reload, setReload] = useState(0);
 
@@ -42,7 +43,7 @@ export function NlSearchBox() {
       .then(({ res, data }) => {
         if (cancelled) return;
         if (!res.ok || !Array.isArray(data)) throw new Error('search failed');
-        setResults(data);
+        setResults(data as ListingSummary[]);
       })
       .catch(() => {
         if (cancelled) return;
@@ -55,7 +56,7 @@ export function NlSearchBox() {
     return () => { cancelled = true; };
   }, [query, reload]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handleSubmit(e) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const trimmed = input.trim();
     if (!trimmed) return;
