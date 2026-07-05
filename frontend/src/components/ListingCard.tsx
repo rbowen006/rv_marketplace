@@ -22,7 +22,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             title="Cosine distance (lower = closer match)"
             className="absolute top-2 left-2 z-10 bg-black/70 text-white text-xs font-mono px-2 py-0.5 rounded-full"
           >
-            {listing.score.toFixed(3)}
+            {listing.score?.toFixed(3)}
           </span>
         )}
         <div className="aspect-square bg-gray-200 overflow-hidden">
