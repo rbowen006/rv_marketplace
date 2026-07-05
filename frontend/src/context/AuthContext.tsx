@@ -41,7 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(body.errors?.[0] ?? 'Registration failed');
     }
     const jwt = res.headers.get('Authorization')?.split(' ').pop() ?? null;
-    const userData: AuthUser = { id: undefined, name, email };
+    const body = await res.json().catch(() => ({}));
+    const userData: AuthUser = { id: body.user?.id, name, email };
     setToken(jwt);
     setUser(userData);
     localStorage.setItem('rv_token', jwt ?? '');

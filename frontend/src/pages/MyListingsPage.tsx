@@ -14,8 +14,8 @@ export function MyListingsPage() {
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
-    apiFetch('/api/v1/listings/mine', { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ res, data }) => setListings(res.ok && Array.isArray(data) ? data as ListingSummary[] : []))
+    apiFetch<ListingSummary[]>('/api/v1/listings/mine', { headers: { Authorization: `Bearer ${token}` } })
+      .then(({ res, data }) => setListings(res.ok && Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
 

@@ -5,6 +5,7 @@ import { useApiFetch } from '../lib/useApiFetch';
 import { ListingForm } from '../components/ListingForm';
 import type { ListingDetail } from '../types/listing';
 import type { ListingFormFields } from '../types/listing-form';
+import type { ApiErrorBody } from '../types/api';
 
 export function EditListingPage() {
   const { id } = useParams();
@@ -22,15 +23,14 @@ export function EditListingPage() {
       return;
     }
 
-    apiFetch(`/api/v1/listings/${id}`)
+    apiFetch<ListingDetail>(`/api/v1/listings/${id}`)
       .then(({ res, data }) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const listingData = data as ListingDetail;
-        if (listingData.owner?.id !== user.id) {
+        if (data.owner?.id !== user.id) {
           navigate(`/listings/${id}`);
           return;
         }
-        setListing(listingData);
+        setListing(data);
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
@@ -40,7 +40,7 @@ export function EditListingPage() {
     const body = new FormData();
     Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, String(v)));
 
-    const { res, data } = await apiFetch(`/api/v1/listings/${id}`, {
+    const { res, data } = await apiFetch<ListingDetail & ApiErrorBody>(`/api/v1/listings/${id}`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
       body,

@@ -1,5 +1,15 @@
 import type { ListingAttachment } from './listing';
 
+/**
+ * POST /api/v1/listings/generate_description — JSend-shaped response.
+ * `data` is present on success ("success"); `message` on "fail"/"error".
+ */
+export interface GenerateDescriptionResponse {
+  status?: string;
+  data?: { description: string };
+  message?: string;
+}
+
 export interface ListingFormFields {
   title: string;
   description: string;

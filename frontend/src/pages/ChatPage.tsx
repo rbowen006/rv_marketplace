@@ -57,9 +57,9 @@ export function ChatPage() {
 
   const loadChat = useCallback(async () => {
     try {
-      const { res, data } = await apiFetch(`/api/v1/chats/${id}`, { headers: authHeaders });
+      const { res, data } = await apiFetch<ChatDetail>(`/api/v1/chats/${id}`, { headers: authHeaders });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setChat(data as ChatDetail);
+      setChat(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -75,9 +75,9 @@ export function ChatPage() {
   useEffect(() => {
     const poll = async () => {
       try {
-        const { res, data } = await apiFetch(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
+        const { res, data } = await apiFetch<Message[]>(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
         if (!res.ok) return;
-        setMessages(data as Message[]);
+        setMessages(data);
       } catch {
         // silent — don't surface poll errors
       }
@@ -96,13 +96,13 @@ export function ChatPage() {
     if (!draft.trim()) return;
     setSending(true);
     try {
-      const { res, data: msg } = await apiFetch(`/api/v1/chats/${id}/messages`, {
+      const { res, data: msg } = await apiFetch<Message>(`/api/v1/chats/${id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ message: { content: draft.trim() } }),
       });
       if (!res.ok) throw new Error('Failed to send');
-      setMessages(prev => [...prev, msg as Message]);
+      setMessages(prev => [...prev, msg]);
       setDraft('');
       inputRef.current?.focus();
     } catch {
