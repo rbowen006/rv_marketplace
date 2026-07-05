@@ -177,15 +177,29 @@ function formatLocalDate(date) {
   return `${y}-${m}-${d}`;
 }
 
+// The structured search fields decoded from the URL. Single source for both the
+// initial seed and the URL-mirror below, so they can't drift.
+function fieldsFromParams(searchString) {
+  const p = new URLSearchParams(searchString);
+  return {
+    location: p.get('location') || '',
+    dateFrom: parseDate(p.get('dateFrom')),
+    dateTo: parseDate(p.get('dateTo')),
+    guests: parseInt(p.get('guests') || '0', 10),
+    pets: p.get('pets') === '1',
+  };
+}
+
 export function SearchBar() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const searchString = searchParams.toString();
   const [activePanel, setActivePanel] = useState(null);
-  const [location, setLocation] = useState(() => searchParams.get('location') || '');
-  const [dateFrom, setDateFrom] = useState(() => parseDate(searchParams.get('dateFrom')));
-  const [dateTo, setDateTo] = useState(() => parseDate(searchParams.get('dateTo')));
-  const [guests, setGuests] = useState(() => parseInt(searchParams.get('guests') || '0', 10));
-  const [pets, setPets] = useState(() => searchParams.get('pets') === '1');
+  const [location, setLocation] = useState(() => fieldsFromParams(searchString).location);
+  const [dateFrom, setDateFrom] = useState(() => fieldsFromParams(searchString).dateFrom);
+  const [dateTo, setDateTo] = useState(() => fieldsFromParams(searchString).dateTo);
+  const [guests, setGuests] = useState(() => fieldsFromParams(searchString).guests);
+  const [pets, setPets] = useState(() => fieldsFromParams(searchString).pets);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -198,6 +212,18 @@ export function SearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Mirror the URL: the pill reflects the applied structured search. A natural-
+  // language search (?q=) carries no structured params, so this clears the fields
+  // — keeping only one search UI populated without any cross-component wiring.
+  useEffect(() => {
+    const f = fieldsFromParams(searchString);
+    setLocation(f.location);
+    setDateFrom(f.dateFrom);
+    setDateTo(f.dateTo);
+    setGuests(f.guests);
+    setPets(f.pets);
+  }, [searchString]);
+
   function handleSearch() {
     const params = new URLSearchParams();
     if (location) params.set('location', location);
@@ -205,6 +231,7 @@ export function SearchBar() {
     if (dateTo) params.set('dateTo', formatLocalDate(dateTo));
     if (guests > 0) params.set('guests', String(guests));
     if (pets) params.set('pets', '1');
+    // A structured search carries no ?q=, so navigating here drops any NL search.
     navigate('/' + (params.toString() ? '?' + params.toString() : ''));
     setActivePanel(null);
   }

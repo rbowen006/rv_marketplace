@@ -58,6 +58,8 @@ gem "devise-jwt"
 # AI
 gem "anthropic"
 gem "json-schema"
+# pgvector integration for semantic search (ADR-0011)
+gem "neighbor"
 
 # API testing and development
 group :development, :test do

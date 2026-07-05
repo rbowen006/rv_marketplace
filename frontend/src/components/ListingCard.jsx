@@ -4,10 +4,22 @@ export function ListingCard({ listing }) {
   const [searchParams] = useSearchParams();
   const primaryImage = listing.images?.[0]?.url;
   const qs = searchParams.toString();
+  // Dev-only relevance badge: only NL-search results carry `score`, and it is
+  // hidden in production builds (ADR-0011 — makes the ranking tangible while learning).
+  const showScore = import.meta.env.DEV && listing.score != null;
 
   return (
     <Link to={`/listings/${listing.id}${qs ? '?' + qs : ''}`} className="block group no-underline text-inherit">
-      <div className="rounded-xl overflow-hidden">
+      <div className="rounded-xl overflow-hidden relative">
+        {showScore && (
+          <span
+            data-testid="score-badge"
+            title="Cosine distance (lower = closer match)"
+            className="absolute top-2 left-2 z-10 bg-black/70 text-white text-xs font-mono px-2 py-0.5 rounded-full"
+          >
+            {listing.score.toFixed(3)}
+          </span>
+        )}
         <div className="aspect-square bg-gray-200 overflow-hidden">
           {primaryImage ? (
             <img

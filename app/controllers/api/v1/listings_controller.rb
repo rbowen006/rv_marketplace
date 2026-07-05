@@ -1,13 +1,44 @@
 module Api
   module V1
     class ListingsController < BaseController
-      skip_before_action :authenticate_user!, only: [:index, :show]
+      skip_before_action :authenticate_user!, only: [:index, :show, :search]
       before_action :set_listing, only: [:show, :update, :destroy]
       before_action :authorize_owner!, only: [:update, :destroy]
+
+      # Number of nearest neighbours returned by natural-language search.
+      # No relevance threshold in v1 — kNN always returns up to this many rows,
+      # so even a nonsense query yields listings (ADR-0011).
+      SEARCH_LIMIT = 20
 
       def index
         @listings = RvListing.all
         render json: @listings
+      end
+
+      # POST /api/v1/listings/search — natural-language semantic search.
+      # Embeds the query, finds the nearest listing embeddings by cosine
+      # distance, and renders the full listings in ranked order with a score.
+      def search
+        query = params[:query].to_s.strip
+        if query.blank?
+          render json: { error: 'query is required' }, status: :unprocessable_content
+          return
+        end
+
+        vector = Ai::Embedder.call(query, feature: 'nl_search', user: current_user)
+
+        neighbors = ListingEmbedding
+          .nearest_neighbors(:embedding, vector, distance: :cosine)
+          .includes(rv_listing: [ :owner, { images_attachments: :blob } ])
+          .limit(SEARCH_LIMIT)
+
+        results = neighbors.map do |embedding|
+          embedding.rv_listing.as_json.merge('score' => embedding.neighbor_distance)
+        end
+
+        render json: results
+      rescue Ai::ApiError => e
+        render json: { status: 'error', message: e.message }, status: :service_unavailable
       end
 
       def mine
