@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-function ForgotPasswordStep({ onBack }) {
+interface ForgotPasswordStepProps {
+  onBack: () => void;
+}
+
+function ForgotPasswordStep({ onBack }: ForgotPasswordStepProps) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     await fetch('/users/password', {
@@ -57,17 +61,23 @@ function ForgotPasswordStep({ onBack }) {
   );
 }
 
-export function SignInModal({ onClose, onSuccess }) {
+interface SignInModalProps {
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export function SignInModal({ onClose, onSuccess }: SignInModalProps) {
   const { signIn, signUp } = useAuth();
-  const [tab, setTab] = useState('signin');
+  const [tab, setTab] = useState<'signin' | 'register'>('signin');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
-  const update = field => e => setForm(f => ({ ...f, [field]: e.target.value }));
+  const update = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm(f => ({ ...f, [field]: e.target.value }));
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -79,7 +89,7 @@ export function SignInModal({ onClose, onSuccess }) {
       }
       (onSuccess ?? onClose)();
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }

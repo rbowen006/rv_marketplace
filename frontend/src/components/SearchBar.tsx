@@ -5,37 +5,49 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
-function monthAbbr(date) {
+type SearchPanel = 'where' | 'when' | 'who';
+
+function monthAbbr(date: Date): string {
   return MONTHS[date.getMonth()];
 }
 
-function whoLabel(guests, pets) {
+function whoLabel(guests: number, pets: boolean): string {
   if (!guests && !pets) return 'Add guests';
-  const parts = [];
+  const parts: string[] = [];
   if (guests) parts.push(`${guests} guest${guests !== 1 ? 's' : ''}`);
   if (pets) parts.push('Pets');
   return parts.join(' · ');
 }
 
-function whenLabel(dateFrom, dateTo) {
+function whenLabel(dateFrom: Date | null, dateTo: Date | null): string {
   if (!dateFrom) return 'Any week';
   if (!dateTo) return `${monthAbbr(dateFrom)} ${dateFrom.getDate()}`;
   return `${monthAbbr(dateFrom)} ${dateFrom.getDate()} – ${monthAbbr(dateTo)} ${dateTo.getDate()}`;
 }
 
-function isSameDay(a, b) {
+function isSameDay(a: Date | null, b: Date | null): boolean {
   if (!a || !b) return false;
   return a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 }
 
-function inRange(date, start, end) {
+function inRange(date: Date, start: Date | null, end: Date | null): boolean {
   if (!start || !end) return false;
   return date > start && date < end;
 }
 
-function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, onDayHover }) {
+interface CalendarMonthProps {
+  year: number;
+  month: number;
+  dateFrom: Date | null;
+  dateTo: Date | null;
+  hoverDate: Date | null;
+  onDayClick: (date: Date) => void;
+  onDayHover: (date: Date) => void;
+}
+
+function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, onDayHover }: CalendarMonthProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -43,7 +55,7 @@ function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, o
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const rangeEnd = dateTo || hoverDate;
 
-  const cells = [];
+  const cells: (Date | null)[] = [];
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
 
@@ -95,16 +107,24 @@ function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, o
   );
 }
 
-function WhenPanel({ dateFrom, dateTo, onDateFrom, onDateTo, onClose }) {
+interface WhenPanelProps {
+  dateFrom: Date | null;
+  dateTo: Date | null;
+  onDateFrom: (date: Date | null) => void;
+  onDateTo: (date: Date | null) => void;
+  onClose: () => void;
+}
+
+function WhenPanel({ dateFrom, dateTo, onDateFrom, onDateTo, onClose }: WhenPanelProps) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [hoverDate, setHoverDate] = useState(null);
+  const [hoverDate, setHoverDate] = useState<Date | null>(null);
 
   const rightMonth = viewMonth === 11 ? 0 : viewMonth + 1;
   const rightYear = viewMonth === 11 ? viewYear + 1 : viewYear;
 
-  function handleDayClick(date) {
+  function handleDayClick(date: Date) {
     if (!dateFrom || (dateFrom && dateTo)) {
       onDateFrom(date);
       onDateTo(null);
@@ -164,13 +184,13 @@ function WhenPanel({ dateFrom, dateTo, onDateFrom, onDateTo, onClose }) {
   );
 }
 
-function parseDate(str) {
+function parseDate(str: string | null): Date | null {
   if (!str) return null;
   const d = new Date(str + 'T00:00:00');
   return isNaN(d.getTime()) ? null : d;
 }
 
-function formatLocalDate(date) {
+function formatLocalDate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
@@ -179,7 +199,7 @@ function formatLocalDate(date) {
 
 // The structured search fields decoded from the URL. Single source for both the
 // initial seed and the URL-mirror below, so they can't drift.
-function fieldsFromParams(searchString) {
+function fieldsFromParams(searchString: string) {
   const p = new URLSearchParams(searchString);
   return {
     location: p.get('location') || '',
@@ -194,17 +214,17 @@ export function SearchBar() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const searchString = searchParams.toString();
-  const [activePanel, setActivePanel] = useState(null);
+  const [activePanel, setActivePanel] = useState<SearchPanel | null>(null);
   const [location, setLocation] = useState(() => fieldsFromParams(searchString).location);
-  const [dateFrom, setDateFrom] = useState(() => fieldsFromParams(searchString).dateFrom);
-  const [dateTo, setDateTo] = useState(() => fieldsFromParams(searchString).dateTo);
+  const [dateFrom, setDateFrom] = useState<Date | null>(() => fieldsFromParams(searchString).dateFrom);
+  const [dateTo, setDateTo] = useState<Date | null>(() => fieldsFromParams(searchString).dateTo);
   const [guests, setGuests] = useState(() => fieldsFromParams(searchString).guests);
   const [pets, setPets] = useState(() => fieldsFromParams(searchString).pets);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(e) {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setActivePanel(null);
       }
     }
@@ -237,7 +257,7 @@ export function SearchBar() {
   }
 
   const whereLabel = location || 'Anywhere';
-  const isActive = (panel) => activePanel === panel;
+  const isActive = (panel: SearchPanel) => activePanel === panel;
 
   return (
     <div ref={containerRef} className="relative w-full">

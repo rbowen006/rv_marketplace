@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ListingCard } from './ListingCard';
+import type { ListingSummary } from '../types/listing';
 
-const listing = {
+const listing: ListingSummary = {
   id: 42,
   title: 'Blue Mountains Caravan',
   town: 'Katoomba',

@@ -4,7 +4,7 @@ import { SearchBar } from './SearchBar';
 import * as ReactRouterDom from 'react-router-dom';
 
 vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof ReactRouterDom>();
   return { ...actual, useNavigate: vi.fn() };
 });
 
