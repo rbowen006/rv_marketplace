@@ -1,6 +1,11 @@
 import { Link, useSearchParams } from 'react-router-dom';
+import type { ListingSummary } from '../types/listing';
 
-export function ListingCard({ listing }) {
+interface ListingCardProps {
+  listing: ListingSummary;
+}
+
+export function ListingCard({ listing }: ListingCardProps) {
   const [searchParams] = useSearchParams();
   const primaryImage = listing.images?.[0]?.url;
   const qs = searchParams.toString();
