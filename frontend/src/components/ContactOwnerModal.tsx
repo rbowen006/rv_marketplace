@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { useChats } from '../context/UnreadContext';
+import type { ChatDetail } from '../types/chat';
+import type { ApiErrorBody } from '../types/api';
 
 interface ContactOwnerModalProps {
   listingId: number;
@@ -33,7 +35,7 @@ export function ContactOwnerModal({ listingId, listingTitle, onClose }: ContactO
     setError(null);
     setSubmitting(true);
     try {
-      const { res, data } = await apiFetch(`/api/v1/listings/${listingId}/chats`, {
+      const { res, data } = await apiFetch<ChatDetail & ApiErrorBody>(`/api/v1/listings/${listingId}/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ message: { content: message.trim() } }),

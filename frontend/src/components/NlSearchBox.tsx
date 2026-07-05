@@ -35,7 +35,7 @@ export function NlSearchBox() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    apiFetch('/api/v1/listings/search', {
+    apiFetch<ListingSummary[]>('/api/v1/listings/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
@@ -43,7 +43,7 @@ export function NlSearchBox() {
       .then(({ res, data }) => {
         if (cancelled) return;
         if (!res.ok || !Array.isArray(data)) throw new Error('search failed');
-        setResults(data as ListingSummary[]);
+        setResults(data);
       })
       .catch(() => {
         if (cancelled) return;

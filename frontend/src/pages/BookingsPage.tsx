@@ -89,18 +89,17 @@ export function BookingsPage() {
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
-    apiFetch('/api/v1/bookings', { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ data }) => setBookings(data as Booking[]))
+    apiFetch<Booking[]>('/api/v1/bookings', { headers: { Authorization: `Bearer ${token}` } })
+      .then(({ data }) => setBookings(data))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
 
   async function handleAction(bookingId: number, action: 'confirm' | 'reject') {
-    const { res, data: updated } = await apiFetch(`/api/v1/bookings/${bookingId}/${action}`, {
+    const { res, data: booking } = await apiFetch<Booking>(`/api/v1/bookings/${bookingId}/${action}`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;
-    const booking = updated as Booking;
     setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: booking.status } : b));
   }
 

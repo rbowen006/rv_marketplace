@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { ListingForm } from '../components/ListingForm';
 import type { ListingFormFields } from '../types/listing-form';
+import type { ListingDetail } from '../types/listing';
+import type { ApiErrorBody } from '../types/api';
 
 interface NewListingPageProps {
   onSignInRequired?: () => void;
@@ -33,7 +35,7 @@ export function NewListingPage({ onSignInRequired }: NewListingPageProps) {
     Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, String(v)));
     images.forEach(img => body.append('listing[images][]', img));
 
-    const { res, data } = await apiFetch('/api/v1/listings', {
+    const { res, data } = await apiFetch<ListingDetail & ApiErrorBody>('/api/v1/listings', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body,

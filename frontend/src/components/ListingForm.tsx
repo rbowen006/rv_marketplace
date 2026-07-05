@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import type { ListingAttachment } from '../types/listing';
-import type { ListingFormFields, ListingFormProps } from '../types/listing-form';
+import type { ListingFormFields, ListingFormProps, GenerateDescriptionResponse } from '../types/listing-form';
 
 const AU_STATES = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'];
 const RV_TYPES = [
@@ -48,7 +48,7 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
     setGenerating(true);
     setGenerateError(null);
     try {
-      const { res, data } = await apiFetch('/api/v1/listings/generate_description', {
+      const { res, data } = await apiFetch<GenerateDescriptionResponse>('/api/v1/listings/generate_description', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -66,7 +66,7 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
         return;
       }
 
-      setFields(prev => ({ ...prev, description: data.data.description }));
+      setFields(prev => ({ ...prev, description: data.data!.description }));
     } catch {
       setGenerateError('Failed to generate description');
     } finally {

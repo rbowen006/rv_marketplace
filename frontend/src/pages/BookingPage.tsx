@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import type { BookingConfirmation } from '../types/booking';
 import type { ListingDetail } from '../types/listing';
+import type { ApiErrorBody } from '../types/api';
 
 function daysBetween(start: string, end: string): number {
   if (!start || !end) return 0;
@@ -34,8 +35,8 @@ export function BookingPage() {
   const [confirmed, setConfirmed] = useState<BookingConfirmation | null>(null);
 
   useEffect(() => {
-    apiFetch(`/api/v1/listings/${id}`)
-      .then(({ res, data }) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); setListing(data as ListingDetail); })
+    apiFetch<ListingDetail>(`/api/v1/listings/${id}`)
+      .then(({ res, data }) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); setListing(data); })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
@@ -48,13 +49,13 @@ export function BookingPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const { res, data } = await apiFetch(`/api/v1/listings/${id}/bookings`, {
+      const { res, data } = await apiFetch<BookingConfirmation & ApiErrorBody>(`/api/v1/listings/${id}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ booking: { start_date: startDate, end_date: endDate } }),
       });
       if (!res.ok) throw new Error((data.errors || [data.error]).flat().join(', '));
-      setConfirmed(data as BookingConfirmation);
+      setConfirmed(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
