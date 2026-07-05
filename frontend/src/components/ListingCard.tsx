@@ -14,7 +14,10 @@ export function ListingCard({ listing }: ListingCardProps) {
   const showScore = import.meta.env.DEV && listing.score != null;
 
   return (
-    <Link to={`/listings/${listing.id}${qs ? '?' + qs : ''}`} className="block group no-underline text-inherit">
+    <Link
+      to={`/listings/${listing.id}${qs ? '?' + qs : ''}`}
+      className="block group no-underline text-inherit"
+    >
       <div className="rounded-xl overflow-hidden relative">
         {showScore && (
           <span
@@ -33,7 +36,9 @@ export function ListingCard({ listing }: ListingCardProps) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">🚐</div>
+            <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
+              🚐
+            </div>
           )}
         </div>
       </div>
@@ -42,7 +47,9 @@ export function ListingCard({ listing }: ListingCardProps) {
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-gray-900 text-sm truncate flex-1">{listing.title}</h3>
           {listing.pet_friendly && (
-            <span title="Pet friendly" className="ml-2 text-base">🐾</span>
+            <span title="Pet friendly" className="ml-2 text-base">
+              🐾
+            </span>
           )}
         </div>
 

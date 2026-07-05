@@ -5,9 +5,9 @@ import { useApiFetch } from '../lib/useApiFetch';
 import type { Booking, BookingStatus } from '../types/booking';
 
 const STATUS_STYLES: Record<BookingStatus, string> = {
-  pending:   'bg-yellow-100 text-yellow-800',
+  pending: 'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-green-100 text-green-800',
-  rejected:  'bg-gray-100 text-gray-500',
+  rejected: 'bg-gray-100 text-gray-500',
   cancelled: 'bg-gray-100 text-gray-500',
 };
 
@@ -20,7 +20,9 @@ function formatDateRange(start: string, end: string): string {
 
 function StatusBadge({ status }: { status: BookingStatus }) {
   return (
-    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${STATUS_STYLES[status] ?? 'bg-gray-100 text-gray-500'}`}>
+    <span
+      className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${STATUS_STYLES[status] ?? 'bg-gray-100 text-gray-500'}`}
+    >
       {status}
     </span>
   );
@@ -47,7 +49,9 @@ function BookingRow({ booking, role, onAction }: BookingRowProps) {
     <div className="px-6 py-5 border-b border-gray-100 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-gray-900 truncate">{booking.listing_title}</p>
-        <p className="text-sm text-gray-500 mt-0.5">{formatDateRange(booking.start_date, booking.end_date)}</p>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {formatDateRange(booking.start_date, booking.end_date)}
+        </p>
         <p className="text-sm text-gray-500">
           {isOwner ? 'From' : 'Owner'}: {other?.name ?? '—'}
         </p>
@@ -88,37 +92,45 @@ export function BookingsPage() {
   const [activeTab, setActiveTab] = useState<'hirer' | 'owner'>('hirer');
 
   useEffect(() => {
-    if (!user) { navigate('/'); return; }
+    if (!user) {
+      navigate('/');
+      return;
+    }
     apiFetch<Booking[]>('/api/v1/bookings', { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => setBookings(data))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
 
   async function handleAction(bookingId: number, action: 'confirm' | 'reject') {
-    const { res, data: booking } = await apiFetch<Booking>(`/api/v1/bookings/${bookingId}/${action}`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const { res, data: booking } = await apiFetch<Booking>(
+      `/api/v1/bookings/${bookingId}/${action}`,
+      {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
     if (!res.ok) return;
-    setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: booking.status } : b));
+    setBookings((prev) =>
+      prev.map((b) => (b.id === booking.id ? { ...b, status: booking.status } : b)),
+    );
   }
 
-  const trips    = bookings.filter(b => b.hirer_id === user?.id);
-  const listings = bookings.filter(b => b.owner?.id === user?.id);
+  const trips = bookings.filter((b) => b.hirer_id === user?.id);
+  const listings = bookings.filter((b) => b.owner?.id === user?.id);
 
   const tabs = [
-    { key: 'hirer' as const, label: 'My trips',    items: trips,    role: 'hirer' as const },
+    { key: 'hirer' as const, label: 'My trips', items: trips, role: 'hirer' as const },
     { key: 'owner' as const, label: 'My listings', items: listings, role: 'owner' as const },
   ];
 
-  const active = tabs.find(t => t.key === activeTab)!;
+  const active = tabs.find((t) => t.key === activeTab)!;
 
   return (
     <div className="max-w-2xl mx-auto py-8">
       <h1 className="text-2xl font-bold text-gray-900 px-6 mb-6">Bookings</h1>
 
       <div className="flex border-b border-gray-200 px-6 mb-0">
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -139,7 +151,7 @@ export function BookingsPage() {
         <p className="px-6 py-12 text-center text-sm text-gray-400">No bookings yet</p>
       ) : (
         <div>
-          {active.items.map(booking => (
+          {active.items.map((booking) => (
             <BookingRow
               key={booking.id}
               booking={booking}

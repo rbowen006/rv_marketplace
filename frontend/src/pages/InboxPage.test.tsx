@@ -22,7 +22,7 @@ function renderPage() {
       <Routes>
         <Route path="/inbox" element={<InboxPage />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -58,15 +58,17 @@ describe('InboxPage', () => {
   it('renders a chat row when initialized with chats', () => {
     vi.mocked(UnreadContext.useChats).mockReturnValue({
       chats: {
-        as_hirer: [{
-          id: 1,
-          owner: { id: 2, name: 'Van Owner' },
-          hirer: { id: 1, name: 'Hirer' },
-          last_message_at: '2026-06-25T10:00:00Z',
-          last_message_content: 'Is the van available?',
-          hirer_last_read_at: null,
-          owner_last_read_at: null,
-        }],
+        as_hirer: [
+          {
+            id: 1,
+            owner: { id: 2, name: 'Van Owner' },
+            hirer: { id: 1, name: 'Hirer' },
+            last_message_at: '2026-06-25T10:00:00Z',
+            last_message_content: 'Is the van available?',
+            hirer_last_read_at: null,
+            owner_last_read_at: null,
+          },
+        ],
         as_owner: [],
       },
       initialized: true,

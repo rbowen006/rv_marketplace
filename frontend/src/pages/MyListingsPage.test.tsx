@@ -17,7 +17,9 @@ vi.mock('../lib/useApiFetch', () => ({
 }));
 
 vi.mock('../components/ListingCard', () => ({
-  ListingCard: ({ listing }: { listing: ListingSummary }) => <div data-testid="listing-card">{listing.title}</div>,
+  ListingCard: ({ listing }: { listing: ListingSummary }) => (
+    <div data-testid="listing-card">{listing.title}</div>
+  ),
 }));
 
 let mockApiFetch: ReturnType<typeof vi.fn>;
@@ -35,7 +37,7 @@ function renderPage() {
         <Route path="/my-listings" element={<MyListingsPage />} />
         <Route path="/" element={<div>Home</div>} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -66,7 +68,7 @@ describe('MyListingsPage', () => {
     expect(screen.getByText('Coastal Cruiser')).toBeInTheDocument();
 
     const editLinks = screen.getAllByRole('link', { name: /edit listing/i });
-    expect(editLinks.map(l => l.getAttribute('href'))).toEqual([
+    expect(editLinks.map((l) => l.getAttribute('href'))).toEqual([
       '/listings/7/edit',
       '/listings/8/edit',
     ]);

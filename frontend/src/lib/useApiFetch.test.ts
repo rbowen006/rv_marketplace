@@ -18,7 +18,7 @@ describe('useApiFetch', () => {
 
   it('returns a function that makes the underlying fetch call', async () => {
     globalThis.fetch = vi.fn(() =>
-      Promise.resolve({ ok: true, text: () => Promise.resolve('{"id":1}') })
+      Promise.resolve({ ok: true, text: () => Promise.resolve('{"id":1}') }),
     ) as unknown as typeof fetch;
 
     const { result } = renderHook(() => useApiFetch());
@@ -26,13 +26,17 @@ describe('useApiFetch', () => {
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
       '/api/v1/chats',
-      expect.objectContaining({ headers: expect.objectContaining({ Accept: 'application/json' }) })
+      expect.objectContaining({ headers: expect.objectContaining({ Accept: 'application/json' }) }),
     );
   });
 
   it('calls signOut when response status is 401', async () => {
     globalThis.fetch = vi.fn(() =>
-      Promise.resolve({ ok: false, status: 401, text: () => Promise.resolve('{"error":"Signature has expired"}') })
+      Promise.resolve({
+        ok: false,
+        status: 401,
+        text: () => Promise.resolve('{"error":"Signature has expired"}'),
+      }),
     ) as unknown as typeof fetch;
 
     const { result } = renderHook(() => useApiFetch());
@@ -43,7 +47,11 @@ describe('useApiFetch', () => {
 
   it('does not call signOut for other error statuses', async () => {
     globalThis.fetch = vi.fn(() =>
-      Promise.resolve({ ok: false, status: 422, text: () => Promise.resolve('{"errors":["invalid"]}') })
+      Promise.resolve({
+        ok: false,
+        status: 422,
+        text: () => Promise.resolve('{"errors":["invalid"]}'),
+      }),
     ) as unknown as typeof fetch;
 
     const { result } = renderHook(() => useApiFetch());

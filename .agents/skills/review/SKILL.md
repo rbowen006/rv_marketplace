@@ -33,7 +33,15 @@ Look for the originating spec, in this order:
 
 ### 3. Identify the standards sources
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+Look for anything that documents how code should be written, in this order:
+
+1. Prose docs — `CODING_STANDARDS.md`, `CONTRIBUTING.md`, or similar.
+2. Tool configs (these *are* the house style when prose is missing):
+   - Frontend: `frontend/eslint.config.js`, `frontend/.prettierrc`, `frontend/tsconfig.json`
+   - Backend: `.rubocop.yml` (and any RuboCop inherit targets)
+3. Domain vocabulary — `CONTEXT.md` / `docs/adr/` when the diff touches domain terms.
+
+A missing prose doc is not "no standards." Intentional rule offs and overrides in tool configs (e.g. `@typescript-eslint/no-explicit-any: 'off'`) are documented policy — cite them.
 
 ### 4. Spawn both sub-agents in parallel
 
@@ -43,7 +51,7 @@ Send a single message with two `Agent` tool calls. Use the `general-purpose` sub
 
 - The full diff command and commit list.
 - The list of standards-source files you found in step 3.
-- The brief: "Report — per file/hunk where relevant — every place the diff violates a documented standard. Cite the standard (file + the rule). Distinguish hard violations from judgement calls. Skip anything tooling enforces. Under 400 words."
+- The brief: "Report — per file/hunk where relevant — every place the diff violates a documented standard. Cite the standard (file + the rule or override). Distinguish hard violations from judgement calls. Skip findings the project's automated checks would already catch (`npm run lint` / `format:check` / `typecheck` under `frontend/`, `bin/rubocop`, tests) — those are not review findings. Do report policy conflicts and judgement calls that tools won't flag (e.g. fighting an intentional rule override, inventing a second style). Under 400 words."
 
 **Spec sub-agent prompt** — include:
 

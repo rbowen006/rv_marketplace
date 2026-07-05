@@ -51,14 +51,18 @@ function ChatRow({ chat, role }: ChatRowProps) {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <span className={`text-sm ${unread ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+          <span
+            className={`text-sm ${unread ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}
+          >
             {other?.name ?? 'Unknown'}
           </span>
           <span className="flex-shrink-0 text-xs text-gray-400">
             {formatTimestamp(chat.last_message_at)}
           </span>
         </div>
-        <p className={`text-sm truncate mt-0.5 ${unread ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>
+        <p
+          className={`text-sm truncate mt-0.5 ${unread ? 'font-semibold text-gray-800' : 'text-gray-500'}`}
+        >
           {chat.last_message_content ?? 'No messages yet'}
         </p>
       </div>
@@ -73,7 +77,10 @@ export function InboxPage() {
   const [activeTab, setActiveTab] = useState<ChatRole>('hirer');
 
   useEffect(() => {
-    if (!user) { navigate('/'); return; }
+    if (!user) {
+      navigate('/');
+      return;
+    }
   }, [user, navigate]);
 
   const tabs = [
@@ -81,7 +88,7 @@ export function InboxPage() {
     { key: 'owner' as const, label: 'As Owner', chats: chats.as_owner },
   ];
 
-  const activeChats = tabs.find(t => t.key === activeTab)?.chats ?? [];
+  const activeChats = tabs.find((t) => t.key === activeTab)?.chats ?? [];
 
   return (
     <div className="max-w-2xl mx-auto py-8">
@@ -89,7 +96,7 @@ export function InboxPage() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200 px-6 mb-0">
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -110,7 +117,7 @@ export function InboxPage() {
         <p className="px-6 py-12 text-center text-sm text-gray-400">Message inbox is empty</p>
       ) : (
         <div>
-          {activeChats.map(chat => (
+          {activeChats.map((chat) => (
             <ChatRow key={chat.id} chat={chat} role={activeTab} />
           ))}
         </div>

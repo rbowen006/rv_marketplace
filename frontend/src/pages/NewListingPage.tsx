@@ -33,7 +33,7 @@ export function NewListingPage({ onSignInRequired }: NewListingPageProps) {
     if (!images.length) throw new Error('At least one photo is required');
     const body = new FormData();
     Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, String(v)));
-    images.forEach(img => body.append('listing[images][]', img));
+    images.forEach((img) => body.append('listing[images][]', img));
 
     const { res, data } = await apiFetch<ListingDetail & ApiErrorBody>('/api/v1/listings', {
       method: 'POST',
@@ -47,11 +47,7 @@ export function NewListingPage({ onSignInRequired }: NewListingPageProps) {
   return (
     <div className="max-w-2xl mx-auto py-10 px-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">List your RV</h1>
-      <ListingForm
-        initialValues={{}}
-        onSubmit={handleCreate}
-        submitLabel="Publish listing"
-      />
+      <ListingForm initialValues={{}} onSubmit={handleCreate} submitLabel="Publish listing" />
     </div>
   );
 }

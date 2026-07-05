@@ -20,9 +20,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 describe('UnreadContext', () => {
   beforeEach(() => {
-    mockApiFetch = vi.fn(() =>
-      Promise.resolve({ ok: true, data: emptyChats })
-    );
+    mockApiFetch = vi.fn(() => Promise.resolve({ ok: true, data: emptyChats }));
   });
 
   afterEach(() => {
@@ -43,9 +41,6 @@ describe('UnreadContext', () => {
     });
 
     expect(mockApiFetch.mock.calls.length).toBeGreaterThan(callsBefore);
-    expect(mockApiFetch).toHaveBeenCalledWith(
-      '/api/v1/chats',
-      expect.anything()
-    );
+    expect(mockApiFetch).toHaveBeenCalledWith('/api/v1/chats', expect.anything());
   });
 });

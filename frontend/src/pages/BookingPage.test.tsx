@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { BookingPage } from './BookingPage';
 
@@ -7,10 +7,11 @@ vi.mock('../context/AuthContext', () => ({
 }));
 
 vi.mock('../lib/useApiFetch', () => ({
-  useApiFetch: () => vi.fn().mockResolvedValue({
-    res: { ok: true },
-    data: { id: 103, title: 'Blue Mountains Caravan', price_per_day: 120, owner: { id: 2 } },
-  }),
+  useApiFetch: () =>
+    vi.fn().mockResolvedValue({
+      res: { ok: true },
+      data: { id: 103, title: 'Blue Mountains Caravan', price_per_day: 120, owner: { id: 2 } },
+    }),
 }));
 
 function renderBookingPage(search = '') {
@@ -19,7 +20,7 @@ function renderBookingPage(search = '') {
       <Routes>
         <Route path="/listings/:id/book" element={<BookingPage />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
