@@ -2,6 +2,10 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditListingPage } from './EditListingPage';
 import * as AuthContext from '../context/AuthContext';
+import type { AuthContextValue } from '../types/auth';
+
+const setAuth = (v: Partial<AuthContextValue>) =>
+  vi.mocked(AuthContext.useAuth).mockReturnValue(v as AuthContextValue);
 
 vi.mock('../context/AuthContext', () => ({
   useAuth: vi.fn(),
@@ -65,25 +69,25 @@ describe('EditListingPage', () => {
   });
 
   it('redirects to / when not authenticated', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: null, token: null });
+    setAuth({ user: null, token: null });
     renderPage();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/'));
   });
 
   it('redirects to /listings/:id when logged in as non-owner', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: { id: 99 }, token: 'tok' });
+    setAuth({ user: { id: 99 }, token: 'tok' });
     renderPage();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/listings/42'));
   });
 
   it('renders the form with listing data when authenticated as owner', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: { id: 7 }, token: 'tok' });
+    setAuth({ user: { id: 7 }, token: 'tok' });
     renderPage();
     await waitFor(() => expect(screen.getByTestId('form-title')).toHaveTextContent('Desert Dreamer'));
   });
 
   it('calls PUT on save and redirects to /listings/:id', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: { id: 7 }, token: 'tok' });
+    setAuth({ user: { id: 7 }, token: 'tok' });
     renderPage();
     await waitFor(() => screen.getByTestId('listing-form'));
 

@@ -1,15 +1,16 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import type { AuthContextValue, AuthUser } from '../types/auth';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('rv_token'));
-  const [user, setUser] = useState(() => {
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('rv_token'));
+  const [user, setUser] = useState<AuthUser | null>(() => {
     const saved = localStorage.getItem('rv_user');
     return saved ? JSON.parse(saved) : null;
   });
 
-  const signIn = useCallback(async (email, password) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     const res = await fetch('/users/sign_in', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -19,9 +20,9 @@ export function AuthProvider({ children }) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error ?? 'Invalid email or password');
     }
-    const jwt = res.headers.get('Authorization')?.split(' ').at(-1);
+    const jwt = res.headers.get('Authorization')?.split(' ').pop() ?? null;
     const body = await res.json();
-    const userData = { id: body.user?.id, name: body.user?.name ?? email, email };
+    const userData: AuthUser = { id: body.user?.id, name: body.user?.name ?? email, email };
     setToken(jwt);
     setUser(userData);
     localStorage.setItem('rv_token', jwt);
@@ -29,7 +30,7 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
-  const signUp = useCallback(async (name, email, password) => {
+  const signUp = useCallback(async (name: string, email: string, password: string) => {
     const res = await fetch('/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,8 +40,8 @@ export function AuthProvider({ children }) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.errors?.[0] ?? 'Registration failed');
     }
-    const jwt = res.headers.get('Authorization')?.split(' ').at(-1);
-    const userData = { id: body.user?.id, name, email };
+    const jwt = res.headers.get('Authorization')?.split(' ').pop() ?? null;
+    const userData: AuthUser = { id: undefined, name, email };
     setToken(jwt);
     setUser(userData);
     localStorage.setItem('rv_token', jwt);
@@ -67,5 +68,5 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  return useContext(AuthContext) as AuthContextValue;
 }

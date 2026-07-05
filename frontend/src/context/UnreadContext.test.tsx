@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { ReactNode } from 'react';
 import { UnreadProvider, useChats } from './UnreadContext';
 
 vi.mock('./AuthContext', () => ({
@@ -9,11 +10,11 @@ vi.mock('../lib/useApiFetch', () => ({
   useApiFetch: () => mockApiFetch,
 }));
 
-let mockApiFetch;
+let mockApiFetch: ReturnType<typeof vi.fn>;
 
 const emptyChats = { as_hirer: [], as_owner: [] };
 
-function wrapper({ children }) {
+function wrapper({ children }: { children: ReactNode }) {
   return <UnreadProvider>{children}</UnreadProvider>;
 }
 

@@ -2,6 +2,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MyListingsPage } from './MyListingsPage';
 import * as AuthContext from '../context/AuthContext';
+import type { AuthContextValue } from '../types/auth';
+
+const setAuth = (v: Partial<AuthContextValue>) =>
+  vi.mocked(AuthContext.useAuth).mockReturnValue(v as AuthContextValue);
 
 vi.mock('../context/AuthContext', () => ({
   useAuth: vi.fn(),
@@ -41,13 +45,13 @@ describe('MyListingsPage', () => {
   });
 
   it('redirects to / when not authenticated', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: null, token: null });
+    setAuth({ user: null, token: null });
     renderPage();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/'));
   });
 
   it('renders each listing with an Edit listing link', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: { id: 1, name: 'Olly' }, token: 't' });
+    setAuth({ user: { id: 1, name: 'Olly' }, token: 't' });
     mockApiFetch.mockResolvedValue({
       res: { ok: true },
       data: [
@@ -68,7 +72,7 @@ describe('MyListingsPage', () => {
   });
 
   it('shows an empty state linking to /listings/new when there are no listings', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue({ user: { id: 1, name: 'Olly' }, token: 't' });
+    setAuth({ user: { id: 1, name: 'Olly' }, token: 't' });
     mockApiFetch.mockResolvedValue({ res: { ok: true }, data: [] });
     renderPage();
 
