@@ -19,6 +19,7 @@ export interface ListingSummary {
   title: string;
   town?: string;
   state?: string;
+  postcode?: string;
   price_per_day: number;
   max_guests: number;
   pet_friendly?: boolean;
@@ -26,4 +27,11 @@ export interface ListingSummary {
   owner?: ListingOwner;
   /** Present on NL-search results only (dev score badge). */
   score?: number;
+}
+
+/** Full listing detail from GET /api/v1/listings/:id */
+export interface ListingDetail extends ListingSummary {
+  description?: string;
+  images?: ListingAttachment[];
+  rv_type?: string;
 }

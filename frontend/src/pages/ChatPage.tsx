@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { FormEvent, useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import type { ChatDetail, Message, MessageGroupItem } from '../types/chat';
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
-function formatTimestampLabel(date) {
+function formatTimestampLabel(date: Date): string {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterdayStart = new Date(todayStart - 24 * 60 * 60 * 1000);
-  const weekAgoStart = new Date(todayStart - 6 * 24 * 60 * 60 * 1000);
+  const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+  const weekAgoStart = new Date(todayStart.getTime() - 6 * 24 * 60 * 60 * 1000);
   const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
   if (date >= todayStart) return `Today at ${timeStr}`;
@@ -24,12 +25,12 @@ function formatTimestampLabel(date) {
   return `${dateStr} at ${timeStr}`;
 }
 
-function groupMessages(messages) {
-  const result = [];
-  let prevDate = null;
+function groupMessages(messages: Message[]): MessageGroupItem[] {
+  const result: MessageGroupItem[] = [];
+  let prevDate: Date | null = null;
   for (const msg of messages) {
     const msgDate = new Date(msg.created_at);
-    if (prevDate === null || msgDate - prevDate >= ONE_HOUR_MS) {
+    if (prevDate === null || msgDate.getTime() - prevDate.getTime() >= ONE_HOUR_MS) {
       result.push({ type: 'label', key: `label-${msg.id}`, text: formatTimestampLabel(msgDate) });
     }
     result.push({ type: 'message', ...msg });
@@ -43,14 +44,14 @@ export function ChatPage() {
   const { token, user } = useAuth();
   const apiFetch = useApiFetch();
 
-  const [chat, setChat] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [chat, setChat] = useState<ChatDetail | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const bottomRef = useRef(null);
-  const inputRef = useRef(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const authHeaders = { Authorization: `Bearer ${token}` };
 
@@ -58,9 +59,9 @@ export function ChatPage() {
     try {
       const { res, data } = await apiFetch(`/api/v1/chats/${id}`, { headers: authHeaders });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setChat(data);
+      setChat(data as ChatDetail);
     } catch (e) {
-      setError(e.message);
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -76,7 +77,7 @@ export function ChatPage() {
       try {
         const { res, data } = await apiFetch(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
         if (!res.ok) return;
-        setMessages(data);
+        setMessages(data as Message[]);
       } catch {
         // silent — don't surface poll errors
       }
@@ -90,7 +91,7 @@ export function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function handleSend(e) {
+  async function handleSend(e: FormEvent) {
     e.preventDefault();
     if (!draft.trim()) return;
     setSending(true);
@@ -101,10 +102,10 @@ export function ChatPage() {
         body: JSON.stringify({ message: { content: draft.trim() } }),
       });
       if (!res.ok) throw new Error('Failed to send');
-      setMessages(prev => [...prev, msg]);
+      setMessages(prev => [...prev, msg as Message]);
       setDraft('');
       inputRef.current?.focus();
-    } catch (err) {
+    } catch {
       // Keep draft so the user can retry
     } finally {
       setSending(false);

@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import type { BookingConfirmation } from '../types/booking';
+import type { ListingDetail } from '../types/listing';
 
-function daysBetween(start, end) {
+function daysBetween(start: string, end: string): number {
   if (!start || !end) return 0;
-  const ms = new Date(end) - new Date(start);
+  const ms = new Date(end).getTime() - new Date(start).getTime();
   return Math.max(0, Math.round(ms / 86400000));
 }
 
@@ -18,30 +20,30 @@ export function BookingPage() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  function validFutureDate(str) {
+  function validFutureDate(str: string | null): string {
     return str && str >= today ? str : '';
   }
 
-  const [listing, setListing] = useState(null);
+  const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const initialDateFrom = validFutureDate(searchParams.get('dateFrom'));
   const [startDate, setStartDate] = useState(initialDateFrom);
   const [endDate, setEndDate] = useState(initialDateFrom ? validFutureDate(searchParams.get('dateTo')) : '');
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const [confirmed, setConfirmed] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState<BookingConfirmation | null>(null);
 
   useEffect(() => {
     apiFetch(`/api/v1/listings/${id}`)
-      .then(({ res, data }) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); setListing(data); })
-      .catch(e => setError(e.message))
+      .then(({ res, data }) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); setListing(data as ListingDetail); })
+      .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
 
   const nights = daysBetween(startDate, endDate);
   const total = listing ? nights * listing.price_per_day : 0;
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
@@ -52,9 +54,9 @@ export function BookingPage() {
         body: JSON.stringify({ booking: { start_date: startDate, end_date: endDate } }),
       });
       if (!res.ok) throw new Error((data.errors || [data.error]).flat().join(', '));
-      setConfirmed(data);
+      setConfirmed(data as BookingConfirmation);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setSubmitting(false);
     }

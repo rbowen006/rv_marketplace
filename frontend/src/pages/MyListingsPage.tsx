@@ -3,18 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { ListingCard } from '../components/ListingCard';
+import type { ListingSummary } from '../types/listing';
 
 export function MyListingsPage() {
   const { user, token } = useAuth();
   const apiFetch = useApiFetch();
   const navigate = useNavigate();
-  const [listings, setListings] = useState([]);
+  const [listings, setListings] = useState<ListingSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
     apiFetch('/api/v1/listings/mine', { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ res, data }) => setListings(res.ok && Array.isArray(data) ? data : []))
+      .then(({ res, data }) => setListings(res.ok && Array.isArray(data) ? data as ListingSummary[] : []))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
 

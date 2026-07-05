@@ -26,7 +26,7 @@ const LISTING = {
 };
 
 function renderPage() {
-  global.fetch = vi.fn().mockResolvedValue({
+  globalThis.fetch = vi.fn().mockResolvedValue({
     ok: true,
     json: () => Promise.resolve(LISTING),
   });

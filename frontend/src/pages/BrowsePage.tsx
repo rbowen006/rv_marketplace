@@ -3,11 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { ListingGrid } from '../components/ListingGrid';
 import { NlSearchBox } from '../components/NlSearchBox';
 import { SignInModal } from '../components/SignInModal';
+import type { ListingSummary } from '../types/listing';
 
 export function BrowsePage() {
-  const [allListings, setAllListings] = useState([]);
+  const [allListings, setAllListings] = useState<ListingSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showSignIn, setShowSignIn] = useState(searchParams.get('reset') === '1');
 
@@ -21,8 +22,8 @@ export function BrowsePage() {
   useEffect(() => {
     fetch('/api/v1/listings')
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then(setAllListings)
-      .catch(e => setError(e.message))
+      .then((data: ListingSummary[]) => setAllListings(data))
+      .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 

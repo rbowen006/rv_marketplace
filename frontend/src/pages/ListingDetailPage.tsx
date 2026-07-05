@@ -3,6 +3,9 @@ import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext';
 import { SignInModal } from '../components/SignInModal';
 import { ContactOwnerModal } from '../components/ContactOwnerModal';
+import type { ListingDetail } from '../types/listing';
+
+type PendingAction = 'book' | 'contact';
 
 export function ListingDetailPage() {
   const { id } = useParams();
@@ -11,24 +14,24 @@ export function ListingDetailPage() {
   const [searchParams] = useSearchParams();
   const qs = searchParams.toString();
 
-  const [listing, setListing] = useState(null);
+  const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [showSignIn, setShowSignIn] = useState(false);
   const [showContact, setShowContact] = useState(false);
   // Tracks which action to trigger after successful sign-in
-  const [pendingAction, setPendingAction] = useState(null);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
   useEffect(() => {
     fetch(`/api/v1/listings/${id}`)
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then(setListing)
-      .catch(e => setError(e.message))
+      .then((data: ListingDetail) => setListing(data))
+      .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
 
-  function requireAuth(action) {
+  function requireAuth(action: PendingAction) {
     if (user) {
       triggerAction(action);
     } else {
@@ -37,7 +40,7 @@ export function ListingDetailPage() {
     }
   }
 
-  function triggerAction(action) {
+  function triggerAction(action: PendingAction) {
     if (action === 'book') {
       navigate(`/listings/${id}/book${qs ? '?' + qs : ''}`);
     } else if (action === 'contact') {
@@ -67,7 +70,7 @@ export function ListingDetailPage() {
       )}
       {showContact && (
         <ContactOwnerModal
-          listingId={id}
+          listingId={Number(id)}
           listingTitle={listing.title}
           onClose={() => setShowContact(false)}
         />
