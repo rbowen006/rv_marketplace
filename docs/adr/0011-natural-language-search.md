@@ -136,6 +136,24 @@ toggle waits until structured backend search exists. An optional dev-only score 
 on each card makes the ranking tangible. Consequence: two parallel, unshared search UIs
 for now.
 
+**Addendum (v1 build):** during implementation the two "unshared" UIs proved confusing
+side by side (both inputs could hold values, and it was unclear which drove the results).
+So v1 pulled a slice of the deferred coordination forward and makes the two searches
+**mutually exclusive** — the NL box lives as a section on the browse page, and only one
+search is ever populated.
+
+The coordination is done entirely through the **URL**, matching how the structured
+`SearchBar` already works (its params live in the query string): the active NL query is a
+`?q=` param. `BrowsePage` shows NL results when `?q=` is present and the structured browse
+grid otherwise; `NlSearchBox` reads/writes `?q=` and fetches whenever it changes; the
+`SearchBar` mirrors the URL, so it shows empty when `?q=` (no structured params) is active.
+A structured search navigates without `?q=` and thus drops the NL search, and vice versa.
+Because state is URL-backed, back/forward/logo navigation all behave and an NL result deep
+link (`/?q=…`) works. Note the API request stays **POST** (query in the JSON body, per the
+endpoint decision above); `?q=` is only frontend UI state. This lightly touches `SearchBar`
+(a URL-mirroring effect), contrary to the original "left untouched" wording above. The full
+**structured/NL toggle** and any shared search chrome remain deferred to #21.
+
 ### Observability: embeddings logged to ai_requests
 
 Every embedding call (query-time and listing-time) writes an `ai_requests` row

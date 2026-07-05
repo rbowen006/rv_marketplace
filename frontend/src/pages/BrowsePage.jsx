@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ListingGrid } from '../components/ListingGrid';
+import { NlSearchBox } from '../components/NlSearchBox';
 import { SignInModal } from '../components/SignInModal';
 
 export function BrowsePage() {
@@ -10,6 +11,9 @@ export function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showSignIn, setShowSignIn] = useState(searchParams.get('reset') === '1');
 
+  // A natural-language search (?q=) takes over the page; otherwise show the
+  // structured browse grid, filtered by the SearchBar's URL params.
+  const nlQuery = (searchParams.get('q') || '').trim();
   const location = searchParams.get('location') || '';
   const guests   = searchParams.get('guests')   || '';
   const pets     = searchParams.get('pets') === '1';
@@ -38,7 +42,10 @@ export function BrowsePage() {
   return (
     <div>
       <main className="max-w-screen-xl mx-auto">
-        <ListingGrid listings={visibleListings} loading={loading} error={error} />
+        <NlSearchBox />
+        {!nlQuery && (
+          <ListingGrid listings={visibleListings} loading={loading} error={error} />
+        )}
       </main>
       {showSignIn && <SignInModal onClose={closeSignIn} />}
     </div>

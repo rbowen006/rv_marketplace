@@ -37,4 +37,22 @@ describe('ListingCard', () => {
     const link = screen.getByRole('link');
     expect(link.getAttribute('href')).toBe('/listings/42');
   });
+
+  it('shows a dev score badge when the listing has a score', () => {
+    render(
+      <MemoryRouter>
+        <ListingCard listing={{ ...listing, score: 0.1234 }} />
+      </MemoryRouter>
+    );
+    expect(screen.getByTestId('score-badge')).toHaveTextContent('0.123');
+  });
+
+  it('renders no score badge when the listing has no score', () => {
+    render(
+      <MemoryRouter>
+        <ListingCard listing={listing} />
+      </MemoryRouter>
+    );
+    expect(screen.queryByTestId('score-badge')).not.toBeInTheDocument();
+  });
 });

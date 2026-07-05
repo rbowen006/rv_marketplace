@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useSearchParams } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 import * as ReactRouterDom from 'react-router-dom';
 
@@ -107,5 +107,29 @@ describe('SearchBar URL seeding', () => {
   it('seeds the date pill from dateFrom and dateTo URL params on mount', () => {
     renderSearchBar('/?dateFrom=2026-08-01&dateTo=2026-08-07');
     expect(screen.queryByText('Any week')).not.toBeInTheDocument();
+  });
+});
+
+describe('SearchBar mirrors the URL', () => {
+  // Stands in for a natural-language search elsewhere: navigate to ?q= (which
+  // carries no structured params).
+  function GoNlSearch() {
+    const [, setSearchParams] = useSearchParams();
+    return <button onClick={() => setSearchParams({ q: 'beach' })}>go-nl</button>;
+  }
+
+  it('clears its location when the URL switches to a natural-language search', () => {
+    render(
+      <MemoryRouter initialEntries={['/?location=Byron']}>
+        <SearchBar />
+        <GoNlSearch />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Byron')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'go-nl' }));
+
+    expect(screen.queryByText('Byron')).not.toBeInTheDocument();
+    expect(screen.getByText('Anywhere')).toBeInTheDocument();
   });
 });
