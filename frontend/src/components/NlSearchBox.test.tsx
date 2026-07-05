@@ -7,7 +7,7 @@ vi.mock('../lib/useApiFetch', () => ({ useApiFetch: vi.fn() }));
 
 const request = vi.fn();
 
-function renderBox(initialEntries = ['/']) {
+function renderBox(initialEntries: string[] = ['/']) {
   render(
     <MemoryRouter initialEntries={initialEntries}>
       <NlSearchBox />
@@ -15,7 +15,7 @@ function renderBox(initialEntries = ['/']) {
   );
 }
 
-function search(text) {
+function search(text: string) {
   fireEvent.change(screen.getByPlaceholderText(/describe/i), { target: { value: text } });
   fireEvent.click(screen.getByRole('button', { name: /search/i }));
 }
@@ -70,14 +70,14 @@ describe('NlSearchBox', () => {
   });
 
   it('shows a loading indicator while the request is in flight', async () => {
-    let resolve;
+    let resolve: (value: unknown) => void;
     request.mockReturnValue(new Promise(r => { resolve = r; }));
     renderBox();
     search('beach trip');
 
     expect(await screen.findByText(/searching/i)).toBeInTheDocument();
 
-    resolve({ res: { ok: true }, data: [] });
+    resolve!({ res: { ok: true }, data: [] });
     await waitFor(() => expect(screen.queryByText(/searching/i)).not.toBeInTheDocument());
   });
 
@@ -136,13 +136,13 @@ describe('NlSearchBox', () => {
   });
 
   it('ignores a response for a query that was cleared before it resolved', async () => {
-    let resolve;
+    let resolve: (value: unknown) => void;
     request.mockReturnValue(new Promise(r => { resolve = r; }));
     renderBox();
     search('beach trip');
     fireEvent.click(screen.getByRole('button', { name: /clear/i }));
 
-    resolve({ res: { ok: true }, data: [{ id: 9, title: 'Late Van', town: 'B', state: 'Y', max_guests: 3, price_per_day: 60 }] });
+    resolve!({ res: { ok: true }, data: [{ id: 9, title: 'Late Van', town: 'B', state: 'Y', max_guests: 3, price_per_day: 60 }] });
     await waitFor(() => {});
 
     expect(screen.queryByRole('heading', { level: 3, name: 'Late Van' })).not.toBeInTheDocument();

@@ -9,6 +9,11 @@ export interface ListingImage {
   url?: string;
 }
 
+export interface ListingAttachment extends ListingImage {
+  id: number;
+  url: string;
+}
+
 export interface ListingSummary {
   id: number;
   title: string;

@@ -22,7 +22,7 @@ vi.mock('../lib/useApiFetch', () => ({
   useApiFetch: () => mockApiFetch,
 }));
 
-let mockApiFetch;
+let mockApiFetch: ReturnType<typeof vi.fn>;
 
 function renderModal() {
   render(

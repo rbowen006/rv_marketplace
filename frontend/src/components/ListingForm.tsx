@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import type { ListingAttachment } from '../types/listing';
+import type { ListingFormFields, ListingFormProps } from '../types/listing-form';
 
 const AU_STATES = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'];
 const RV_TYPES = [
@@ -11,13 +13,13 @@ const RV_TYPES = [
 // Kept in sync by hand with Ai::DescriptionGenerator::REQUIRED_FIELDS
 // (app/services/ai/description_generator.rb) — no shared schema between
 // frontend and backend, so a mismatch here won't fail loudly.
-const GENERATE_REQUIRED_FIELDS = ['rv_type', 'town', 'state', 'max_guests'];
+const GENERATE_REQUIRED_FIELDS: (keyof ListingFormFields)[] = ['rv_type', 'town', 'state', 'max_guests'];
 
-export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listingId }) {
+export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listingId }: ListingFormProps) {
   const { token } = useAuth();
   const apiFetch = useApiFetch();
 
-  const [fields, setFields] = useState({
+  const [fields, setFields] = useState<ListingFormFields>({
     title: initialValues.title ?? '',
     description: initialValues.description ?? '',
     rv_type: initialValues.rv_type ?? '',
@@ -28,13 +30,13 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
     max_guests: initialValues.max_guests ?? '',
     pet_friendly: initialValues.pet_friendly ?? false,
   });
-  const [existingImages, setExistingImages] = useState(initialValues.images ?? []);
-  const [newImages, setNewImages] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState<ListingAttachment[]>(initialValues.images ?? []);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const canGenerate = GENERATE_REQUIRED_FIELDS.every(f => String(fields[f]).trim() !== '');
 
@@ -72,13 +74,14 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
     }
   }
 
-  function handleField(e) {
-    const { name, value, type, checked } = e.target;
+  function handleField(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    const { name, value, type } = e.target;
+    const checked = 'checked' in e.target ? e.target.checked : false;
     setFields(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   }
 
-  async function handleImageFiles(e) {
-    const files = Array.from(e.target.files);
+  async function handleImageFiles(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
 
     if (listingId) {
@@ -97,7 +100,7 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
     e.target.value = '';
   }
 
-  async function handleDeleteImage(attachmentId) {
+  async function handleDeleteImage(attachmentId: number) {
     await apiFetch(`/api/v1/listings/${listingId}/images/${attachmentId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
@@ -105,7 +108,7 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
     setExistingImages(prev => prev.filter(img => img.id !== attachmentId));
   }
 
-  function removeNewImage(index) {
+  function removeNewImage(index: number) {
     setNewImages(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => {
       URL.revokeObjectURL(prev[index]);
@@ -113,14 +116,14 @@ export function ListingForm({ initialValues = {}, onSubmit, submitLabel, listing
     });
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
     try {
       await onSubmit(fields, newImages);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setSubmitting(false);
     }
