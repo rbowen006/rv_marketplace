@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MyListingsPage } from './MyListingsPage';
 import * as AuthContext from '../context/AuthContext';
 import type { AuthContextValue } from '../types/auth';
+import type { ListingSummary } from '../types/listing';
 
 const setAuth = (v: Partial<AuthContextValue>) =>
   vi.mocked(AuthContext.useAuth).mockReturnValue(v as AuthContextValue);
@@ -16,10 +17,10 @@ vi.mock('../lib/useApiFetch', () => ({
 }));
 
 vi.mock('../components/ListingCard', () => ({
-  ListingCard: ({ listing }) => <div data-testid="listing-card">{listing.title}</div>,
+  ListingCard: ({ listing }: { listing: ListingSummary }) => <div data-testid="listing-card">{listing.title}</div>,
 }));
 
-let mockApiFetch;
+let mockApiFetch: ReturnType<typeof vi.fn>;
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async (importOriginal) => ({

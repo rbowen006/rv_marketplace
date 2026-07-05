@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditListingPage } from './EditListingPage';
 import * as AuthContext from '../context/AuthContext';
 import type { AuthContextValue } from '../types/auth';
+import type { ListingFormProps } from '../types/listing-form';
 
 const setAuth = (v: Partial<AuthContextValue>) =>
   vi.mocked(AuthContext.useAuth).mockReturnValue(v as AuthContextValue);
@@ -16,18 +17,18 @@ vi.mock('../lib/useApiFetch', () => ({
 }));
 
 vi.mock('../components/ListingForm', () => ({
-  ListingForm: ({ initialValues, onSubmit, submitLabel }) => (
+  ListingForm: ({ initialValues, onSubmit, submitLabel }: ListingFormProps) => (
     <form
-      onSubmit={e => { e.preventDefault(); onSubmit({ title: initialValues.title }, []); }}
+      onSubmit={e => { e.preventDefault(); onSubmit({ title: initialValues?.title } as never, []); }}
       data-testid="listing-form"
     >
-      <span data-testid="form-title">{initialValues.title}</span>
+      <span data-testid="form-title">{initialValues?.title}</span>
       <button type="submit">{submitLabel}</button>
     </form>
   ),
 }));
 
-let mockApiFetch;
+let mockApiFetch: ReturnType<typeof vi.fn>;
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async (importOriginal) => ({

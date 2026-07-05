@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userData: AuthUser = { id: body.user?.id, name: body.user?.name ?? email, email };
     setToken(jwt);
     setUser(userData);
-    localStorage.setItem('rv_token', jwt);
+    localStorage.setItem('rv_token', jwt ?? '');
     localStorage.setItem('rv_user', JSON.stringify(userData));
     return userData;
   }, []);
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userData: AuthUser = { id: undefined, name, email };
     setToken(jwt);
     setUser(userData);
-    localStorage.setItem('rv_token', jwt);
+    localStorage.setItem('rv_token', jwt ?? '');
     localStorage.setItem('rv_user', JSON.stringify(userData));
     return userData;
   }, []);
