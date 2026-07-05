@@ -1,6 +1,6 @@
 # Trekr RV Marketplace
 
-Trekr is a full-stack RV/caravan marketplace with a Rails API, React/Vite frontend, PostgreSQL persistence, Redis-backed Sidekiq jobs, and a Docker Compose development stack.
+Trekr is a full-stack RV/caravan marketplace with a Rails API, React/TypeScript/Vite frontend, PostgreSQL persistence, Redis-backed Sidekiq jobs, and a Docker Compose development stack.
 
 <p align="center">
   <img src="docs/assets/trekr-icon.png" alt="Trekr app icon" width="180">
@@ -41,7 +41,7 @@ See [docs/ai-integrations.md](docs/ai-integrations.md) for the full design brief
 - Devise + devise-jwt for token authentication
 - Active Storage for listing image uploads
 - Rswag for OpenAPI/Swagger spec generation
-- React 18 + Vite 8 frontend in `frontend/`
+- React 18 + TypeScript + Vite 8 frontend in `frontend/` (strict mode; ESLint + Prettier)
 - Tailwind CSS 4 for styling
 
 ## Contents
@@ -344,7 +344,7 @@ curl -i -X POST http://localhost:3000/api/v1/chats/<CHAT_ID>/messages \
 
 ## Frontend
 
-Vite + React SPA in `frontend/`; Rails runs in Docker and serves the API behind `/api`.
+Vite + React + TypeScript SPA in `frontend/`; Rails runs in Docker and serves the API behind `/api`. Source is `.ts`/`.tsx` under `frontend/src/` with API response types in `frontend/src/types/`.
 
 ### Setup And Run
 
@@ -354,13 +354,16 @@ npm install
 npm run dev  # http://localhost:5173
 ```
 
-The dev server proxies `/api`, `/users`, and `/rails` to `http://localhost:3000` (see `frontend/vite.config.js`). This covers both the API routes and the Devise auth endpoints. Ensure the Rails container is running.
+The dev server proxies `/api`, `/users`, and `/rails` to `http://localhost:3000` (see `frontend/vite.config.ts`). This covers both the API routes and the Devise auth endpoints. Ensure the Rails container is running.
 
-Run frontend tests:
+Run frontend checks:
 
 ```bash
 cd frontend
-npm test
+npm run typecheck   # tsc --noEmit
+npm run lint        # ESLint
+npm run format:check
+npm test            # Vitest
 ```
 
 ### CORS
