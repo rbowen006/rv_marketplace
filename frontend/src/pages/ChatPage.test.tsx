@@ -25,7 +25,10 @@ const messagesData = [
 function renderChatPage() {
   globalThis.fetch = vi.fn((url: string) => {
     if (url.includes('/messages')) {
-      return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(messagesData)) });
+      return Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve(JSON.stringify(messagesData)),
+      });
     }
     return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(chatData)) });
   }) as unknown as typeof fetch;
@@ -35,7 +38,7 @@ function renderChatPage() {
       <Routes>
         <Route path="/chats/:id" element={<ChatPage />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -47,10 +50,13 @@ describe('ChatPage', () => {
   it('calls the messages endpoint immediately on mount, without waiting for the poll interval', async () => {
     renderChatPage();
 
-    await waitFor(() => {
-      const calls = vi.mocked(globalThis.fetch).mock.calls.map(([url]) => url as string);
-      expect(calls.some(url => url.includes('/messages'))).toBe(true);
-    }, { timeout: 500 });
+    await waitFor(
+      () => {
+        const calls = vi.mocked(globalThis.fetch).mock.calls.map(([url]) => url as string);
+        expect(calls.some((url) => url.includes('/messages'))).toBe(true);
+      },
+      { timeout: 500 },
+    );
   });
 
   it('displays messages from the messages endpoint, not from the chat show response', async () => {

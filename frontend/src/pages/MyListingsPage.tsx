@@ -13,8 +13,13 @@ export function MyListingsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { navigate('/'); return; }
-    apiFetch<ListingSummary[]>('/api/v1/listings/mine', { headers: { Authorization: `Bearer ${token}` } })
+    if (!user) {
+      navigate('/');
+      return;
+    }
+    apiFetch<ListingSummary[]>('/api/v1/listings/mine', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then(({ res, data }) => setListings(res.ok && Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
@@ -39,7 +44,7 @@ export function MyListingsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
-          {listings.map(listing => (
+          {listings.map((listing) => (
             <div key={listing.id}>
               <ListingCard listing={listing} />
               <Link

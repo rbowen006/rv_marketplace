@@ -17,7 +17,7 @@ function renderPage() {
       <Routes>
         <Route path="/listings/new" element={<NewListingPage />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 

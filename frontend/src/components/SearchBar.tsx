@@ -1,9 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_FULL = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 type SearchPanel = 'where' | 'when' | 'who';
 
@@ -27,9 +40,11 @@ function whenLabel(dateFrom: Date | null, dateTo: Date | null): string {
 
 function isSameDay(a: Date | null, b: Date | null): boolean {
   if (!a || !b) return false;
-  return a.getFullYear() === b.getFullYear() &&
+  return (
+    a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
+    a.getDate() === b.getDate()
+  );
 }
 
 function inRange(date: Date, start: Date | null, end: Date | null): boolean {
@@ -47,7 +62,15 @@ interface CalendarMonthProps {
   onDayHover: (date: Date) => void;
 }
 
-function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, onDayHover }: CalendarMonthProps) {
+function CalendarMonth({
+  year,
+  month,
+  dateFrom,
+  dateTo,
+  hoverDate,
+  onDayClick,
+  onDayHover,
+}: CalendarMonthProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -65,8 +88,10 @@ function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, o
         {MONTH_FULL[month]} {year}
       </p>
       <div className="grid grid-cols-7 mb-1">
-        {DAYS.map(d => (
-          <div key={d} className="text-center text-xs font-medium text-gray-400 pb-1">{d}</div>
+        {DAYS.map((d) => (
+          <div key={d} className="text-center text-xs font-medium text-gray-400 pb-1">
+            {d}
+          </div>
         ))}
       </div>
       <div className="grid grid-cols-7">
@@ -78,7 +103,8 @@ function CalendarMonth({ year, month, dateFrom, dateTo, hoverDate, onDayClick, o
           const isEnd = isSameDay(date, dateTo);
           const isMid = !isPast && dateFrom && inRange(date, dateFrom, rangeEnd);
 
-          let cls = 'w-full aspect-square flex items-center justify-center text-sm cursor-pointer select-none ';
+          let cls =
+            'w-full aspect-square flex items-center justify-center text-sm cursor-pointer select-none ';
           if (isPast) {
             cls += 'text-gray-300 cursor-default pointer-events-none';
           } else if (isStart) {
@@ -137,13 +163,17 @@ function WhenPanel({ dateFrom, dateTo, onDateFrom, onDateTo, onClose }: WhenPane
   }
 
   function prevMonth() {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
-    else setViewMonth(m => m - 1);
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else setViewMonth((m) => m - 1);
   }
 
   function nextMonth() {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
-    else setViewMonth(m => m + 1);
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else setViewMonth((m) => m + 1);
   }
 
   return (
@@ -158,15 +188,19 @@ function WhenPanel({ dateFrom, dateTo, onDateFrom, onDateTo, onClose }: WhenPane
         </button>
         <div className="flex gap-8">
           <CalendarMonth
-            year={viewYear} month={viewMonth}
-            dateFrom={dateFrom} dateTo={dateTo}
+            year={viewYear}
+            month={viewMonth}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
             hoverDate={!dateFrom || dateTo ? null : hoverDate}
             onDayClick={handleDayClick}
             onDayHover={setHoverDate}
           />
           <CalendarMonth
-            year={rightYear} month={rightMonth}
-            dateFrom={dateFrom} dateTo={dateTo}
+            year={rightYear}
+            month={rightMonth}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
             hoverDate={!dateFrom || dateTo ? null : hoverDate}
             onDayClick={handleDayClick}
             onDayHover={setHoverDate}
@@ -216,7 +250,9 @@ export function SearchBar() {
   const searchString = searchParams.toString();
   const [activePanel, setActivePanel] = useState<SearchPanel | null>(null);
   const [location, setLocation] = useState(() => fieldsFromParams(searchString).location);
-  const [dateFrom, setDateFrom] = useState<Date | null>(() => fieldsFromParams(searchString).dateFrom);
+  const [dateFrom, setDateFrom] = useState<Date | null>(
+    () => fieldsFromParams(searchString).dateFrom,
+  );
   const [dateTo, setDateTo] = useState<Date | null>(() => fieldsFromParams(searchString).dateTo);
   const [guests, setGuests] = useState(() => fieldsFromParams(searchString).guests);
   const [pets, setPets] = useState(() => fieldsFromParams(searchString).pets);
@@ -293,7 +329,12 @@ export function SearchBar() {
           aria-label="Search"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           Search
         </button>
@@ -308,7 +349,7 @@ export function SearchBar() {
             className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
             placeholder="Search destinations"
             value={location}
-            onChange={e => setLocation(e.target.value)}
+            onChange={(e) => setLocation(e.target.value)}
           />
         </div>
       )}
@@ -334,7 +375,7 @@ export function SearchBar() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setGuests(g => Math.max(0, g - 1))}
+                onClick={() => setGuests((g) => Math.max(0, g - 1))}
                 className="w-8 h-8 rounded-full border border-gray-300 text-gray-600 hover:border-gray-800 transition-colors flex items-center justify-center disabled:opacity-30"
                 disabled={guests === 0}
                 aria-label="Remove guest"
@@ -343,7 +384,7 @@ export function SearchBar() {
               </button>
               <span className="w-6 text-center text-sm font-medium">{guests}</span>
               <button
-                onClick={() => setGuests(g => g + 1)}
+                onClick={() => setGuests((g) => g + 1)}
                 className="w-8 h-8 rounded-full border border-gray-300 text-gray-600 hover:border-gray-800 transition-colors flex items-center justify-center"
                 aria-label="Add guest"
               >
@@ -358,7 +399,7 @@ export function SearchBar() {
               <p className="text-xs text-gray-400">Pet-friendly RVs only</p>
             </div>
             <button
-              onClick={() => setPets(p => !p)}
+              onClick={() => setPets((p) => !p)}
               aria-label={pets ? 'Disable pets filter' : 'Enable pets filter'}
               className={`relative w-12 h-6 rounded-full transition-colors ${pets ? 'bg-rose-500' : 'bg-gray-200'}`}
             >

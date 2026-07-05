@@ -11,7 +11,7 @@ export function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
 
   const update = (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
-    setForm(f => ({ ...f, [field]: e.target.value }));
+    setForm((f) => ({ ...f, [field]: e.target.value }));
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -52,7 +52,9 @@ export function ResetPasswordPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Confirm new password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Confirm new password
+          </label>
           <input
             type="password"
             required
@@ -67,7 +69,9 @@ export function ResetPasswordPage() {
           <div className="text-sm text-red-600 space-y-1">
             <p>{error}</p>
             {error.toLowerCase().includes('expired') || error.toLowerCase().includes('invalid') ? (
-              <a href="/" className="text-rose-500 hover:underline">Request a new reset link</a>
+              <a href="/" className="text-rose-500 hover:underline">
+                Request a new reset link
+              </a>
             ) : null}
           </div>
         )}

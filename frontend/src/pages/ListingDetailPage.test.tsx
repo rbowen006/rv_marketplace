@@ -39,7 +39,7 @@ function renderPage() {
       <Routes>
         <Route path="/listings/:id" element={<ListingDetailPage />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -47,8 +47,13 @@ describe('ListingDetailPage', () => {
   it('shows an Edit listing link when the current user is the owner', async () => {
     setAuth({ user: { id: 7 }, token: 'tok' });
     renderPage();
-    await waitFor(() => expect(screen.getByRole('link', { name: /edit listing/i })).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /edit listing/i })).toHaveAttribute('href', '/listings/1/edit');
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: /edit listing/i })).toBeInTheDocument(),
+    );
+    expect(screen.getByRole('link', { name: /edit listing/i })).toHaveAttribute(
+      'href',
+      '/listings/1/edit',
+    );
   });
 
   it('does not show the Edit listing link for non-owners', async () => {

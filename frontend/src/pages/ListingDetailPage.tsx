@@ -25,7 +25,10 @@ export function ListingDetailPage() {
 
   useEffect(() => {
     fetch(`/api/v1/listings/${id}`)
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data: ListingDetail) => setListing(data))
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
@@ -77,12 +80,17 @@ export function ListingDetailPage() {
       )}
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <Link to={`/${qs ? '?' + qs : ''}`} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-4">
+        <Link
+          to={`/${qs ? '?' + qs : ''}`}
+          className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-4"
+        >
           ← Back to listings
         </Link>
 
         <h1 className="text-2xl font-bold text-gray-900 mb-2">{listing.title}</h1>
-        <p className="text-gray-500 text-sm mb-6">{[listing.town, listing.state, listing.postcode].filter(Boolean).join(', ')}</p>
+        <p className="text-gray-500 text-sm mb-6">
+          {[listing.town, listing.state, listing.postcode].filter(Boolean).join(', ')}
+        </p>
 
         {/* Image gallery */}
         <div className="mb-8">
@@ -94,7 +102,9 @@ export function ListingDetailPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-6xl">🚐</div>
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-6xl">
+                🚐
+              </div>
             )}
           </div>
           {images.length > 1 && (

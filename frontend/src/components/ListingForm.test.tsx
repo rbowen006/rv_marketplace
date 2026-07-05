@@ -15,13 +15,8 @@ vi.mock('../lib/useApiFetch', () => ({
 function renderForm(props: Partial<ListingFormProps> = {}) {
   render(
     <MemoryRouter>
-      <ListingForm
-        initialValues={{}}
-        onSubmit={vi.fn()}
-        submitLabel="Save listing"
-        {...props}
-      />
-    </MemoryRouter>
+      <ListingForm initialValues={{}} onSubmit={vi.fn()} submitLabel="Save listing" {...props} />
+    </MemoryRouter>,
   );
 }
 
@@ -73,8 +68,15 @@ describe('ListingForm', () => {
   it('calls onSubmit with field values and empty images array when submitted', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     renderForm({
-      initialValues: { title: 'My Caravan', rv_type: 'caravan', town: 'Sydney',
-        state: 'NSW', postcode: '2000', price_per_day: 100, max_guests: 2 },
+      initialValues: {
+        title: 'My Caravan',
+        rv_type: 'caravan',
+        town: 'Sydney',
+        state: 'NSW',
+        postcode: '2000',
+        price_per_day: 100,
+        max_guests: 2,
+      },
       onSubmit,
     });
 
@@ -114,8 +116,8 @@ describe('ListingForm', () => {
     await waitFor(() =>
       expect(mockApiFetch).toHaveBeenCalledWith(
         '/api/v1/listings/99/images/10',
-        expect.objectContaining({ method: 'DELETE' })
-      )
+        expect.objectContaining({ method: 'DELETE' }),
+      ),
     );
     expect(screen.queryByAltText('Photo 1')).not.toBeInTheDocument();
   });
@@ -149,30 +151,43 @@ describe('ListingForm', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /generate description/i }));
 
-      await waitFor(() => expect(mockApiFetch).toHaveBeenCalledWith(
-        '/api/v1/listings/generate_description',
-        expect.objectContaining({
-          method: 'POST',
-          headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
+      await waitFor(() =>
+        expect(mockApiFetch).toHaveBeenCalledWith(
+          '/api/v1/listings/generate_description',
+          expect.objectContaining({
+            method: 'POST',
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer test-token',
+            }),
           }),
-        })
-      ));
+        ),
+      );
       const [, options] = mockApiFetch.mock.calls[0];
-      expect(JSON.parse(options.body)).toEqual(expect.objectContaining({
-        rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: '4',
-      }));
+      expect(JSON.parse(options.body)).toEqual(
+        expect.objectContaining({
+          rv_type: 'caravan',
+          town: 'Byron Bay',
+          state: 'NSW',
+          max_guests: '4',
+        }),
+      );
 
       await waitFor(() =>
-        expect(screen.getByLabelText(/description/i)).toHaveValue('A lovely caravan in Byron Bay.')
+        expect(screen.getByLabelText(/description/i)).toHaveValue('A lovely caravan in Byron Bay.'),
       );
     });
 
     it('does not call the API when the description is non-empty and the user cancels the confirm dialog', () => {
       vi.spyOn(window, 'confirm').mockReturnValue(false);
       renderForm({
-        initialValues: { description: 'Existing description', rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: 4 },
+        initialValues: {
+          description: 'Existing description',
+          rv_type: 'caravan',
+          town: 'Byron Bay',
+          state: 'NSW',
+          max_guests: 4,
+        },
       });
 
       fireEvent.click(screen.getByRole('button', { name: /generate description/i }));
@@ -189,20 +204,30 @@ describe('ListingForm', () => {
         data: { status: 'success', data: { description: 'A fresh new description.' } },
       });
       renderForm({
-        initialValues: { description: 'Existing description', rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: 4 },
+        initialValues: {
+          description: 'Existing description',
+          rv_type: 'caravan',
+          town: 'Byron Bay',
+          state: 'NSW',
+          max_guests: 4,
+        },
       });
 
       fireEvent.click(screen.getByRole('button', { name: /generate description/i }));
 
       expect(window.confirm).toHaveBeenCalled();
       await waitFor(() =>
-        expect(screen.getByLabelText(/description/i)).toHaveValue('A fresh new description.')
+        expect(screen.getByLabelText(/description/i)).toHaveValue('A fresh new description.'),
       );
     });
 
     it('shows "Generating…", and disables both the Generate and Submit buttons, while the call is in flight', async () => {
       let resolveFetch: (value: unknown) => void;
-      mockApiFetch = vi.fn().mockReturnValue(new Promise(resolve => { resolveFetch = resolve; }));
+      mockApiFetch = vi.fn().mockReturnValue(
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+      );
       renderForm({
         initialValues: { rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: 4 },
       });
@@ -212,9 +237,12 @@ describe('ListingForm', () => {
       expect(await screen.findByRole('button', { name: /generating/i })).toBeDisabled();
       expect(screen.getByRole('button', { name: /save listing/i })).toBeDisabled();
 
-      resolveFetch!({ res: { ok: true }, data: { status: 'success', data: { description: 'Done.' } } });
+      resolveFetch!({
+        res: { ok: true },
+        data: { status: 'success', data: { description: 'Done.' } },
+      });
       await waitFor(() =>
-        expect(screen.getByRole('button', { name: /generate description/i })).toBeEnabled()
+        expect(screen.getByRole('button', { name: /generate description/i })).toBeEnabled(),
       );
       expect(screen.getByRole('button', { name: /save listing/i })).toBeEnabled();
     });
@@ -244,13 +272,17 @@ describe('ListingForm', () => {
 
       expect(await screen.findByText(/failed to generate description/i)).toBeInTheDocument();
       await waitFor(() =>
-        expect(screen.getByRole('button', { name: /generate description/i })).toBeEnabled()
+        expect(screen.getByRole('button', { name: /generate description/i })).toBeEnabled(),
       );
     });
 
     it('disables the description textarea while generating, so a manual edit cannot be silently clobbered', async () => {
       let resolveFetch: (value: unknown) => void;
-      mockApiFetch = vi.fn().mockReturnValue(new Promise(resolve => { resolveFetch = resolve; }));
+      mockApiFetch = vi.fn().mockReturnValue(
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+      );
       renderForm({
         initialValues: { rv_type: 'caravan', town: 'Byron Bay', state: 'NSW', max_guests: 4 },
       });
@@ -259,7 +291,10 @@ describe('ListingForm', () => {
 
       await waitFor(() => expect(screen.getByLabelText(/description/i)).toBeDisabled());
 
-      resolveFetch!({ res: { ok: true }, data: { status: 'success', data: { description: 'Done.' } } });
+      resolveFetch!({
+        res: { ok: true },
+        data: { status: 'success', data: { description: 'Done.' } },
+      });
       await waitFor(() => expect(screen.getByLabelText(/description/i)).toBeEnabled());
     });
   });

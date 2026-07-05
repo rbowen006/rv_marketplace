@@ -28,7 +28,7 @@ function renderModal() {
   render(
     <MemoryRouter>
       <ContactOwnerModal listingId={1} listingTitle="Test RV" onClose={() => {}} />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -44,7 +44,7 @@ describe('ContactOwnerModal', () => {
 
   it('navigates to the new chat on success', async () => {
     mockApiFetch = vi.fn(() =>
-      Promise.resolve({ res: { ok: true, status: 200 }, data: { id: 5 } })
+      Promise.resolve({ res: { ok: true, status: 200 }, data: { id: 5 } }),
     );
 
     renderModal();
@@ -56,7 +56,7 @@ describe('ContactOwnerModal', () => {
 
   it('calls refreshChats after navigating to the new chat', async () => {
     mockApiFetch = vi.fn(() =>
-      Promise.resolve({ res: { ok: true, status: 200 }, data: { id: 5 } })
+      Promise.resolve({ res: { ok: true, status: 200 }, data: { id: 5 } }),
     );
 
     renderModal();
@@ -68,7 +68,7 @@ describe('ContactOwnerModal', () => {
 
   it('shows an error and does not call refreshChats when the request fails', async () => {
     mockApiFetch = vi.fn(() =>
-      Promise.resolve({ res: { ok: false, status: 422 }, data: { error: 'Not allowed' } })
+      Promise.resolve({ res: { ok: false, status: 422 }, data: { error: 'Not allowed' } }),
     );
 
     renderModal();

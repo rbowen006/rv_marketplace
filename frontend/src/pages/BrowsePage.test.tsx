@@ -18,8 +18,23 @@ function Nav() {
 vi.mock('../lib/useApiFetch', () => ({ useApiFetch: vi.fn() }));
 
 const request = vi.fn();
-const browseListing = { id: 99, title: 'Browse Van', town: 'Perth', state: 'WA', max_guests: 2, price_per_day: 80 };
-const nlListing = { id: 1, title: 'NL Result Van', town: 'Byron Bay', state: 'NSW', max_guests: 4, price_per_day: 120, score: 0.12 };
+const browseListing = {
+  id: 99,
+  title: 'Browse Van',
+  town: 'Perth',
+  state: 'WA',
+  max_guests: 2,
+  price_per_day: 80,
+};
+const nlListing = {
+  id: 1,
+  title: 'NL Result Van',
+  town: 'Byron Bay',
+  state: 'NSW',
+  max_guests: 4,
+  price_per_day: 120,
+  score: 0.12,
+};
 
 beforeEach(() => {
   globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => [browseListing] });
@@ -34,7 +49,7 @@ function renderPage() {
       <BrowsePage />
       <StructuredSearch />
       <Nav />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 

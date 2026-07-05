@@ -25,7 +25,9 @@ function ForgotPasswordStep({ onBack }: ForgotPasswordStepProps) {
   if (sent) {
     return (
       <div className="text-center py-4 space-y-4">
-        <p className="text-gray-700 text-sm">Check your email for a reset link. It expires in 6 hours.</p>
+        <p className="text-gray-700 text-sm">
+          Check your email for a reset link. It expires in 6 hours.
+        </p>
         <button onClick={onBack} className="text-rose-500 text-sm font-medium hover:underline">
           Back to sign in
         </button>
@@ -42,7 +44,7 @@ function ForgotPasswordStep({ onBack }: ForgotPasswordStepProps) {
           type="email"
           required
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
           placeholder="you@example.com"
         />
@@ -54,7 +56,11 @@ function ForgotPasswordStep({ onBack }: ForgotPasswordStepProps) {
       >
         {loading ? 'Sending…' : 'Send reset link'}
       </button>
-      <button type="button" onClick={onBack} className="w-full text-sm text-gray-500 hover:text-gray-700">
+      <button
+        type="button"
+        onClick={onBack}
+        className="w-full text-sm text-gray-500 hover:text-gray-700"
+      >
         Back to sign in
       </button>
     </form>
@@ -75,7 +81,7 @@ export function SignInModal({ onClose, onSuccess }: SignInModalProps) {
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const update = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm(f => ({ ...f, [field]: e.target.value }));
+    setForm((f) => ({ ...f, [field]: e.target.value }));
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -103,7 +109,12 @@ export function SignInModal({ onClose, onSuccess }: SignInModalProps) {
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-semibold text-lg text-gray-900">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+          >
+            ×
+          </button>
         </div>
 
         {forgotPassword ? (

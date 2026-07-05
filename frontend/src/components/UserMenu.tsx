@@ -21,11 +21,21 @@ export function UserMenu() {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 border border-gray-300 rounded-full px-3 py-2 hover:shadow-md transition-shadow"
       >
-        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        <svg
+          className="w-5 h-5 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
         <div className="w-8 h-8 bg-rose-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
           {user?.name?.[0]?.toUpperCase() ?? '?'}
@@ -73,7 +83,11 @@ export function UserMenu() {
           </Link>
           <div className="border-t border-gray-100 mt-1 pt-1">
             <button
-              onClick={() => { signOut(); setOpen(false); navigate('/'); }}
+              onClick={() => {
+                signOut();
+                setOpen(false);
+                navigate('/');
+              }}
               className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
             >
               Sign out

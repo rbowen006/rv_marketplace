@@ -15,7 +15,8 @@ function formatTimestampLabel(date: Date): string {
 
   if (date >= todayStart) return `Today at ${timeStr}`;
   if (date >= yesterdayStart) return `Yesterday at ${timeStr}`;
-  if (date >= weekAgoStart) return `${date.toLocaleDateString([], { weekday: 'long' })} at ${timeStr}`;
+  if (date >= weekAgoStart)
+    return `${date.toLocaleDateString([], { weekday: 'long' })} at ${timeStr}`;
 
   const dateStr = date.toLocaleDateString([], {
     month: 'short',
@@ -57,7 +58,9 @@ export function ChatPage() {
 
   const loadChat = useCallback(async () => {
     try {
-      const { res, data } = await apiFetch<ChatDetail>(`/api/v1/chats/${id}`, { headers: authHeaders });
+      const { res, data } = await apiFetch<ChatDetail>(`/api/v1/chats/${id}`, {
+        headers: authHeaders,
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setChat(data);
     } catch (e) {
@@ -75,7 +78,9 @@ export function ChatPage() {
   useEffect(() => {
     const poll = async () => {
       try {
-        const { res, data } = await apiFetch<Message[]>(`/api/v1/chats/${id}/messages`, { headers: authHeaders });
+        const { res, data } = await apiFetch<Message[]>(`/api/v1/chats/${id}/messages`, {
+          headers: authHeaders,
+        });
         if (!res.ok) return;
         setMessages(data);
       } catch {
@@ -102,7 +107,7 @@ export function ChatPage() {
         body: JSON.stringify({ message: { content: draft.trim() } }),
       });
       if (!res.ok) throw new Error('Failed to send');
-      setMessages(prev => [...prev, msg]);
+      setMessages((prev) => [...prev, msg]);
       setDraft('');
       inputRef.current?.focus();
     } catch {
@@ -122,7 +127,9 @@ export function ChatPage() {
     <div className="max-w-2xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-200 flex-shrink-0">
-        <Link to="/chats" className="text-gray-400 hover:text-gray-700 text-sm mr-1">←</Link>
+        <Link to="/chats" className="text-gray-400 hover:text-gray-700 text-sm mr-1">
+          ←
+        </Link>
         <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-semibold text-sm flex-shrink-0">
           {otherParticipant?.name?.[0]?.toUpperCase() ?? '?'}
         </div>
@@ -139,7 +146,7 @@ export function ChatPage() {
         {messages.length === 0 && (
           <p className="text-center text-sm text-gray-400 py-8">No messages yet.</p>
         )}
-        {groupMessages(messages).map(item => {
+        {groupMessages(messages).map((item) => {
           if (item.type === 'label') {
             return (
               <div key={item.key} className="text-xs text-gray-400 text-center py-1 select-none">
@@ -166,12 +173,15 @@ export function ChatPage() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="flex items-center gap-3 px-6 py-4 border-t border-gray-200 flex-shrink-0">
+      <form
+        onSubmit={handleSend}
+        className="flex items-center gap-3 px-6 py-4 border-t border-gray-200 flex-shrink-0"
+      >
         <input
           ref={inputRef}
           type="text"
           value={draft}
-          onChange={e => setDraft(e.target.value)}
+          onChange={(e) => setDraft(e.target.value)}
           placeholder="Type a message…"
           className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
         />

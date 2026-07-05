@@ -21,7 +21,9 @@ export function NlSearchBox() {
 
   // Keep the text field in step with the active query when it changes from
   // outside (back/forward navigation, Clear).
-  useEffect(() => { setInput(rawQuery); }, [rawQuery]);
+  useEffect(() => {
+    setInput(rawQuery);
+  }, [rawQuery]);
 
   // Fetch whenever the active query changes; the cleanup flag discards a response
   // whose query has since been superseded or cleared.
@@ -53,7 +55,9 @@ export function NlSearchBox() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [query, reload]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSubmit(e: FormEvent) {
@@ -61,7 +65,7 @@ export function NlSearchBox() {
     const trimmed = input.trim();
     if (!trimmed) return;
     if (trimmed === query) {
-      setReload(r => r + 1); // same query — retry (e.g. after an error)
+      setReload((r) => r + 1); // same query — retry (e.g. after an error)
     } else {
       setSearchParams({ q: trimmed });
     }
@@ -82,7 +86,7 @@ export function NlSearchBox() {
           <input
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Describe your ideal RV trip…"
             className="flex-1 border border-gray-300 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
           />

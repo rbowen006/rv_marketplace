@@ -14,7 +14,7 @@ function openMenu() {
   render(
     <MemoryRouter>
       <UserMenu />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
   fireEvent.click(screen.getByRole('button'));
 }

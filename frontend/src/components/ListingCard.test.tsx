@@ -18,9 +18,11 @@ const listing: ListingSummary = {
 describe('ListingCard', () => {
   it('link includes current search params from the URL', () => {
     render(
-      <MemoryRouter initialEntries={['/?location=Katoomba&dateFrom=2026-08-01&dateTo=2026-08-07&guests=2']}>
+      <MemoryRouter
+        initialEntries={['/?location=Katoomba&dateFrom=2026-08-01&dateTo=2026-08-07&guests=2']}
+      >
         <ListingCard listing={listing} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     const link = screen.getByRole('link');
     expect(link.getAttribute('href')).toContain('/listings/42');
@@ -33,7 +35,7 @@ describe('ListingCard', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <ListingCard listing={listing} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     const link = screen.getByRole('link');
     expect(link.getAttribute('href')).toBe('/listings/42');
@@ -43,7 +45,7 @@ describe('ListingCard', () => {
     render(
       <MemoryRouter>
         <ListingCard listing={{ ...listing, score: 0.1234 }} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByTestId('score-badge')).toHaveTextContent('0.123');
   });
@@ -52,7 +54,7 @@ describe('ListingCard', () => {
     render(
       <MemoryRouter>
         <ListingCard listing={listing} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.queryByTestId('score-badge')).not.toBeInTheDocument();
   });

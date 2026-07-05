@@ -19,7 +19,7 @@ function renderSearchBar(initialUrl = '/') {
   render(
     <MemoryRouter initialEntries={[initialUrl]}>
       <SearchBar />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -50,15 +50,30 @@ describe('SearchBar panels', () => {
   it('typing in the Where panel updates the pill label', () => {
     renderSearchBar();
     fireEvent.click(screen.getByText('Anywhere'));
-    fireEvent.change(screen.getByPlaceholderText('Search destinations'), { target: { value: 'Byron' } });
+    fireEvent.change(screen.getByPlaceholderText('Search destinations'), {
+      target: { value: 'Byron' },
+    });
     expect(screen.getByText('Byron')).toBeInTheDocument();
   });
 
   it('clicking "Any week" opens the When panel showing a month name', () => {
     renderSearchBar();
     fireEvent.click(screen.getByText('Any week'));
-    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const found = monthNames.some(m => screen.queryByText(new RegExp(m)));
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const found = monthNames.some((m) => screen.queryByText(new RegExp(m)));
     expect(found).toBe(true);
   });
 
@@ -78,7 +93,9 @@ describe('SearchBar panels', () => {
   it('search button navigates to / with location param', () => {
     renderSearchBar();
     fireEvent.click(screen.getByText('Anywhere'));
-    fireEvent.change(screen.getByPlaceholderText('Search destinations'), { target: { value: 'Byron' } });
+    fireEvent.change(screen.getByPlaceholderText('Search destinations'), {
+      target: { value: 'Byron' },
+    });
     fireEvent.click(screen.getByRole('button', { name: /search/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/?location=Byron');
   });
@@ -94,12 +111,8 @@ describe('SearchBar panels', () => {
   it('search button navigates with dateFrom and dateTo params', () => {
     renderSearchBar('/?dateFrom=2026-08-01&dateTo=2026-08-07');
     fireEvent.click(screen.getByRole('button', { name: /search/i }));
-    expect(mockNavigate).toHaveBeenCalledWith(
-      expect.stringContaining('dateFrom=2026-08-01')
-    );
-    expect(mockNavigate).toHaveBeenCalledWith(
-      expect.stringContaining('dateTo=2026-08-07')
-    );
+    expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('dateFrom=2026-08-01'));
+    expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('dateTo=2026-08-07'));
   });
 });
 
@@ -123,7 +136,7 @@ describe('SearchBar mirrors the URL', () => {
       <MemoryRouter initialEntries={['/?location=Byron']}>
         <SearchBar />
         <GoNlSearch />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Byron')).toBeInTheDocument();
 

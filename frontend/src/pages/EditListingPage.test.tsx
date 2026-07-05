@@ -19,7 +19,10 @@ vi.mock('../lib/useApiFetch', () => ({
 vi.mock('../components/ListingForm', () => ({
   ListingForm: ({ initialValues, onSubmit, submitLabel }: ListingFormProps) => (
     <form
-      onSubmit={e => { e.preventDefault(); onSubmit({ title: initialValues?.title } as never, []); }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit({ title: initialValues?.title } as never, []);
+      }}
       data-testid="listing-form"
     >
       <span data-testid="form-title">{initialValues?.title}</span>
@@ -59,7 +62,7 @@ function renderPage(listingId = '42') {
         <Route path="/" element={<div>Home</div>} />
         <Route path="/listings/:id" element={<div>Listing Detail</div>} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -84,7 +87,9 @@ describe('EditListingPage', () => {
   it('renders the form with listing data when authenticated as owner', async () => {
     setAuth({ user: { id: 7 }, token: 'tok' });
     renderPage();
-    await waitFor(() => expect(screen.getByTestId('form-title')).toHaveTextContent('Desert Dreamer'));
+    await waitFor(() =>
+      expect(screen.getByTestId('form-title')).toHaveTextContent('Desert Dreamer'),
+    );
   });
 
   it('calls PUT on save and redirects to /listings/:id', async () => {
@@ -97,8 +102,8 @@ describe('EditListingPage', () => {
     await waitFor(() =>
       expect(mockApiFetch).toHaveBeenCalledWith(
         '/api/v1/listings/42',
-        expect.objectContaining({ method: 'PUT' })
-      )
+        expect.objectContaining({ method: 'PUT' }),
+      ),
     );
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/listings/42'));
   });

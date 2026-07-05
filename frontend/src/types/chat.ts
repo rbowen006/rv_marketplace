@@ -30,5 +30,4 @@ export interface Message {
 export type ChatRole = 'hirer' | 'owner';
 
 export type MessageGroupItem =
-  | { type: 'label'; key: string; text: string }
-  | ({ type: 'message' } & Message);
+  { type: 'label'; key: string; text: string } | ({ type: 'message' } & Message);
