@@ -2,22 +2,23 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import type { Booking, BookingStatus } from '../types/booking';
 
-const STATUS_STYLES = {
+const STATUS_STYLES: Record<BookingStatus, string> = {
   pending:   'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-green-100 text-green-800',
   rejected:  'bg-gray-100 text-gray-500',
   cancelled: 'bg-gray-100 text-gray-500',
 };
 
-function formatDateRange(start, end) {
-  const opts = { month: 'short', day: 'numeric' };
+function formatDateRange(start: string, end: string): string {
+  const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
   const s = new Date(start + 'T00:00:00').toLocaleDateString([], opts);
   const e = new Date(end + 'T00:00:00').toLocaleDateString([], opts);
   return `${s} – ${e}`;
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: BookingStatus }) {
   return (
     <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${STATUS_STYLES[status] ?? 'bg-gray-100 text-gray-500'}`}>
       {status}
@@ -25,12 +26,18 @@ function StatusBadge({ status }) {
   );
 }
 
-function BookingRow({ booking, role, onAction }) {
+interface BookingRowProps {
+  booking: Booking;
+  role: 'hirer' | 'owner';
+  onAction: (bookingId: number, action: 'confirm' | 'reject') => Promise<void>;
+}
+
+function BookingRow({ booking, role, onAction }: BookingRowProps) {
   const isOwner = role === 'owner';
   const other = isOwner ? booking.hirer : booking.owner;
   const [acting, setActing] = useState(false);
 
-  async function handleAction(action) {
+  async function handleAction(action: 'confirm' | 'reject') {
     setActing(true);
     await onAction(booking.id, action);
     setActing(false);
@@ -76,35 +83,36 @@ export function BookingsPage() {
   const { user, token } = useAuth();
   const apiFetch = useApiFetch();
   const navigate = useNavigate();
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('hirer');
+  const [activeTab, setActiveTab] = useState<'hirer' | 'owner'>('hirer');
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
     apiFetch('/api/v1/bookings', { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ data }) => setBookings(data))
+      .then(({ data }) => setBookings(data as Booking[]))
       .finally(() => setLoading(false));
   }, [user, token, navigate]);
 
-  async function handleAction(bookingId, action) {
+  async function handleAction(bookingId: number, action: 'confirm' | 'reject') {
     const { res, data: updated } = await apiFetch(`/api/v1/bookings/${bookingId}/${action}`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;
-    setBookings(prev => prev.map(b => b.id === updated.id ? { ...b, status: updated.status } : b));
+    const booking = updated as Booking;
+    setBookings(prev => prev.map(b => b.id === booking.id ? { ...b, status: booking.status } : b));
   }
 
   const trips    = bookings.filter(b => b.hirer_id === user?.id);
   const listings = bookings.filter(b => b.owner?.id === user?.id);
 
   const tabs = [
-    { key: 'hirer', label: 'My trips',    items: trips,    role: 'hirer' },
-    { key: 'owner', label: 'My listings', items: listings, role: 'owner' },
+    { key: 'hirer' as const, label: 'My trips',    items: trips,    role: 'hirer' as const },
+    { key: 'owner' as const, label: 'My listings', items: listings, role: 'owner' as const },
   ];
 
-  const active = tabs.find(t => t.key === activeTab);
+  const active = tabs.find(t => t.key === activeTab)!;
 
   return (
     <div className="max-w-2xl mx-auto py-8">

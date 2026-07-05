@@ -2,8 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { ListingForm } from '../components/ListingForm';
+import type { ListingFormFields } from '../types/listing-form';
 
-export function NewListingPage({ onSignInRequired }) {
+interface NewListingPageProps {
+  onSignInRequired?: () => void;
+}
+
+export function NewListingPage({ onSignInRequired }: NewListingPageProps) {
   const { token, user } = useAuth();
   const apiFetch = useApiFetch();
   const navigate = useNavigate();
@@ -22,10 +27,10 @@ export function NewListingPage({ onSignInRequired }) {
     );
   }
 
-  async function handleCreate(fields, images) {
+  async function handleCreate(fields: ListingFormFields, images: File[]) {
     if (!images.length) throw new Error('At least one photo is required');
     const body = new FormData();
-    Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, v));
+    Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, String(v)));
     images.forEach(img => body.append('listing[images][]', img));
 
     const { res, data } = await apiFetch('/api/v1/listings', {

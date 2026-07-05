@@ -23,12 +23,12 @@ const messagesData = [
 ];
 
 function renderChatPage() {
-  global.fetch = vi.fn((url) => {
+  globalThis.fetch = vi.fn((url: string) => {
     if (url.includes('/messages')) {
       return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(messagesData)) });
     }
     return Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(chatData)) });
-  });
+  }) as unknown as typeof fetch;
 
   render(
     <MemoryRouter initialEntries={['/chats/1']}>
@@ -48,7 +48,7 @@ describe('ChatPage', () => {
     renderChatPage();
 
     await waitFor(() => {
-      const calls = global.fetch.mock.calls.map(([url]) => url);
+      const calls = vi.mocked(globalThis.fetch).mock.calls.map(([url]) => url as string);
       expect(calls.some(url => url.includes('/messages'))).toBe(true);
     }, { timeout: 500 });
   });

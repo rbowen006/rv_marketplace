@@ -35,6 +35,7 @@ describe('InboxPage', () => {
     vi.mocked(UnreadContext.useChats).mockReturnValue({
       chats: { as_hirer: [], as_owner: [] },
       initialized: false,
+      refreshChats: vi.fn(),
     });
     renderPage();
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -44,6 +45,7 @@ describe('InboxPage', () => {
     vi.mocked(UnreadContext.useChats).mockReturnValue({
       chats: { as_hirer: [], as_owner: [] },
       initialized: true,
+      refreshChats: vi.fn(),
     });
     renderPage();
     expect(screen.getByText(/message inbox is empty/i)).toBeInTheDocument();
@@ -54,8 +56,8 @@ describe('InboxPage', () => {
       chats: {
         as_hirer: [{
           id: 1,
-          owner: { name: 'Van Owner' },
-          hirer: { name: 'Hirer' },
+          owner: { id: 2, name: 'Van Owner' },
+          hirer: { id: 1, name: 'Hirer' },
           last_message_at: '2026-06-25T10:00:00Z',
           last_message_content: 'Is the van available?',
           hirer_last_read_at: null,
@@ -64,6 +66,7 @@ describe('InboxPage', () => {
         as_owner: [],
       },
       initialized: true,
+      refreshChats: vi.fn(),
     });
     renderPage();
     expect(screen.getByText('Van Owner')).toBeInTheDocument();

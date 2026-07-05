@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export function ResetPasswordPage() {
@@ -7,12 +7,13 @@ export function ResetPasswordPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ password: '', password_confirmation: '' });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const update = field => e => setForm(f => ({ ...f, [field]: e.target.value }));
+  const update = (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
+    setForm(f => ({ ...f, [field]: e.target.value }));
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);

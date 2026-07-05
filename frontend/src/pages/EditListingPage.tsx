@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { ListingForm } from '../components/ListingForm';
+import type { ListingDetail } from '../types/listing';
+import type { ListingFormFields } from '../types/listing-form';
 
 export function EditListingPage() {
   const { id } = useParams();
@@ -10,9 +12,9 @@ export function EditListingPage() {
   const navigate = useNavigate();
   const apiFetch = useApiFetch();
 
-  const [listing, setListing] = useState(null);
+  const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -23,19 +25,20 @@ export function EditListingPage() {
     apiFetch(`/api/v1/listings/${id}`)
       .then(({ res, data }) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        if (data.owner?.id !== user.id) {
+        const listingData = data as ListingDetail;
+        if (listingData.owner?.id !== user.id) {
           navigate(`/listings/${id}`);
           return;
         }
-        setListing(data);
+        setListing(listingData);
       })
-      .catch(e => setError(e.message))
+      .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id, user, navigate]);
 
-  async function handleSave(fields) {
+  async function handleSave(fields: ListingFormFields) {
     const body = new FormData();
-    Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, v));
+    Object.entries(fields).forEach(([k, v]) => body.append(`listing[${k}]`, String(v)));
 
     const { res, data } = await apiFetch(`/api/v1/listings/${id}`, {
       method: 'PUT',

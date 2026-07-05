@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useChats } from '../context/UnreadContext';
+import type { ChatRole, ChatSummary } from '../types/chat';
 
-function formatTimestamp(isoString) {
+function formatTimestamp(isoString: string | null | undefined): string {
   if (!isoString) return '';
   const date = new Date(isoString);
   const now = new Date();
@@ -16,14 +17,19 @@ function formatTimestamp(isoString) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function isUnread(chat, role) {
+function isUnread(chat: ChatSummary, role: ChatRole): boolean {
   if (!chat.last_message_at) return false;
   const readAt = role === 'hirer' ? chat.hirer_last_read_at : chat.owner_last_read_at;
   if (!readAt) return true;
   return new Date(chat.last_message_at) > new Date(readAt);
 }
 
-function ChatRow({ chat, role }) {
+interface ChatRowProps {
+  chat: ChatSummary;
+  role: ChatRole;
+}
+
+function ChatRow({ chat, role }: ChatRowProps) {
   const other = role === 'hirer' ? chat.owner : chat.hirer;
   const unread = isUnread(chat, role);
 
@@ -64,15 +70,15 @@ export function InboxPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { chats, initialized } = useChats();
-  const [activeTab, setActiveTab] = useState('hirer');
+  const [activeTab, setActiveTab] = useState<ChatRole>('hirer');
 
   useEffect(() => {
     if (!user) { navigate('/'); return; }
   }, [user, navigate]);
 
   const tabs = [
-    { key: 'hirer', label: 'As Hirer', chats: chats.as_hirer },
-    { key: 'owner', label: 'As Owner', chats: chats.as_owner },
+    { key: 'hirer' as const, label: 'As Hirer', chats: chats.as_hirer },
+    { key: 'owner' as const, label: 'As Owner', chats: chats.as_owner },
   ];
 
   const activeChats = tabs.find(t => t.key === activeTab)?.chats ?? [];

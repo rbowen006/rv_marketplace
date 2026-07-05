@@ -30,8 +30,8 @@ describe('BookingPage date pre-population', () => {
     const dateFromInput = await screen.findByLabelText(/date from/i);
     const dateToInput = await screen.findByLabelText(/date to/i);
 
-    expect(dateFromInput.value).toBe('2026-08-01');
-    expect(dateToInput.value).toBe('2026-08-07');
+    expect(dateFromInput).toHaveValue('2026-08-01');
+    expect(dateToInput).toHaveValue('2026-08-07');
   });
 
   it('does not pre-populate when dateFrom is in the past', async () => {
@@ -40,7 +40,7 @@ describe('BookingPage date pre-population', () => {
     const dateFromInput = await screen.findByLabelText(/date from/i);
     const dateToInput = await screen.findByLabelText(/date to/i);
 
-    expect(dateFromInput.value).toBe('');
-    expect(dateToInput.value).toBe('');
+    expect(dateFromInput).toHaveValue('');
+    expect(dateToInput).toHaveValue('');
   });
 });

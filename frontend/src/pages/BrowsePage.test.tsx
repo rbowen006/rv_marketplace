@@ -22,7 +22,7 @@ const browseListing = { id: 99, title: 'Browse Van', town: 'Perth', state: 'WA',
 const nlListing = { id: 1, title: 'NL Result Van', town: 'Byron Bay', state: 'NSW', max_guests: 4, price_per_day: 120, score: 0.12 };
 
 beforeEach(() => {
-  global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => [browseListing] });
+  globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => [browseListing] });
   request.mockReset();
   request.mockResolvedValue({ res: { ok: true }, data: [nlListing] });
   vi.mocked(useApiFetch).mockReturnValue(request);
@@ -42,7 +42,7 @@ describe('BrowsePage', () => {
   it('renders the natural-language search box', async () => {
     renderPage();
     expect(screen.getByPlaceholderText(/describe/i)).toBeInTheDocument();
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/v1/listings'));
+    await waitFor(() => expect(globalThis.fetch).toHaveBeenCalledWith('/api/v1/listings'));
   });
 
   it('shows NL results and hides the browse grid during an NL search, and restores it on Clear', async () => {
