@@ -26,7 +26,7 @@ Trekr is AI-native in two senses:
 | Feature | Status |
 |---|---|
 | ✨ **Listing Description Generator** — drafts a listing description from RV attributes | ✅ Shipped |
-| 🔎 Natural-language search | 🗺️ Planned |
+| 🔎 **Natural-language search** — semantic vector search over listings (Ollama embeddings + pgvector) | ✅ Shipped |
 | 💬 Smart chat replies for owners | 🗺️ Planned |
 | 💲 Pricing suggestions | 🗺️ Planned |
 | 🧭 Trip-planning assistant (RAG) | 🗺️ Planned |
@@ -37,7 +37,8 @@ See [docs/ai-integrations.md](docs/ai-integrations.md) for the full design brief
 
 ## Implementation Details
 - Rails 8.0.5 · Ruby 3.3.11 in Docker
-- PostgreSQL 16 · Redis 7 · Sidekiq 8
+- PostgreSQL 16 with pgvector · Redis 7 · Sidekiq 8
+- Ollama (local embeddings for NL search) in the Docker Compose stack
 - Devise + devise-jwt for token authentication
 - Active Storage for listing image uploads
 - Rswag for OpenAPI/Swagger spec generation
@@ -66,9 +67,10 @@ docker compose up --build -d     # detached (runs in background)
 This starts:
 
 - `web`: Rails/Puma API on http://localhost:3000
-- `db`: PostgreSQL, available to other containers as `db`
+- `db`: PostgreSQL with pgvector, available to other containers as `db`
 - `redis`: Redis, available to other containers as `redis`
 - `sidekiq`: background worker using Redis
+- `ollama`: local LLM/embeddings server for natural-language search
 
 The development Compose file builds the `development` Dockerfile target, sets `RAILS_ENV=development`, and bind-mounts the local repo into `/app`, so Rails sees code changes from your editor.
 
@@ -265,6 +267,11 @@ curl -i -X DELETE http://localhost:3000/users/sign_out \
 # List public listings
 curl -sS http://localhost:3000/api/v1/listings | jq '.'
 
+# Natural-language semantic search (public; embeds query, returns ranked listings)
+curl -sS -X POST http://localhost:3000/api/v1/listings/search \
+   -H "Content-Type: application/json" \
+   -d '{"query":"pet-friendly caravan near the beach"}' | jq '.'
+
 # Create listing (authenticated user)
 curl -i -X POST http://localhost:3000/api/v1/listings \
    -H "Content-Type: application/json" \
@@ -345,6 +352,8 @@ curl -i -X POST http://localhost:3000/api/v1/chats/<CHAT_ID>/messages \
 ## Frontend
 
 Vite + React + TypeScript SPA in `frontend/`; Rails runs in Docker and serves the API behind `/api`. Source is `.ts`/`.tsx` under `frontend/src/` with API response types in `frontend/src/types/`.
+
+The browse page supports two search modes: the header **SearchBar** filters listings client-side by location, dates, guests, and pets; **Search by description** (`NlSearchBox`) sends a natural-language query to `POST /api/v1/listings/search` and shows semantically ranked results (URL param `?q=`).
 
 ### Setup And Run
 
