@@ -33,6 +33,9 @@ Rails.application.routes.draw do
 
       resources :chats, only: [:index, :show] do
         resources :messages, only: [:index, :create]
+        member do
+          post :suggest_reply, to: 'chat_reply_suggester#create'
+        end
       end
 
       resources :bookings, only: [:index] do

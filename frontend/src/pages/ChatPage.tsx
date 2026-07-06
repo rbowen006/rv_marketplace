@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState, useCallback } from 'react';
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
@@ -51,8 +51,10 @@ export function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const authHeaders = { Authorization: `Bearer ${token}` };
 
@@ -96,9 +98,17 @@ export function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function handleSend(e: FormEvent) {
-    e.preventDefault();
+  // Auto-grow the compose textarea to fit its content (e.g. a multi-line drafted reply).
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [draft]);
+
+  async function sendMessage() {
     if (!draft.trim()) return;
+    setSuggestError(null);
     setSending(true);
     try {
       const { res, data: msg } = await apiFetch<Message>(`/api/v1/chats/${id}/messages`, {
@@ -117,11 +127,47 @@ export function ChatPage() {
     }
   }
 
+  function handleSend(e: FormEvent) {
+    e.preventDefault();
+    sendMessage();
+  }
+
+  // Enter sends; Shift+Enter inserts a newline (so drafted replies can be multi-line).
+  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    // isComposing guards against sending mid-IME-composition (e.g. Enter confirming a candidate).
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  async function handleSuggest() {
+    if (draft.trim() && !window.confirm('Replace your current draft with a suggested reply?')) {
+      return;
+    }
+    setSuggesting(true);
+    setSuggestError(null);
+    try {
+      const { res, data } = await apiFetch<{ status: string; data: { reply: string } }>(
+        `/api/v1/chats/${id}/suggest_reply`,
+        { method: 'POST', headers: authHeaders },
+      );
+      if (!res.ok) throw new Error('Failed to suggest');
+      setDraft(data.data.reply);
+    } catch {
+      setSuggestError("Couldn't suggest a reply. Please try again.");
+    } finally {
+      setSuggesting(false);
+    }
+  }
+
   if (loading) return <div className="p-8 text-gray-500">Loading…</div>;
   if (error) return <div className="p-8 text-red-500">Error: {error}</div>;
   if (!chat) return null;
 
   const otherParticipant = user?.id === chat.hirer_id ? chat.owner : chat.hirer;
+  const isOwner = user?.id === chat.owner_id;
+  const hasHirerMessage = messages.some((m) => m.user_id === chat.hirer_id);
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
@@ -173,18 +219,33 @@ export function ChatPage() {
       </div>
 
       {/* Input */}
+      {suggestError && (
+        <p className="px-6 pt-2 text-xs text-red-500 flex-shrink-0">{suggestError}</p>
+      )}
       <form
         onSubmit={handleSend}
         className="flex items-center gap-3 px-6 py-4 border-t border-gray-200 flex-shrink-0"
       >
-        <input
+        <textarea
           ref={inputRef}
-          type="text"
+          rows={1}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Type a message…"
-          className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className="flex-1 resize-none max-h-32 overflow-y-auto border border-gray-300 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
         />
+        {isOwner && (
+          <button
+            type="button"
+            onClick={handleSuggest}
+            disabled={suggesting || !hasHirerMessage}
+            title={hasHirerMessage ? undefined : 'Waiting on a message from the hirer'}
+            className="text-rose-500 hover:text-rose-600 disabled:text-rose-300 font-semibold px-3 py-2 text-sm whitespace-nowrap transition-colors"
+          >
+            {suggesting ? '…' : 'Suggest reply'}
+          </button>
+        )}
         <button
           type="submit"
           disabled={sending || !draft.trim()}
