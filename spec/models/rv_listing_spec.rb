@@ -69,4 +69,18 @@ RSpec.describe RvListing, type: :model do
       )
     end
   end
+
+  describe 'region assignment' do
+    it 'assigns the resolved region slug on save' do
+      listing = build(:rv_listing, town: 'Lorne', state: 'VIC', postcode: '3232')
+      listing.valid?
+      expect(listing.region).to eq('great-ocean-road')
+    end
+
+    it 'leaves region nil for a town outside every covered region' do
+      listing = build(:rv_listing, town: 'Darwin', state: 'NT', postcode: '0800')
+      listing.valid?
+      expect(listing.region).to be_nil
+    end
+  end
 end

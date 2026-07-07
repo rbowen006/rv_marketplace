@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_03_121000) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_07_055552) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -92,6 +92,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_03_121000) do
     t.index ["rv_listing_id"], name: "index_chats_on_rv_listing_id"
   end
 
+  create_table "knowledge_chunks", force: :cascade do |t|
+    t.string "region", null: false
+    t.string "heading"
+    t.text "content", null: false
+    t.vector "embedding", limit: 768
+    t.string "model"
+    t.string "content_hash", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["region", "content_hash"], name: "index_knowledge_chunks_on_region_and_content_hash", unique: true
+    t.index ["region"], name: "index_knowledge_chunks_on_region"
+  end
+
   create_table "listing_embeddings", force: :cascade do |t|
     t.bigint "rv_listing_id", null: false
     t.vector "embedding", limit: 768
@@ -129,7 +142,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_03_121000) do
     t.string "town"
     t.string "state"
     t.string "postcode"
+    t.string "region"
     t.index ["owner_id"], name: "index_rv_listings_on_owner_id"
+  end
+
+  create_table "trip_plans", force: :cascade do |t|
+    t.bigint "booking_id", null: false
+    t.string "status", default: "pending", null: false
+    t.text "interests"
+    t.jsonb "itinerary"
+    t.text "error"
+    t.string "input_hash"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_trip_plans_on_booking_id", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -158,4 +184,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_03_121000) do
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
   add_foreign_key "rv_listings", "users", column: "owner_id"
+  add_foreign_key "trip_plans", "bookings"
 end

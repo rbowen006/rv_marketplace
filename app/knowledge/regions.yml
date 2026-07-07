@@ -1,0 +1,23 @@
+# The Region vocabulary (ADR-0013). Single source of truth for the resolver,
+# the trip-planning coverage gate, and knowledge-chunk loading. Static reference
+# data, embedded at deploy time — deliberately a manifest, not a database table.
+#
+# Each region:
+#   slug:  stable identifier stored on rv_listings.region and knowledge_chunks.region
+#   name:  human label, also fed into the retrieval query
+#   state: the AU state it sits in
+#   towns: exact town names that resolve to this region
+#   doc:   markdown corpus file under app/knowledge/, or omitted if not yet authored
+- slug: great-ocean-road
+  name: Great Ocean Road
+  state: VIC
+  towns:
+    - Lorne
+    - Apollo Bay
+  doc: great-ocean-road.md
+- slug: byron-bay
+  name: Byron Bay
+  state: NSW
+  towns:
+    - Byron Bay
+  doc: byron-bay.md

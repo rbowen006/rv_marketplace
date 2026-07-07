@@ -10,6 +10,17 @@ class Booking < ApplicationRecord
   validate :start_not_in_past
   validate :no_date_overlap
 
+  # Trip planning is offered only for a confirmed booking whose region has an
+  # embedded corpus to ground on (ADR-0013) — so every itinerary is grounded.
+  def trip_planning_available?
+    return false unless status == 'confirmed'
+
+    slug = rv_listing.region
+    return false if slug.blank?
+
+    Region.find(slug)&.has_corpus? || false
+  end
+
   private
 
   def end_after_start

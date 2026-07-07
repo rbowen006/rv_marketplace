@@ -63,3 +63,23 @@ _Avoid_: Pets allowed, animals welcome
 **Distance from search location**:
 The kilometres between a Listing's stored location (the Owner's location where the RV is kept) and the Hirer's desired destination. Used to sort and display search results. Indicates how far the Owner must drive/tow the RV to the destination, or how far the Hirer must travel to collect it. Calculated from geocoded coordinates; lat/lng stored on Listing.
 _Avoid_: Distance to destination, proximity
+
+**Region**:
+A sub-state geographic area (e.g. "Great Ocean Road") that has an authored knowledge corpus for trip planning. A Listing resolves to at most one Region, derived from its town/postcode by a canonical resolver and stored as a `region` slug on the Listing. The Region vocabulary (slug, name, state, match rules, corpus file) is a fixed config manifest, not a database table. A Region either has a corpus or it does not — the latter is what gates trip planning off.
+_Avoid_: Area, location, zone, locale
+
+**Knowledge chunk**:
+One `##` section of a Region's markdown corpus, embedded (Ollama, pgvector) for retrieval. The retrievable unit of local knowledge — attractions, campground FAQs, area policies — that grounds a Trip plan. The corpus is LLM-generated and treated as synthetic, hence the Trip plan's verify-locally disclaimer.
+_Avoid_: Document, doc, article, source, passage
+
+**Trip plan**:
+An AI-generated, day-by-day Itinerary for a confirmed Booking, produced only for the Hirer and grounded in the Booking Region's Knowledge chunks. Exactly one per Booking, regenerable in place (a durable record with status pending → processing → completed/failed). Offered only when the Booking is confirmed and its Region has a corpus.
+_Avoid_: Trip, travel plan, guide, tour
+
+**Itinerary**:
+The structured day-by-day content of a Trip plan: a summary, a verify-locally disclaimer, and one entry per planned day (keyed to real Booking dates) broken into morning/afternoon/evening segments. Capped at a fixed number of planned days regardless of Booking length.
+_Avoid_: Schedule, plan, agenda
+
+**Interests**:
+Optional free text the Hirer supplies to steer a Trip plan (e.g. "surfing and quiet beaches, travelling with a dog"). Blended with the Region and season into the retrieval query and the prompt; blank Interests still yield a grounded default plan.
+_Avoid_: Preferences, query, prompt, tags
