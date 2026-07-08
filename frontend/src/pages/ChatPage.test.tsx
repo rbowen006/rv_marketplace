@@ -75,4 +75,11 @@ describe('ChatPage', () => {
       expect(screen.getByText('Cozy Campervan')).toBeInTheDocument();
     });
   });
+
+  it('does not show a Suggest reply button to the hirer', async () => {
+    renderChatPage();
+
+    await waitFor(() => expect(screen.getByText('Hello!')).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /suggest reply/i })).not.toBeInTheDocument();
+  });
 });

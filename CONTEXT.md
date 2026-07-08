@@ -44,6 +44,10 @@ _Avoid_: Post, reply, comment
 A Message that has not yet been seen by its recipient. Used to highlight Chats in the Inbox and to display read receipts within the Chat thread.
 _Avoid_: New message, unseen message
 
+**Suggested reply**:
+An AI-drafted reply proposed to an Owner within a Chat, generated from the recent Messages and the Listing. It is a draft only — placed into the Owner's compose field to review and edit, never sent automatically and never persisted as a Message unless the Owner sends it.
+_Avoid_: Auto-reply, smart reply, AI message, canned response
+
 **Inbox**:
 The view where a User sees all their Chats, split by role — Chats where they are the Hirer, and Chats where they are the Owner. Both roles are always shown, even if one has no Chats.
 _Avoid_: Messages page, chat list, message centre
