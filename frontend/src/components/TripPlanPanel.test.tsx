@@ -86,6 +86,25 @@ describe('TripPlanPanel', () => {
     expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
   });
 
+  it('shows a busy indicator immediately on click, before the request resolves', async () => {
+    // Hang the POST so we can observe the interim (submitting) state.
+    globalThis.fetch = vi.fn((_url: string, options?: { method?: string }) => {
+      if (options?.method === 'POST') return new Promise(() => {});
+      return Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve(JSON.stringify({ status: 'success', data: { status: 'none' } })),
+      });
+    }) as unknown as typeof fetch;
+
+    render(<TripPlanPanel bookingId={1} pollIntervalMs={5} />);
+
+    const button = await screen.findByRole('button', { name: /generate itinerary/i });
+    await userEvent.click(button);
+
+    expect(await screen.findByRole('status')).toHaveTextContent(/generating/i);
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+
   it('surfaces an error when the generate request is rejected', async () => {
     mockApi({ getQueue: [{ status: 'none' }], postOk: false });
     renderPanel();

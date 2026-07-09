@@ -22,6 +22,7 @@ export function TripPlanPanel({ bookingId, pollIntervalMs = 2500 }: TripPlanPane
   const [plan, setPlan] = useState<TripPlan | null>(null);
   const [interests, setInterests] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const url = `/api/v1/bookings/${bookingId}/trip_plan`;
   const authHeaders = { Authorization: `Bearer ${token}` };
@@ -52,15 +53,20 @@ export function TripPlanPanel({ bookingId, pollIntervalMs = 2500 }: TripPlanPane
   async function generate(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    const { res, data } = await apiFetch<TripPlanEnvelope>(url, {
-      method: 'POST',
-      headers: { ...authHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ interests }),
-    });
-    if (res.ok) {
-      setPlan(data.data);
-    } else {
-      setError(data.message ?? "Sorry, we couldn't start planning. Please try again.");
+    setSubmitting(true);
+    try {
+      const { res, data } = await apiFetch<TripPlanEnvelope>(url, {
+        method: 'POST',
+        headers: { ...authHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interests }),
+      });
+      if (res.ok) {
+        setPlan(data.data);
+      } else {
+        setError(data.message ?? "Sorry, we couldn't start planning. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -68,7 +74,16 @@ export function TripPlanPanel({ bookingId, pollIntervalMs = 2500 }: TripPlanPane
   const failed = status === 'failed';
   const completed = status === 'completed';
 
-  const buttonLabel = failed ? 'Try again' : completed ? 'Regenerate' : 'Generate itinerary';
+  // Busy from the instant the button is clicked (submitting) through the whole
+  // async generation (pending/processing) — so the user always sees progress.
+  const busy = submitting || generating;
+  const buttonLabel = busy
+    ? 'Generating…'
+    : failed
+      ? 'Try again'
+      : completed
+        ? 'Regenerate'
+        : 'Generate itinerary';
 
   return (
     <section className="mt-8 border-t border-gray-100 pt-6">
@@ -77,44 +92,55 @@ export function TripPlanPanel({ bookingId, pollIntervalMs = 2500 }: TripPlanPane
         Tell us what you enjoy and we'll draft a day-by-day itinerary grounded in local guides.
       </p>
 
-      {!generating && (
-        <form onSubmit={generate} className="mt-4">
-          <label htmlFor="trip-interests" className="block text-sm font-medium text-gray-700">
-            Your interests (optional)
-          </label>
-          <textarea
-            id="trip-interests"
-            value={interests}
-            onChange={(e) => setInterests(e.target.value)}
-            rows={2}
-            placeholder="e.g. quiet beaches, koalas, a rainforest walk"
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-          />
-          <button
-            type="submit"
-            className="mt-2 text-sm px-4 py-2 rounded-lg bg-rose-500 text-white font-medium hover:bg-rose-600 transition-colors"
-          >
-            {buttonLabel}
-          </button>
-        </form>
-      )}
+      <form onSubmit={generate} className="mt-4">
+        <label htmlFor="trip-interests" className="block text-sm font-medium text-gray-700">
+          Your interests (optional)
+        </label>
+        <textarea
+          id="trip-interests"
+          value={interests}
+          onChange={(e) => setInterests(e.target.value)}
+          disabled={busy}
+          rows={2}
+          placeholder="e.g. quiet beaches, koalas, a rainforest walk"
+          className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-400"
+        />
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-2 inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-rose-500 text-white font-medium hover:bg-rose-600 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {busy && <Spinner />}
+          {buttonLabel}
+        </button>
+      </form>
 
-      {generating && (
-        <p className="mt-4 text-sm text-gray-500" role="status">
-          Generating your itinerary… this can take a moment.
+      {busy && (
+        <p className="mt-3 flex items-center gap-2 text-sm text-gray-500" role="status">
+          <Spinner />
+          Generating your itinerary… this can take up to a minute.
         </p>
       )}
 
-      {failed && (
+      {failed && !busy && (
         <p className="mt-4 text-sm text-red-600">
           Sorry, we couldn't generate your itinerary{plan?.error ? `: ${plan.error}` : '.'}
         </p>
       )}
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && !busy && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      {completed && plan?.itinerary && <ItineraryView itinerary={plan.itinerary} />}
+      {completed && !busy && plan?.itinerary && <ItineraryView itinerary={plan.itinerary} />}
     </section>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+      aria-hidden="true"
+    />
   );
 }
 
