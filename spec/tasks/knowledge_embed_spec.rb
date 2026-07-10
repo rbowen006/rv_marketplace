@@ -9,8 +9,13 @@ RSpec.describe 'knowledge:embed', type: :task do
   end
 
   it 'ingests every region that has a corpus document' do
-    expect(Knowledge::Ingestor).to receive(:call).with(region: 'great-ocean-road', markdown: kind_of(String))
-    expect(Knowledge::Ingestor).to receive(:call).with(region: 'byron-bay', markdown: kind_of(String))
+    regions_with_docs = Region.all.select { |region| region.doc_body.present? }
+    expect(regions_with_docs).not_to be_empty
+
+    regions_with_docs.each do |region|
+      expect(Knowledge::Ingestor).to receive(:call)
+        .with(region: region.slug, markdown: kind_of(String)).and_return(0)
+    end
 
     Rake::Task['knowledge:embed'].invoke
   end

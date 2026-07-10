@@ -9,7 +9,7 @@ RSpec.describe Region::Resolver do
     end
 
     it 'returns nil for a town outside every covered region' do
-      slug = described_class.call(town: 'Darwin', state: 'NT', postcode: '0800')
+      slug = described_class.call(town: 'Gosford', state: 'NSW', postcode: '2250')
 
       expect(slug).to be_nil
     end
