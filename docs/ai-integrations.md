@@ -105,7 +105,7 @@ Applied across all AI features:
 ## Features
 
 ### 1. Listing Description Generator
-**Status:** Not started | **Teaches:** Prompt engineering, structured outputs, human-in-the-loop
+**Status:** Shipped (ADR-0009, ADR-0010) | **Teaches:** Prompt engineering, structured outputs, human-in-the-loop
 
 Owners struggle to write compelling listing descriptions. When creating (or editing) a listing, a "Generate description" button passes the structured fields (RV type, location, guests, pet-friendly, price) to Claude and returns a draft the owner reviews and edits before saving.
 
@@ -119,7 +119,7 @@ Owners struggle to write compelling listing descriptions. When creating (or edit
 ---
 
 ### 2. Natural Language Search
-**Status:** Not started | **Teaches:** Embeddings, vector search, semantic search
+**Status:** Shipped (PR #24, ADR-0011) | **Teaches:** Embeddings, vector search, semantic search
 
 Instead of keyword-only filtering, allow hirers to type free-form queries. Pipeline:
 
@@ -134,7 +134,7 @@ Instead of keyword-only filtering, allow hirers to type free-form queries. Pipel
 ---
 
 ### 3. Smart Chat Replies for Owners
-**Status:** Not started | **Teaches:** Prompt engineering, context window management
+**Status:** Shipped (PR #38, ADR-0012) | **Teaches:** Prompt engineering, context window management
 
 Owners receive the same questions repeatedly. A "Suggest reply" button in `ChatPage` reads the last few messages plus the listing description and drafts a reply the owner can send or edit.
 
