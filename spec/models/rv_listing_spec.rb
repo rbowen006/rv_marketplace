@@ -78,7 +78,7 @@ RSpec.describe RvListing, type: :model do
     end
 
     it 'leaves region nil for a town outside every covered region' do
-      listing = build(:rv_listing, town: 'Darwin', state: 'NT', postcode: '0800')
+      listing = build(:rv_listing, town: 'Gosford', state: 'NSW', postcode: '2250')
       listing.valid?
       expect(listing.region).to be_nil
     end
