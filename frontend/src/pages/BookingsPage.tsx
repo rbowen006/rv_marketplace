@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import type { Booking, BookingStatus } from '../types/booking';
@@ -48,7 +48,12 @@ function BookingRow({ booking, role, onAction }: BookingRowProps) {
   return (
     <div className="px-6 py-5 border-b border-gray-100 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-gray-900 truncate">{booking.listing_title}</p>
+        <Link
+          to={`/bookings/${booking.id}`}
+          className="font-semibold text-gray-900 truncate hover:text-rose-500 hover:underline"
+        >
+          {booking.listing_title}
+        </Link>
         <p className="text-sm text-gray-500 mt-0.5">
           {formatDateRange(booking.start_date, booking.end_date)}
         </p>

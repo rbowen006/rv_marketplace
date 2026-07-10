@@ -1,6 +1,7 @@
 module Ai
   class BaseAiService
     DEFAULT_MODEL = "claude-sonnet-4-6"
+    DEFAULT_MAX_TOKENS = 1024
 
     def self.call(**kwargs)
       new(**kwargs).call
@@ -34,6 +35,12 @@ module Ai
       DEFAULT_MODEL
     end
 
+    def max_tokens
+      self.class::MAX_TOKENS
+    rescue NameError
+      DEFAULT_MAX_TOKENS
+    end
+
     def prompt_feature
       self.class::PROMPT_FEATURE
     end
@@ -55,7 +62,7 @@ module Ai
 
       response = client.messages.create(
         model: model,
-        max_tokens: 1024,
+        max_tokens: max_tokens,
         system: system_prompt,
         messages: [
           { role: "user", content: message_json }
@@ -80,7 +87,7 @@ module Ai
     end
 
     def parse_and_validate(raw_json)
-      data = JSON.parse(raw_json)
+      data = JSON.parse(strip_code_fence(raw_json))
       errors = JSON::Validator.fully_validate(output_schema, data)
       unless errors.empty?
         raise Ai::OutputError, "Output schema validation failed: #{errors.first}"
@@ -88,6 +95,16 @@ module Ai
       data
     rescue JSON::ParserError => e
       raise Ai::OutputError, "Claude returned invalid JSON: #{e.message}"
+    end
+
+    # Claude sometimes wraps structured output in a ```json … ``` fence despite
+    # being asked for raw JSON. Strip a single leading/trailing fence so the
+    # parse succeeds; leave already-clean JSON untouched.
+    def strip_code_fence(text)
+      stripped = text.to_s.strip
+      return stripped unless stripped.start_with?("```")
+
+      stripped.sub(/\A```[a-zA-Z0-9]*[ \t]*\r?\n?/, "").sub(/\r?\n?```\z/, "")
     end
 
     def write_ai_request

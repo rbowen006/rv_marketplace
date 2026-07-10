@@ -7,6 +7,7 @@ import { BrowsePage } from './pages/BrowsePage';
 import { ListingDetailPage } from './pages/ListingDetailPage';
 import { BookingPage } from './pages/BookingPage';
 import { BookingsPage } from './pages/BookingsPage';
+import { BookingDetailPage } from './pages/BookingDetailPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { InboxPage } from './pages/InboxPage';
@@ -28,6 +29,7 @@ function App() {
               <Route path="/listings/:id/book" element={<BookingPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/bookings" element={<BookingsPage />} />
+              <Route path="/bookings/:id" element={<BookingDetailPage />} />
               <Route path="/chats" element={<InboxPage />} />
               <Route path="/chats/:id" element={<ChatPage />} />
               <Route path="/listings/new" element={<NewListingPage />} />

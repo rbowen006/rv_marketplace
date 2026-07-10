@@ -38,10 +38,12 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :bookings, only: [:index] do
+      resources :bookings, only: [:index, :show] do
         member do
           patch :confirm
           patch :reject
+          get :trip_plan, to: 'trip_plans#show'
+          post :trip_plan, to: 'trip_plans#create'
         end
       end
     end

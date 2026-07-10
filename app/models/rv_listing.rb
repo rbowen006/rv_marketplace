@@ -12,12 +12,21 @@ class RvListing < ApplicationRecord
   validates :title, :description, :rv_type, :town, :state, :postcode, :price_per_day, :max_guests, presence: true
   validate :at_least_one_image, on: :create
 
+  # Derive the trip-planning region from the location on every save (ADR-0013),
+  # so rv_listings.region is set canonically by one resolver rather than by
+  # ad-hoc lookups at query time. Nil when the town is outside a covered region.
+  before_validation :assign_region
+
   # Refresh the semantic-search embedding whenever listing content changes
   # (ADR-0011). The callback stays dumb — the job decides whether a re-embed is
   # actually needed (idempotent on content_hash).
   after_commit :refresh_embedding, on: [ :create, :update ]
 
   private
+
+  def assign_region
+    self.region = Region::Resolver.call(town: town, state: state, postcode: postcode)
+  end
 
   def at_least_one_image
     errors.add(:images, "must have at least one photo") unless images.attached?

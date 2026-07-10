@@ -146,7 +146,7 @@ Owners receive the same questions repeatedly. A "Suggest reply" button in `ChatP
 ---
 
 ### 4. Trip Planning Assistant
-**Status:** Not started | **Teaches:** RAG, background jobs, context management
+**Status:** Shipped (PR #39, ADR-0013) | **Teaches:** RAG, background jobs, context management
 
 After a booking is confirmed, a "Plan my trip" panel lets the hirer enter their interests. Claude generates a day-by-day itinerary, grounded by retrieved context (local attractions, campground FAQs, RV manuals, area policies).
 

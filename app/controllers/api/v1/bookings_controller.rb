@@ -1,7 +1,15 @@
 module Api
   module V1
     class BookingsController < BaseController
-      before_action :set_booking, only: [:confirm, :reject]
+      before_action :set_booking, only: [:show, :confirm, :reject]
+
+      # GET /api/v1/bookings/:id
+      def show
+        return render json: { error: 'Not found' }, status: :not_found unless participant?(@booking)
+
+        render json: @booking.as_json(include_participants: true)
+                             .merge('trip_planning_available' => @booking.trip_planning_available?)
+      end
 
       # GET /api/v1/bookings
       def index
@@ -60,6 +68,10 @@ module Api
 
       def set_booking
         @booking = Booking.find(params[:id])
+      end
+
+      def participant?(booking)
+        booking.hirer_id == current_user.id || booking.rv_listing.owner_id == current_user.id
       end
 
       def booking_params
