@@ -27,9 +27,9 @@ Trekr is AI-native in two senses:
 |---|---|
 | ✨ **Listing Description Generator** — drafts a listing description from RV attributes | ✅ Shipped |
 | 🔎 **Natural-language search** — semantic vector search over listings (Ollama embeddings + pgvector) | ✅ Shipped |
-| 💬 Smart chat replies for owners | 🗺️ Planned |
+| 💬 **Smart chat replies for owners** — drafts an owner reply from recent messages + listing context | ✅ Shipped |
 | 💲 Pricing suggestions | 🗺️ Planned |
-| 🧭 Trip-planning assistant (RAG) | 🗺️ Planned |
+| 🧭 **Trip-planning assistant (RAG)** — day-by-day itinerary grounded in retrieved local knowledge | ✅ Shipped |
 | 🤖 AI concierge (agentic + tool use) | 🗺️ Planned |
 | 🔌 MCP server | 🗺️ Planned |
 
