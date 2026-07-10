@@ -4,6 +4,12 @@
 class Region
   MANIFEST_PATH = Rails.root.join("app", "knowledge", "regions.yml")
 
+  # Raised when regions.yml violates a manifest invariant (ADR-0013). The
+  # resolver picks the first region whose towns include a match, so a town listed
+  # under two regions would silently resolve by file order — this fails loudly at
+  # load instead.
+  class ManifestError < StandardError; end
+
   attr_reader :slug, :name, :state, :towns, :doc
 
   def initialize(slug:, name:, state:, towns: [], doc: nil)
@@ -15,8 +21,21 @@ class Region
   end
 
   def self.all
-    manifest.map { |attrs| new(**attrs.symbolize_keys) }
+    manifest.map { |attrs| new(**attrs.symbolize_keys) }.tap { |regions| ensure_unique_towns!(regions) }
   end
+
+  # Each town must resolve to exactly one region (ADR-0013). Enforced here, at the
+  # single access point every path (resolver, coverage gate, chunk loading) goes
+  # through, so a duplicate can never resolve silently.
+  def self.ensure_unique_towns!(regions)
+    duplicated = regions.flat_map(&:towns).tally.select { |_town, count| count > 1 }.keys
+    return if duplicated.empty?
+
+    raise ManifestError,
+          "regions.yml maps #{duplicated.join(', ')} to more than one region; " \
+          "each town must resolve to exactly one region (ADR-0013)."
+  end
+  private_class_method :ensure_unique_towns!
 
   def self.find(slug)
     all.find { |region| region.slug == slug }

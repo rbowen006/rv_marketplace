@@ -14,6 +14,23 @@ RSpec.describe Region do
     end
   end
 
+  describe '.all (manifest invariants)' do
+    it 'maps each town to exactly one region in the real manifest' do
+      towns = Region.all.flat_map(&:towns)
+
+      expect(towns).to eq(towns.uniq)
+    end
+
+    it 'raises a ManifestError when a town is mapped to two regions' do
+      allow(Region).to receive(:manifest).and_return([
+        { 'slug' => 'a', 'name' => 'A', 'state' => 'NSW', 'towns' => ['Gosford'] },
+        { 'slug' => 'b', 'name' => 'B', 'state' => 'NSW', 'towns' => ['Gosford'] }
+      ])
+
+      expect { Region.all }.to raise_error(Region::ManifestError, /Gosford/)
+    end
+  end
+
   describe '#has_corpus?' do
     it 'is false until the region has embedded chunks, then true' do
       region = Region.find('great-ocean-road')
