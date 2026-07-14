@@ -83,3 +83,15 @@ _Avoid_: Schedule, plan, agenda
 **Interests**:
 Optional free text the Hirer supplies to steer a Trip plan (e.g. "surfing and quiet beaches, travelling with a dog"). Blended with the Region and season into the retrieval query and the prompt; blank Interests still yield a grounded default plan.
 _Avoid_: Preferences, query, prompt, tags
+
+**Concierge**:
+A conversational discovery assistant that guides a logged-in User toward a Booking through multi-turn chat. It runs an agent loop — Claude decides which read-only tools to call (semantic search, listing detail, availability, price), then surfaces Recommended listings the User can click through to the existing booking flow. A primary discovery surface alongside the browse grid and Natural language search, not a stuck-user helper. Available to any authenticated User (there is no owner/hirer account distinction).
+_Avoid_: Assistant, bot, chatbot, agent, helper
+
+**Concierge conversation**:
+The durable per-User record of a Concierge session. Exactly one active conversation per User, resettable via "Start over". Holds the full agent transcript (User messages, assistant messages, and the tool-call/tool-result blocks the loop re-sends to Claude) as a jsonb column; the visible chat is derived from it. Carries a per-turn status that cycles idle → processing → idle on success, or → failed on a turn error.
+_Avoid_: Session, thread, Chat, history
+
+**Recommended listings**:
+The Listings the Concierge chooses to surface within a turn, recorded when the agent calls its `recommend_listings` tool and rendered as inline Listing cards in the chat. Distinct from what the agent merely searched — a deliberate, structured recommendation. Read-only: surfacing a Recommended listing takes no booking or payment action; the User clicking through does.
+_Avoid_: Results, matches, suggestions, picks
