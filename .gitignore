@@ -39,3 +39,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Local agent handoff / working notes (not shared).
+/HANDOFF.md
+/docs/handoff-trekr-go.md
