@@ -22,7 +22,8 @@ module Ai
         error_message:     @error&.message,
         request_payload:   @request_payload,
         response_payload:  @response_payload,
-        user:              @user
+        user:              @user,
+        conversation_id:   @conversation_id
       )
     rescue => e
       Rails.logger.error("Failed to write ai_request: #{e.message}")
