@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_10_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_14_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -58,6 +58,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_10_120000) do
     t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "conversation_id"
+    t.index ["conversation_id"], name: "index_ai_requests_on_conversation_id"
     t.index ["user_id"], name: "index_ai_requests_on_user_id"
   end
 
@@ -90,6 +92,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_10_120000) do
     t.index ["owner_id", "last_message_at"], name: "index_chats_on_owner_id_and_last_message_at"
     t.index ["owner_id"], name: "index_chats_on_owner_id"
     t.index ["rv_listing_id"], name: "index_chats_on_rv_listing_id"
+  end
+
+  create_table "concierge_conversations", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "status", default: "idle", null: false
+    t.jsonb "transcript", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_concierge_conversations_on_user_id", unique: true
   end
 
   create_table "knowledge_chunks", force: :cascade do |t|
@@ -173,6 +184,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_10_120000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ai_requests", "concierge_conversations", column: "conversation_id"
   add_foreign_key "ai_requests", "users"
   add_foreign_key "bookings", "rv_listings"
   add_foreign_key "bookings", "users", column: "hirer_id"
@@ -180,6 +192,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_10_120000) do
   add_foreign_key "chats", "rv_listings"
   add_foreign_key "chats", "users", column: "hirer_id"
   add_foreign_key "chats", "users", column: "owner_id"
+  add_foreign_key "concierge_conversations", "users"
   add_foreign_key "listing_embeddings", "rv_listings"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
