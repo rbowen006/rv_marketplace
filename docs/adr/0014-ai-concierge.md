@@ -112,6 +112,31 @@ choice). Paired with a modest `effort` (low/medium) to bound thinking-token cost
 across the N calls. Opus 4.8 was rejected as too expensive for a multi-call loop;
 `claude-sonnet-4-6` as the weakest of the three at multi-step tool use.
 
+**Build note (thinking config + `max_tokens`).** Reloading the Claude API
+reference surfaced a request-shape interaction the design didn't pin down: on
+`claude-sonnet-5`, **adaptive thinking is on by default** when the `thinking`
+param is omitted, and `max_tokens` caps thinking *plus* visible output combined.
+The planned `max_tokens: 1024` shared between reasoning and a short chat reply can
+truncate mid-answer (`stop_reason: max_tokens`), and `effort` alone doesn't
+prevent it (effort also defaults to `high` on Sonnet 5, not low). Decision: send
+**`thinking: { type: "disabled" }`** and leave `effort` unset. Tool-selection
+reasoning still happens in the model; disabling thinking removes the shared-budget
+truncation risk, keeps `max_tokens: 1024` honest for short replies, and is the
+cost-conscious default ([[user_cost_conscious_ai]]). Revisit (adaptive thinking +
+a larger `max_tokens`) only if tool-choice quality proves insufficient in
+practice. Ruby-surface reminders for the build: `stop_reason`/`block.type` are
+**Symbols** (`:tool_use`, `:end_turn`, `:text`), `block.text` raises on non-text
+blocks, and the system prompt is passed as `system_:` (trailing underscore).
+
+**Build note (prompt caching across the loop).** Each loop iteration re-sends the
+whole transcript, so a `cache_control: { type: "ephemeral" }` breakpoint on the
+stable prefix (system prompt + the five tool schemas) lets iterations 2–8 read
+that prefix at ~0.1× instead of full price — a direct cost win on the most
+call-heavy feature. Sonnet 5's minimum cacheable prefix is ~2,048 tokens, which
+the system prompt + tool defs clear comfortably. Fold this into the `Ai::Agent`
+loop from the start rather than deferring it; it is a few lines and compounds
+across every turn.
+
 ### Conversation state: a new `ConciergeConversation` with a jsonb transcript
 
 `Chat`/`Message` model **two humans messaging about a listing** (ADR-0001) —
