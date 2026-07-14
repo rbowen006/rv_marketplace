@@ -221,6 +221,20 @@ The small genuinely-shared logic (loading a versioned prompt file; writing an
 `BaseAiService` and `Ai::Agent`, rather than duplicated — DRY and canonical, and
 the refactor of shipped code is small and test-covered.
 
+**Build note (scope of the seam).** Reviewing the actual shipped code narrowed
+the extraction to the piece where a shared seam earns its keep: an
+**`Ai::RequestLogging` concern** owning `write_ai_request` + `cost` (and the
+latency calc), reading the existing `@input_tokens`/`@output_tokens`/`@error`/
+`@started_at`/`@user` ivar contract both classes already satisfy, plus an
+optional `conversation_id` (defaults `nil`, so single-shot features keep writing
+`NULL`). That row is the brief's mandated per-call observability contract; one
+writer keeps the columns and cost calc from silently drifting between the
+single-shot and agent paths. `load_prompt` is **left duplicated** (5 trivial
+lines of `File.read`) — a mixin there would add indirection without protecting a
+contract. So the shared module is logging-only, not the prompt-loading-plus-
+logging the paragraph above first imagined. `BaseAiService`'s existing specs pin
+its behaviour green through the refactor.
+
 ### API surface: single active conversation per user
 
 One user has **one active `ConciergeConversation`**; "Start over" resets it. A
