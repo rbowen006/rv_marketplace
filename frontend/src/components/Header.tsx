@@ -30,6 +30,14 @@ export function Header() {
             List your RV
           </button>
           {user && (
+            <Link
+              to="/concierge"
+              className="text-sm font-medium text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-full transition-colors"
+            >
+              Concierge
+            </Link>
+          )}
+          {user && (
             <Link to="/chats" className="relative text-gray-500 hover:text-gray-800 p-1">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

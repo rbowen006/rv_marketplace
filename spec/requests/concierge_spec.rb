@@ -69,6 +69,18 @@ RSpec.describe 'Concierge API', type: :request do
       expect(response).to have_http_status(:bad_request)
     end
 
+    it 'does not duplicate the trailing message when retrying a failed turn' do
+      ConciergeConversation.create!(user: user, status: :failed, error: 'boom',
+                                    transcript: [{ 'role' => 'user', 'content' => 'find me a van' }])
+
+      post '/api/v1/concierge/messages', params: { message: 'find me a van' }.to_json, headers: auth_header_for(user)
+
+      expect(response).to have_http_status(:accepted)
+      conversation = user.reload.concierge_conversation
+      expect(conversation.transcript.count { |e| e['content'] == 'find me a van' }).to eq(1)
+      expect(conversation).to be_processing
+    end
+
     it 'returns 409 while a turn is already processing' do
       ConciergeConversation.create!(user: user, status: :processing)
 
