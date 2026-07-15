@@ -36,7 +36,7 @@ module Ai
         raise Ai::ApiError, "Agent exceeded MAX_ITERATIONS (#{MAX_ITERATIONS})" if iterations > MAX_ITERATIONS
 
         response = invoke_claude
-        @messages << { "role" => "assistant", "content" => response.content.map(&:to_h) }
+        @messages << { "role" => "assistant", "content" => response.content.map { |block| serialize_block(block) } }
 
         # Only a tool_use turn continues the loop. end_turn, and any other stop
         # reason (max_tokens, refusal, pause_turn), is terminal — the assistant
@@ -68,6 +68,22 @@ module Ai
 
     def tool_names(response)
       response.content.select { |block| block.type == :tool_use }.map(&:name)
+    end
+
+    # Minimal, request-valid serialization of a response content block. block.to_h
+    # leaks SDK-only fields (e.g. caller_) that the API rejects when the assistant
+    # turn is re-sent; keep only what each block type needs, string-keyed so the whole
+    # transcript is uniform.
+    def serialize_block(block)
+      case block.type
+      when :text
+        { "type" => "text", "text" => block.text }
+      when :tool_use
+        { "type" => "tool_use", "id" => block.id, "name" => block.name,
+          "input" => block.input.to_h.deep_stringify_keys }
+      else
+        block.to_h.deep_stringify_keys
+      end
     end
 
     def model

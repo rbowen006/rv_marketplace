@@ -151,6 +151,19 @@ RSpec.describe Ai::Agent do
     expect(AiRequest.last.success).to be false
   end
 
+  it "serializes assistant tool_use turns with only request-valid fields" do
+    stub_claude(
+      tool_use_turn("echo", { "message" => "ping" }),
+      text_turn("done")
+    )
+
+    messages = Ai::SpecAgent.new(conversation: conversation).run("hi")
+
+    assistant_turn = messages.find { |m| m["role"] == "assistant" && Array(m["content"]).any? { |b| b["type"] == "tool_use" } }
+    tool_block = assistant_turn["content"].find { |b| b["type"] == "tool_use" }
+    expect(tool_block.keys).to match_array(%w[type id name input])
+  end
+
   it "reports progress on the conversation's step_status during the turn" do
     stub_claude(
       tool_use_turn("echo", { "message" => "ping" }),
