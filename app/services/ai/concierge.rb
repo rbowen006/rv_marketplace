@@ -19,7 +19,19 @@ module Ai
       Ai::Tools::RecommendListings
     ].freeze
 
+    STEP_LABELS = {
+      "search_listings"    => "Searching listings…",
+      "get_listing_detail" => "Looking up details…",
+      "check_availability" => "Checking availability…",
+      "calculate_price"    => "Working out the price…",
+      "recommend_listings" => "Picking recommendations…"
+    }.freeze
+
     private
+
+    def step_label(tool_names)
+      STEP_LABELS.values_at(*tool_names).compact.first || super
+    end
 
     def system_prompt
       load_prompt

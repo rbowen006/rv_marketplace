@@ -21,12 +21,15 @@ module Ai
       @conversation_id = conversation.id
     end
 
-    # Runs one user turn to completion and returns the full transcript array
-    # (the caller persists it as the conversation's source of truth).
-    def run(user_message)
+    # Runs one turn to completion and returns the full transcript array (the
+    # caller persists it as the conversation's source of truth). Pass a
+    # user_message to start a fresh turn; omit it to continue the loop from a
+    # transcript whose user message the caller already appended and persisted.
+    def run(user_message = nil)
       @messages = @conversation.transcript.map(&:dup)
-      @messages << { "role" => "user", "content" => user_message }
+      @messages << { "role" => "user", "content" => user_message } if user_message
 
+      report_step(initial_step)
       iterations = 0
       loop do
         iterations += 1
@@ -40,6 +43,7 @@ module Ai
         # content so far is the final answer rather than a cue to call again.
         break unless response.stop_reason == :tool_use
 
+        report_step(step_label(tool_names(response)))
         @messages << { "role" => "user", "content" => tool_results(response) }
       end
 
@@ -47,6 +51,24 @@ module Ai
     end
 
     private
+
+    # Progress line the poller surfaces while the turn runs (ADR-0014 §Transport).
+    # Subclasses map tool names to friendly labels via #step_label.
+    def report_step(label)
+      @conversation.update_column(:step_status, label)
+    end
+
+    def initial_step
+      "Thinking…"
+    end
+
+    def step_label(_tool_names)
+      "Working…"
+    end
+
+    def tool_names(response)
+      response.content.select { |block| block.type == :tool_use }.map(&:name)
+    end
 
     def model
       self.class::MODEL

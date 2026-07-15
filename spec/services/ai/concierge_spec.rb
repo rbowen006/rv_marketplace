@@ -57,5 +57,6 @@ RSpec.describe Ai::Concierge do
     ack = JSON.parse(tool_turn["content"].first["content"])
     expect(ack).to eq("recommended" => [listing.id])
     expect(AiRequest.where(feature: "concierge").last.model).to eq("claude-sonnet-5")
+    expect(conversation.reload.step_status).to eq("Picking recommendations…")
   end
 end

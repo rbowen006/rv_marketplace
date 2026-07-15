@@ -151,6 +151,17 @@ RSpec.describe Ai::Agent do
     expect(AiRequest.last.success).to be false
   end
 
+  it "reports progress on the conversation's step_status during the turn" do
+    stub_claude(
+      tool_use_turn("echo", { "message" => "ping" }),
+      text_turn("done")
+    )
+
+    Ai::SpecAgent.new(conversation: conversation).run("hi")
+
+    expect(conversation.reload.step_status).to eq("Working…")
+  end
+
   it "ends the turn on a non-tool_use stop reason instead of re-looping" do
     stub_claude(text_turn("partial answer").merge(stop_reason: "max_tokens"))
 

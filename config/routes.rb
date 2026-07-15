@@ -46,6 +46,12 @@ Rails.application.routes.draw do
           post :trip_plan, to: 'trip_plans#create'
         end
       end
+
+      # AI Concierge (ADR-0014): one active conversation per user. GET polls,
+      # POST /messages sends a turn, DELETE resets ("start over").
+      get    'concierge',          to: 'concierge#show'
+      delete 'concierge',          to: 'concierge#destroy'
+      post   'concierge/messages', to: 'concierge#create'
     end
   end
 end
