@@ -4,9 +4,11 @@ RSpec.describe Ai::TripPlanner do
   let(:owner)   { create(:user) }
   let(:hirer)   { create(:user) }
   let(:listing) { create(:rv_listing, owner: owner, town: 'Lorne', state: 'VIC', postcode: '3232') }
+  # Relative future dates so the Booking past-date validation always passes;
+  # assertions below depend on the span (2 nights), not the absolute dates.
   let(:booking) do
     create(:booking, rv_listing: listing, hirer: hirer, status: 'confirmed',
-                     start_date: Date.new(2026, 7, 10), end_date: Date.new(2026, 7, 12))
+                     start_date: Date.current + 1.week, end_date: Date.current + 9.days)
   end
 
   let(:query_embedding) { Array.new(768) { 0.05 } }
@@ -76,7 +78,7 @@ RSpec.describe Ai::TripPlanner do
 
   it "caps planned days at MAX_PLANNED_DAYS and reports the remaining nights" do
     long = create(:booking, rv_listing: listing, hirer: hirer, status: 'confirmed',
-                            start_date: Date.new(2026, 7, 10), end_date: Date.new(2026, 7, 30))
+                            start_date: Date.current + 1.week, end_date: Date.current + 27.days) # 20 nights
 
     described_class.call(booking: long, user: hirer)
 
