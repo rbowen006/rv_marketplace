@@ -31,6 +31,6 @@ RSpec.describe Knowledge::DocumentChunker do
 
     headings = described_class.call(markdown).map { |c| c[:heading] }
 
-    expect(headings).to eq(['Full'])
+    expect(headings).to eq([ 'Full' ])
   end
 end

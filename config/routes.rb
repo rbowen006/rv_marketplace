@@ -1,13 +1,13 @@
 Rails.application.routes.draw do
   if Rails.env.development? || Rails.env.test?
-    mount Rswag::Ui::Engine => '/api-docs'
-    mount Rswag::Api::Engine => '/api-docs'
+    mount Rswag::Ui::Engine => "/api-docs"
+    mount Rswag::Api::Engine => "/api-docs"
   end
 
   devise_for :users, controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations',
-    passwords: 'users/passwords'
+    sessions: "users/sessions",
+    registrations: "users/registrations",
+    passwords: "users/passwords"
   }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -21,37 +21,37 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :listings do
-        resources :images, only: [:create, :destroy]
-        resources :bookings, only: [:create]
-        resources :chats, only: [:create]
+        resources :images, only: [ :create, :destroy ]
+        resources :bookings, only: [ :create ]
+        resources :chats, only: [ :create ]
         collection do
           get :mine
           post :search
-          post :generate_description, to: 'description_generator#create'
+          post :generate_description, to: "description_generator#create"
         end
       end
 
-      resources :chats, only: [:index, :show] do
-        resources :messages, only: [:index, :create]
+      resources :chats, only: [ :index, :show ] do
+        resources :messages, only: [ :index, :create ]
         member do
-          post :suggest_reply, to: 'chat_reply_suggester#create'
+          post :suggest_reply, to: "chat_reply_suggester#create"
         end
       end
 
-      resources :bookings, only: [:index, :show] do
+      resources :bookings, only: [ :index, :show ] do
         member do
           patch :confirm
           patch :reject
-          get :trip_plan, to: 'trip_plans#show'
-          post :trip_plan, to: 'trip_plans#create'
+          get :trip_plan, to: "trip_plans#show"
+          post :trip_plan, to: "trip_plans#create"
         end
       end
 
       # AI Concierge (ADR-0014): one active conversation per user. GET polls,
       # POST /messages sends a turn, DELETE resets ("start over").
-      get    'concierge',          to: 'concierge#show'
-      delete 'concierge',          to: 'concierge#destroy'
-      post   'concierge/messages', to: 'concierge#create'
+      get    "concierge",          to: "concierge#show"
+      delete "concierge",          to: "concierge#destroy"
+      post   "concierge/messages", to: "concierge#create"
     end
   end
 end

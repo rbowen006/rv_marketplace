@@ -10,5 +10,5 @@ class ConciergeConversation < ApplicationRecord
   # rather than let the FK raise (issue #53).
   has_many :ai_requests, foreign_key: :conversation_id, inverse_of: false, dependent: :nullify
 
-  enum :status, { idle: 'idle', processing: 'processing', failed: 'failed' }, default: :idle
+  enum :status, { idle: "idle", processing: "processing", failed: "failed" }, default: :idle
 end

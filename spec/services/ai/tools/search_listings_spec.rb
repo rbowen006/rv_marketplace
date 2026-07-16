@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Ai::Tools::SearchListings do
-  let(:query_vec) { [1.0] + Array.new(767) { 0.0 } }
-  let(:far_vec)   { Array.new(767) { 0.0 } + [1.0] }
+  let(:query_vec) { [ 1.0 ] + Array.new(767) { 0.0 } }
+  let(:far_vec)   { Array.new(767) { 0.0 } + [ 1.0 ] }
 
   before do
     # This is a search unit test — control the embedding corpus so the assertions
@@ -27,7 +27,7 @@ RSpec.describe Ai::Tools::SearchListings do
 
     results = described_class.call({ "query" => "beach" })
 
-    expect(results.map { |r| r[:id] }).to eq([near.id, far.id])
+    expect(results.map { |r| r[:id] }).to eq([ near.id, far.id ])
     expect(results.first.keys).to match_array(%i[id title town state price_per_day max_guests pet_friendly blurb])
     expect(results.first[:blurb].length).to be <= 200
     expect(results.first).not_to have_key(:description)
@@ -41,7 +41,7 @@ RSpec.describe Ai::Tools::SearchListings do
 
     results = described_class.call({ "query" => "van", "state" => "VIC" })
 
-    expect(results.map { |r| r[:id] }).to eq([vic.id])
+    expect(results.map { |r| r[:id] }).to eq([ vic.id ])
   end
 
   it "filters by minimum guest capacity" do
@@ -52,7 +52,7 @@ RSpec.describe Ai::Tools::SearchListings do
 
     results = described_class.call({ "query" => "van", "min_guests" => 4 })
 
-    expect(results.map { |r| r[:id] }).to eq([big.id])
+    expect(results.map { |r| r[:id] }).to eq([ big.id ])
   end
 
   it "filters by pet_friendly" do
@@ -63,7 +63,7 @@ RSpec.describe Ai::Tools::SearchListings do
 
     results = described_class.call({ "query" => "van", "pet_friendly" => true })
 
-    expect(results.map { |r| r[:id] }).to eq([with.id])
+    expect(results.map { |r| r[:id] }).to eq([ with.id ])
   end
 
   it "raises Ai::InputError for a blank query" do

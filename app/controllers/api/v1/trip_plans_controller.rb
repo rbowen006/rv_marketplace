@@ -70,7 +70,7 @@ module Api
       # an unchanged hash means a re-run would produce the same inputs (ADR-0013).
       def input_hash_for(interests)
         Digest::SHA256.hexdigest(
-          [@booking.rv_listing.region, @booking.start_date, @booking.end_date, interests].join("\n")
+          [ @booking.rv_listing.region, @booking.start_date, @booking.end_date, interests ].join("\n")
         )
       end
 

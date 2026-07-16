@@ -18,6 +18,6 @@ RSpec.describe 'Unauthenticated requests to protected endpoints', type: :request
          headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
 
     body = JSON.parse(response.body)
-    expect(body.keys).not_to eq(['error'])
+    expect(body.keys).not_to eq([ 'error' ])
   end
 end

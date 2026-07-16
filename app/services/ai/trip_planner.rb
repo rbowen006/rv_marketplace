@@ -97,13 +97,13 @@ module Ai
         nights:            nights,
         season:            season,
         plan_dates:        planned_dates,
-        additional_nights: [nights - MAX_PLANNED_DAYS, 0].max
+        additional_nights: [ nights - MAX_PLANNED_DAYS, 0 ].max
       }
     end
 
     # The real calendar dates to plan, capped at MAX_PLANNED_DAYS.
     def planned_dates
-      [nights, MAX_PLANNED_DAYS].min.times.map { |offset| (@booking.start_date + offset).iso8601 }
+      [ nights, MAX_PLANNED_DAYS ].min.times.map { |offset| (@booking.start_date + offset).iso8601 }
     end
 
     def knowledge
@@ -117,7 +117,7 @@ module Ai
     end
 
     def query_text
-      [@interests.presence, region&.name, season, "#{listing.max_guests} people"].compact.join(", ")
+      [ @interests.presence, region&.name, season, "#{listing.max_guests} people" ].compact.join(", ")
     end
 
     # Southern-hemisphere season from the start month (ADR-0013).

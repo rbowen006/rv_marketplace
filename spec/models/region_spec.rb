@@ -23,8 +23,8 @@ RSpec.describe Region do
 
     it 'raises a ManifestError when a town is mapped to two regions' do
       allow(Region).to receive(:manifest).and_return([
-        { 'slug' => 'a', 'name' => 'A', 'state' => 'NSW', 'towns' => ['Gosford'] },
-        { 'slug' => 'b', 'name' => 'B', 'state' => 'NSW', 'towns' => ['Gosford'] }
+        { 'slug' => 'a', 'name' => 'A', 'state' => 'NSW', 'towns' => [ 'Gosford' ] },
+        { 'slug' => 'b', 'name' => 'B', 'state' => 'NSW', 'towns' => [ 'Gosford' ] }
       ])
 
       expect { Region.all }.to raise_error(Region::ManifestError, /Gosford/)

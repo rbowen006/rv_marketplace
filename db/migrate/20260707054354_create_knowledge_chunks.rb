@@ -16,6 +16,6 @@ class CreateKnowledgeChunks < ActiveRecord::Migration[8.0]
     end
 
     add_index :knowledge_chunks, :region
-    add_index :knowledge_chunks, [:region, :content_hash], unique: true
+    add_index :knowledge_chunks, [ :region, :content_hash ], unique: true
   end
 end

@@ -26,7 +26,7 @@ RSpec.describe 'Concierge API', type: :request do
         { 'role' => 'assistant', 'content' => [
           { 'type' => 'text', 'text' => 'Here is a great option.' },
           { 'type' => 'tool_use', 'id' => 't1', 'name' => 'recommend_listings',
-            'input' => { 'listing_ids' => [listing.id] } }
+            'input' => { 'listing_ids' => [ listing.id ] } }
         ] }
       ])
 
@@ -39,7 +39,7 @@ RSpec.describe 'Concierge API', type: :request do
         { 'role' => 'assistant', 'text' => 'Here is a great option.' }
       ])
       recs = json.dig('data', 'recommendations')
-      expect(recs.map { |r| r['id'] }).to eq([listing.id])
+      expect(recs.map { |r| r['id'] }).to eq([ listing.id ])
       expect(recs.first['title']).to eq('Beach van')
     end
   end
@@ -71,7 +71,7 @@ RSpec.describe 'Concierge API', type: :request do
 
     it 'does not duplicate the trailing message when retrying a failed turn' do
       ConciergeConversation.create!(user: user, status: :failed, error: 'boom',
-                                    transcript: [{ 'role' => 'user', 'content' => 'find me a van' }])
+                                    transcript: [ { 'role' => 'user', 'content' => 'find me a van' } ])
 
       post '/api/v1/concierge/messages', params: { message: 'find me a van' }.to_json, headers: auth_header_for(user)
 
@@ -93,7 +93,7 @@ RSpec.describe 'Concierge API', type: :request do
 
   describe 'DELETE /api/v1/concierge' do
     it 'resets the conversation' do
-      ConciergeConversation.create!(user: user, status: :idle, transcript: [{ 'role' => 'user', 'content' => 'hi' }])
+      ConciergeConversation.create!(user: user, status: :idle, transcript: [ { 'role' => 'user', 'content' => 'hi' } ])
 
       delete '/api/v1/concierge', headers: auth_header_for(user)
 
@@ -102,7 +102,7 @@ RSpec.describe 'Concierge API', type: :request do
     end
 
     it 'resets a conversation that has logged AI requests without 500ing (issue #53)' do
-      conversation = ConciergeConversation.create!(user: user, transcript: [{ 'role' => 'user', 'content' => 'hi' }])
+      conversation = ConciergeConversation.create!(user: user, transcript: [ { 'role' => 'user', 'content' => 'hi' } ])
       request = AiRequest.create!(feature: 'concierge', model: 'claude-sonnet-5', user: user, conversation_id: conversation.id)
 
       delete '/api/v1/concierge', headers: auth_header_for(user)

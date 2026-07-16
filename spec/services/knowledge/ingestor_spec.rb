@@ -37,7 +37,7 @@ RSpec.describe Knowledge::Ingestor do
     described_class.call(region: 'test-region', markdown: revised)
 
     chunks = KnowledgeChunk.where(region: 'test-region')
-    expect(chunks.pluck(:heading)).to eq(['Beaches'])
+    expect(chunks.pluck(:heading)).to eq([ 'Beaches' ])
     expect(chunks.first.content).to eq('Sand and surf now.')
   end
 end

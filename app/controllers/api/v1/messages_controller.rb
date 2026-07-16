@@ -28,7 +28,7 @@ module Api
 
       def authorize_participant!
         unless @chat.hirer_id == current_user.id || @chat.owner_id == current_user.id
-          render json: { error: 'Forbidden' }, status: :forbidden
+          render json: { error: "Forbidden" }, status: :forbidden
         end
       end
 

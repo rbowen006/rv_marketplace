@@ -4,6 +4,6 @@
 class TripPlan < ApplicationRecord
   belongs_to :booking
 
-  enum :status, { pending: 'pending', processing: 'processing', completed: 'completed', failed: 'failed' },
+  enum :status, { pending: "pending", processing: "processing", completed: "completed", failed: "failed" },
        default: :pending
 end

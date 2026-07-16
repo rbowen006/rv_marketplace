@@ -1,9 +1,9 @@
 module Api
   module V1
     class ListingsController < BaseController
-      skip_before_action :authenticate_user!, only: [:index, :show, :search]
-      before_action :set_listing, only: [:show, :update, :destroy]
-      before_action :authorize_owner!, only: [:update, :destroy]
+      skip_before_action :authenticate_user!, only: [ :index, :show, :search ]
+      before_action :set_listing, only: [ :show, :update, :destroy ]
+      before_action :authorize_owner!, only: [ :update, :destroy ]
 
       # Number of nearest neighbours returned by natural-language search.
       # No relevance threshold in v1 — kNN always returns up to this many rows,
@@ -21,11 +21,11 @@ module Api
       def search
         query = params[:query].to_s.strip
         if query.blank?
-          render json: { error: 'query is required' }, status: :unprocessable_content
+          render json: { error: "query is required" }, status: :unprocessable_content
           return
         end
 
-        vector = Ai::Embedder.call(query, feature: 'nl_search', user: current_user)
+        vector = Ai::Embedder.call(query, feature: "nl_search", user: current_user)
 
         neighbors = ListingEmbedding
           .nearest_neighbors(:embedding, vector, distance: :cosine)
@@ -33,12 +33,12 @@ module Api
           .limit(SEARCH_LIMIT)
 
         results = neighbors.map do |embedding|
-          embedding.rv_listing.as_json.merge('score' => embedding.neighbor_distance)
+          embedding.rv_listing.as_json.merge("score" => embedding.neighbor_distance)
         end
 
         render json: results
       rescue Ai::ApiError => e
-        render json: { status: 'error', message: e.message }, status: :service_unavailable
+        render json: { status: "error", message: e.message }, status: :service_unavailable
       end
 
       def mine
@@ -80,7 +80,7 @@ module Api
 
       def authorize_owner!
         return if @listing.owner_id == current_user.id
-        render json: { error: 'Not authorized' }, status: :forbidden
+        render json: { error: "Not authorized" }, status: :forbidden
       end
 
       LISTING_FIELDS = %i[title description rv_type town state postcode price_per_day max_guests pet_friendly latitude longitude].freeze

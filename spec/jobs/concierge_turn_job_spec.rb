@@ -5,14 +5,14 @@ RSpec.describe ConciergeTurnJob do
   let(:conversation) do
     ConciergeConversation.create!(
       user: user, status: :processing, step_status: "Thinking…",
-      transcript: [{ "role" => "user", "content" => "find me a van" }]
+      transcript: [ { "role" => "user", "content" => "find me a van" } ]
     )
   end
 
   def end_turn_body(text)
     {
       id: "m", type: "message", role: "assistant",
-      content: [{ type: "text", text: text }],
+      content: [ { type: "text", text: text } ],
       model: "claude-sonnet-5", stop_reason: "end_turn",
       usage: { input_tokens: 10, output_tokens: 5 }
     }

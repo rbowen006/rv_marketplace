@@ -39,7 +39,7 @@ module Knowledge
 
     # Embed heading + body together so a section's topic informs its vector.
     def embed_text(chunk)
-      [chunk[:heading], chunk[:content]].compact.join("\n\n")
+      [ chunk[:heading], chunk[:content] ].compact.join("\n\n")
     end
 
     def prune_stale(seen_hashes)

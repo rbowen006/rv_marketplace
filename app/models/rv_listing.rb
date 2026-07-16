@@ -1,7 +1,7 @@
 class RvListing < ApplicationRecord
   include Rails.application.routes.url_helpers
 
-  belongs_to :owner, class_name: 'User'
+  belongs_to :owner, class_name: "User"
   has_many :bookings, dependent: :destroy
   has_many :chats, dependent: :destroy
   has_one :listing_embedding, dependent: :destroy

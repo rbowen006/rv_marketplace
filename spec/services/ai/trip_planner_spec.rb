@@ -19,14 +19,14 @@ RSpec.describe Ai::TripPlanner do
       disclaimer: "Suggestions only — confirm opening hours and conditions locally.",
       days: [
         { date: "2026-07-10", title: "Beaches and lookouts",
-          segments: [{ part_of_day: "morning", activity: "Lorne main beach", detail: "Calm and patrolled." }] }
+          segments: [ { part_of_day: "morning", activity: "Lorne main beach", detail: "Calm and patrolled." } ] }
       ]
     }.to_json
   end
 
   let(:anthropic_success_body) do
     { id: "msg_1", type: "message", role: "assistant",
-      content: [{ type: "text", text: itinerary_json }],
+      content: [ { type: "text", text: itinerary_json } ],
       model: "claude-sonnet-4-6", stop_reason: "end_turn",
       usage: { input_tokens: 500, output_tokens: 120 } }.to_json
   end
@@ -92,7 +92,7 @@ RSpec.describe Ai::TripPlanner do
     stub_request(:post, "https://api.anthropic.com/v1/messages").to_return(
       status: 200,
       body: { id: "m", type: "message", role: "assistant",
-              content: [{ type: "text", text: fenced }],
+              content: [ { type: "text", text: fenced } ],
               model: "claude-sonnet-4-6", stop_reason: "end_turn",
               usage: { input_tokens: 10, output_tokens: 10 } }.to_json,
       headers: { "Content-Type" => "application/json" }

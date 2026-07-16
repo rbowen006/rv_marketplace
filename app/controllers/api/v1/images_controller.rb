@@ -24,7 +24,7 @@ module Api
       def authorize_owner!
         return if @listing.owner_id == current_user.id
 
-        render json: { error: 'Not authorized' }, status: :forbidden
+        render json: { error: "Not authorized" }, status: :forbidden
       end
     end
   end

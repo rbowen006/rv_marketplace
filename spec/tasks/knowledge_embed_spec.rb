@@ -4,7 +4,7 @@ require 'rake'
 RSpec.describe 'knowledge:embed', type: :task do
   before do
     Rake.application = Rake::Application.new
-    Rake.application.rake_require('tasks/knowledge', [Rails.root.join('lib').to_s])
+    Rake.application.rake_require('tasks/knowledge', [ Rails.root.join('lib').to_s ])
     Rake::Task.define_task(:environment)
   end
 

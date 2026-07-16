@@ -107,7 +107,7 @@ module Ai
     # stable prefix (system + tool schemas); loop iterations 2..N read it at
     # ~0.1x instead of full price (ADR-0014 §Model build note).
     def system_blocks
-      [{ type: "text", text: system_prompt, cache_control: { type: "ephemeral" } }]
+      [ { type: "text", text: system_prompt, cache_control: { type: "ephemeral" } } ]
     end
 
     def client
