@@ -1,5 +1,7 @@
 module Ai
   class BaseAiService
+    include Ai::RequestLogging
+
     DEFAULT_MODEL = "claude-sonnet-4-6"
     DEFAULT_MAX_TOKENS = 1024
 
@@ -107,30 +109,5 @@ module Ai
       stripped.sub(/\A```[a-zA-Z0-9]*[ \t]*\r?\n?/, "").sub(/\r?\n?```\z/, "")
     end
 
-    def write_ai_request
-      latency_ms = @started_at ? ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - @started_at) * 1000).round : nil
-
-      AiRequest.create!(
-        feature:           prompt_feature,
-        model:             model,
-        prompt_version:    prompt_version,
-        input_tokens:      @input_tokens,
-        output_tokens:     @output_tokens,
-        latency_ms:        latency_ms,
-        estimated_cost_usd: cost,
-        success:           @error.nil?,
-        error_message:     @error&.message,
-        request_payload:   @request_payload,
-        response_payload:  @response_payload,
-        user:              @user
-      )
-    rescue => e
-      Rails.logger.error("Failed to write ai_request: #{e.message}")
-    end
-
-    def cost
-      return nil unless @input_tokens && @output_tokens
-      Ai::Pricing.cost_for(model: model, input_tokens: @input_tokens, output_tokens: @output_tokens)
-    end
   end
 end

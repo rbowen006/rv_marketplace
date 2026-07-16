@@ -10,6 +10,14 @@ class Booking < ApplicationRecord
   validate :start_not_in_past
   validate :no_date_overlap
 
+  # Bookings that hold a date range: pending or confirmed (rejected/cancelled
+  # free the dates). Shared by the overlap validation and the concierge's
+  # check_availability tool (ADR-0014) so both agree on what "taken" means.
+  scope :active, -> { where(status: %w[pending confirmed]) }
+  scope :overlapping, ->(start_date, end_date) {
+    active.where('NOT (end_date < :s OR start_date > :e)', s: start_date, e: end_date)
+  }
+
   # Trip planning is offered only for a confirmed booking whose region has an
   # embedded corpus to ground on (ADR-0013) — so every itinerary is grounded.
   def trip_planning_available?
@@ -35,10 +43,8 @@ class Booking < ApplicationRecord
 
   def no_date_overlap
     return if start_date.blank? || end_date.blank? || rv_listing.nil?
-    overlapping = rv_listing.bookings.where.not(id: id)
-                                   .where(status: %w[pending confirmed])
-                                   .where('NOT (end_date < :s OR start_date > :e)', s: start_date, e: end_date)
-    errors.add(:base, 'Booking dates overlap with existing booking') if overlapping.exists?
+    clashing = rv_listing.bookings.where.not(id: id).overlapping(start_date, end_date)
+    errors.add(:base, 'Booking dates overlap with existing booking') if clashing.exists?
   end
   public
 

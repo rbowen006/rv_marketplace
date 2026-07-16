@@ -11,6 +11,7 @@ import { BookingDetailPage } from './pages/BookingDetailPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ChatPage } from './pages/ChatPage';
 import { InboxPage } from './pages/InboxPage';
+import { ConciergePage } from './pages/ConciergePage';
 import { NewListingPage } from './pages/NewListingPage';
 import { EditListingPage } from './pages/EditListingPage';
 import { MyListingsPage } from './pages/MyListingsPage';
@@ -30,6 +31,7 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/bookings" element={<BookingsPage />} />
               <Route path="/bookings/:id" element={<BookingDetailPage />} />
+              <Route path="/concierge" element={<ConciergePage />} />
               <Route path="/chats" element={<InboxPage />} />
               <Route path="/chats/:id" element={<ChatPage />} />
               <Route path="/listings/new" element={<NewListingPage />} />
