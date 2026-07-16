@@ -100,5 +100,17 @@ RSpec.describe 'Concierge API', type: :request do
       expect(response).to have_http_status(:ok)
       expect(user.reload.concierge_conversation).to be_nil
     end
+
+    it 'resets a conversation that has logged AI requests without 500ing (issue #53)' do
+      conversation = ConciergeConversation.create!(user: user, transcript: [{ 'role' => 'user', 'content' => 'hi' }])
+      request = AiRequest.create!(feature: 'concierge', model: 'claude-sonnet-5', user: user, conversation_id: conversation.id)
+
+      delete '/api/v1/concierge', headers: auth_header_for(user)
+
+      expect(response).to have_http_status(:ok)
+      expect(user.reload.concierge_conversation).to be_nil
+      # The audit row survives, nullified — the AI-spend log outlives "Start over".
+      expect(request.reload.conversation_id).to be_nil
+    end
   end
 end

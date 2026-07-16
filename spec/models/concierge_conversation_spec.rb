@@ -28,4 +28,14 @@ RSpec.describe ConciergeConversation do
 
     expect { ConciergeConversation.create!(user: user) }.to raise_error(ActiveRecord::RecordNotUnique)
   end
+
+  it 'nullifies its ai_requests on destroy so the audit log survives (issue #53)' do
+    conversation = ConciergeConversation.create!(user: user)
+    request = AiRequest.create!(feature: 'concierge', model: 'claude-sonnet-5', user: user, conversation_id: conversation.id)
+
+    expect { conversation.destroy! }.not_to raise_error
+
+    expect(AiRequest.exists?(request.id)).to be(true)
+    expect(request.reload.conversation_id).to be_nil
+  end
 end
