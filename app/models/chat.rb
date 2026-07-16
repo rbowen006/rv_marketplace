@@ -1,6 +1,6 @@
 class Chat < ApplicationRecord
-  belongs_to :hirer, class_name: 'User'
-  belongs_to :owner, class_name: 'User'
+  belongs_to :hirer, class_name: "User"
+  belongs_to :owner, class_name: "User"
   belongs_to :rv_listing, optional: true
   belongs_to :booking, optional: true
 
@@ -10,8 +10,8 @@ class Chat < ApplicationRecord
 
   def self.resync_inbox_fields!
     latest = Message.from(
-      Message.select('DISTINCT ON (chat_id) chat_id, content, created_at AS max_at')
-             .order('chat_id, created_at DESC'),
+      Message.select("DISTINCT ON (chat_id) chat_id, content, created_at AS max_at")
+             .order("chat_id, created_at DESC"),
       :messages
     )
     latest.each do |row|
@@ -29,14 +29,14 @@ class Chat < ApplicationRecord
 
   def as_json(include_messages: false, include_participants: false, **options)
     base = super({
-      only: [:id, :hirer_id, :owner_id, :rv_listing_id, :booking_id,
-             :last_message_at, :last_message_content, :hirer_last_read_at, :owner_last_read_at]
+      only: [ :id, :hirer_id, :owner_id, :rv_listing_id, :booking_id,
+             :last_message_at, :last_message_content, :hirer_last_read_at, :owner_last_read_at ]
     }.merge(options))
-    base['messages'] = messages.order(:created_at).as_json if include_messages
+    base["messages"] = messages.order(:created_at).as_json if include_messages
     if include_participants
-      base['hirer'] = { id: hirer.id, name: hirer.name }
-      base['owner'] = { id: owner.id, name: owner.name }
-      base['listing_title'] = rv_listing&.title
+      base["hirer"] = { id: hirer.id, name: hirer.name }
+      base["owner"] = { id: owner.id, name: owner.name }
+      base["listing_title"] = rv_listing&.title
     end
     base
   end
@@ -48,6 +48,6 @@ class Chat < ApplicationRecord
     exists = Chat.where(hirer_id: hirer_id, owner_id: owner_id, booking_id: nil)
                  .where.not(id: id)
                  .exists?
-    errors.add(:base, 'An active chat already exists with this owner') if exists
+    errors.add(:base, "An active chat already exists with this owner") if exists
   end
 end

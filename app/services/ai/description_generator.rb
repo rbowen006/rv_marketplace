@@ -37,7 +37,7 @@ module Ai
     def output_schema
       {
         "type"       => "object",
-        "required"   => ["description"],
+        "required"   => [ "description" ],
         "properties" => {
           "description" => { "type" => "string", "minLength" => 1 }
         },

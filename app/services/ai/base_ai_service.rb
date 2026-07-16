@@ -108,6 +108,5 @@ module Ai
 
       stripped.sub(/\A```[a-zA-Z0-9]*[ \t]*\r?\n?/, "").sub(/\r?\n?```\z/, "")
     end
-
   end
 end

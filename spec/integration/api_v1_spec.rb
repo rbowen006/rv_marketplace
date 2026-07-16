@@ -26,7 +26,7 @@ RSpec.describe 'API V1', type: :request do
           latitude: { type: :number, nullable: true },
           longitude: { type: :number, nullable: true }
         },
-        required: ['title','description','rv_type','town','state','postcode','price_per_day','max_guests']
+        required: [ 'title', 'description', 'rv_type', 'town', 'state', 'postcode', 'price_per_day', 'max_guests' ]
       }
     }
   }.freeze
@@ -37,7 +37,7 @@ RSpec.describe 'API V1', type: :request do
       message: {
         type: :object,
         properties: { content: { type: :string } },
-        required: ['content']
+        required: [ 'content' ]
       }
     }
   }.freeze
@@ -66,7 +66,7 @@ RSpec.describe 'API V1', type: :request do
               password_confirmation: { type: :string },
               name: { type: :string }
             },
-            required: ['email', 'password', 'password_confirmation', 'name']
+            required: [ 'email', 'password', 'password_confirmation', 'name' ]
           }
         }
       }
@@ -149,7 +149,7 @@ RSpec.describe 'API V1', type: :request do
               email: { type: :string, format: :email },
               password: { type: :string }
             },
-            required: ['email', 'password']
+            required: [ 'email', 'password' ]
           }
         }
       }
@@ -184,7 +184,7 @@ RSpec.describe 'API V1', type: :request do
           user: {
             type: :object,
             properties: { email: { type: :string, format: :email } },
-            required: ['email']
+            required: [ 'email' ]
           }
         }
       }
@@ -208,7 +208,7 @@ RSpec.describe 'API V1', type: :request do
               password: { type: :string },
               password_confirmation: { type: :string }
             },
-            required: ['reset_password_token', 'password', 'password_confirmation']
+            required: [ 'reset_password_token', 'password', 'password_confirmation' ]
           }
         }
       }
@@ -231,7 +231,7 @@ RSpec.describe 'API V1', type: :request do
               password: { type: :string },
               password_confirmation: { type: :string }
             },
-            required: ['reset_password_token', 'password', 'password_confirmation']
+            required: [ 'reset_password_token', 'password', 'password_confirmation' ]
           }
         }
       }
@@ -413,7 +413,7 @@ RSpec.describe 'API V1', type: :request do
         let(:listing) { create(:rv_listing, owner: owner) }
         let(:listing_id) { listing.id }
         let(:Authorization) { "Bearer #{jwt_for(owner)}" }
-        let(:images) { [Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/files/test.png'), 'image/png')] }
+        let(:images) { [ Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/files/test.png'), 'image/png') ] }
         run_test!
       end
     end
@@ -454,7 +454,7 @@ RSpec.describe 'API V1', type: :request do
               start_date: { type: :string, format: :date },
               end_date: { type: :string, format: :date }
             },
-            required: ['start_date','end_date']
+            required: [ 'start_date', 'end_date' ]
           }
         }
       }

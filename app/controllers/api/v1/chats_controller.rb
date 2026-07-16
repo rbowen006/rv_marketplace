@@ -10,7 +10,7 @@ module Api
       def show
         @chat = Chat.find(params[:id])
         unless @chat.hirer_id == current_user.id || @chat.owner_id == current_user.id
-          return render json: { error: 'Forbidden' }, status: :forbidden
+          return render json: { error: "Forbidden" }, status: :forbidden
         end
         render json: @chat.as_json(include_messages: true, include_participants: true)
       end

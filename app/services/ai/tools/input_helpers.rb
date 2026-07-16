@@ -16,7 +16,7 @@ module Ai
         end_date   = parse_date!(end_value)
         raise Ai::InputError, "end_date must be after start_date" unless end_date > start_date
 
-        [start_date, end_date]
+        [ start_date, end_date ]
       end
 
       def parse_date!(value)

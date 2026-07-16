@@ -14,15 +14,15 @@ module Ai
     end
 
     def tool_definitions
-      [{
+      [ {
         name: "echo",
         description: "Echoes its message back.",
         input_schema: {
           "type" => "object",
-          "required" => ["message"],
+          "required" => [ "message" ],
           "properties" => { "message" => { "type" => "string" } }
         }
-      }]
+      } ]
     end
 
     def call_tool(name, input)
@@ -47,7 +47,7 @@ RSpec.describe Ai::Agent do
   def text_turn(text)
     {
       id: "msg_1", type: "message", role: "assistant",
-      content: [{ type: "text", text: text }],
+      content: [ { type: "text", text: text } ],
       model: "claude-sonnet-5", stop_reason: "end_turn",
       usage: { input_tokens: 50, output_tokens: 10 }
     }
@@ -56,7 +56,7 @@ RSpec.describe Ai::Agent do
   def tool_use_turn(tool_name, input, id: "toolu_1")
     {
       id: "msg_2", type: "message", role: "assistant",
-      content: [{ type: "tool_use", id: id, name: tool_name, input: input }],
+      content: [ { type: "tool_use", id: id, name: tool_name, input: input } ],
       model: "claude-sonnet-5", stop_reason: "tool_use",
       usage: { input_tokens: 60, output_tokens: 15 }
     }

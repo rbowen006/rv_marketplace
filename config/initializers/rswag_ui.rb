@@ -1,7 +1,6 @@
 return unless Rails.env.development? || Rails.env.test?
 
 Rswag::Ui.configure do |c|
-
   # List the Swagger endpoints that you want to be documented through the
   # swagger-ui. The first parameter is the path (absolute or relative to the UI
   # host) to the corresponding endpoint and the second is a title that will be
@@ -12,7 +11,7 @@ Rswag::Ui.configure do |c|
 
   # use openapi_endpoint in rswag-ui v3
   # Point to the generated JSON (we generate `public/api-docs/v1/swagger.json`)
-  c.openapi_endpoint '/api-docs/v1/swagger.json', 'API V1 Docs'
+  c.openapi_endpoint "/api-docs/v1/swagger.json", "API V1 Docs"
 
   # Add Basic Auth in case your API is private
   # c.basic_auth_enabled = true

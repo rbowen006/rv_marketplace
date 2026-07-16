@@ -13,20 +13,20 @@ RSpec.describe 'Listing Images API', type: :request do
 
   describe 'POST /api/v1/listings/:listing_id/images' do
     it 'requires auth' do
-      post "/api/v1/listings/#{listing.id}/images", params: { images: [image_file] }
+      post "/api/v1/listings/#{listing.id}/images", params: { images: [ image_file ] }
       expect(response).to have_http_status(:unauthorized)
     end
 
     it 'forbids non-owner' do
       post "/api/v1/listings/#{listing.id}/images",
-           params: { images: [image_file] },
+           params: { images: [ image_file ] },
            headers: auth_bearer(other_user)
       expect(response).to have_http_status(:forbidden)
     end
 
     it 'attaches images and returns updated listing' do
       post "/api/v1/listings/#{listing.id}/images",
-           params: { images: [image_file] },
+           params: { images: [ image_file ] },
            headers: auth_bearer(owner)
       expect(response).to have_http_status(:created)
       body = JSON.parse(response.body)

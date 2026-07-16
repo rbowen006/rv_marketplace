@@ -44,7 +44,7 @@ module Api
         # re-runs the same trailing message rather than duplicating it.
         new_message = { "role" => "user", "content" => message }
         retrying = conversation.failed? && conversation.transcript.last == new_message
-        transcript = retrying ? conversation.transcript : conversation.transcript + [new_message]
+        transcript = retrying ? conversation.transcript : conversation.transcript + [ new_message ]
 
         conversation.update!(status: :processing, step_status: "Thinking…", error: nil, transcript: transcript)
         ConciergeTurnJob.perform_later(conversation.id)

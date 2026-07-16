@@ -34,7 +34,7 @@ RSpec.describe KnowledgeChunk do
       results = KnowledgeChunk.retrieve(region: 'great-ocean-road', query_embedding: query_vec, limit: 5)
 
       expect(results).to be_an(Array)
-      expect(results.map(&:region).uniq).to eq(['great-ocean-road'])
+      expect(results.map(&:region).uniq).to eq([ 'great-ocean-road' ])
       expect(results.first).to eq(near)
       expect(results).to include(far)
       expect(results).not_to include(other)

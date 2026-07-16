@@ -14,7 +14,7 @@ RSpec.describe Ai::Concierge do
   def end_turn(text)
     {
       id: "m", type: "message", role: "assistant",
-      content: [{ type: "text", text: text }],
+      content: [ { type: "text", text: text } ],
       model: "claude-sonnet-5", stop_reason: "end_turn",
       usage: { input_tokens: 10, output_tokens: 5 }
     }
@@ -23,7 +23,7 @@ RSpec.describe Ai::Concierge do
   def recommend_turn(ids)
     {
       id: "m", type: "message", role: "assistant",
-      content: [{ type: "tool_use", id: "toolu_1", name: "recommend_listings", input: { listing_ids: ids } }],
+      content: [ { type: "tool_use", id: "toolu_1", name: "recommend_listings", input: { listing_ids: ids } } ],
       model: "claude-sonnet-5", stop_reason: "tool_use",
       usage: { input_tokens: 20, output_tokens: 8 }
     }
@@ -47,7 +47,7 @@ RSpec.describe Ai::Concierge do
 
   it "dispatches a real tool call and logs each call under the concierge feature" do
     listing = create(:rv_listing)
-    stub_claude(recommend_turn([listing.id]), end_turn("Here you go"))
+    stub_claude(recommend_turn([ listing.id ]), end_turn("Here you go"))
 
     messages = nil
     expect { messages = Ai::Concierge.new(conversation: conversation).run("show me one") }
@@ -55,7 +55,7 @@ RSpec.describe Ai::Concierge do
 
     tool_turn = messages.find { |m| m["role"] == "user" && m["content"].is_a?(Array) }
     ack = JSON.parse(tool_turn["content"].first["content"])
-    expect(ack).to eq("recommended" => [listing.id])
+    expect(ack).to eq("recommended" => [ listing.id ])
     expect(AiRequest.where(feature: "concierge").last.model).to eq("claude-sonnet-5")
     expect(conversation.reload.step_status).to eq("Picking recommendations…")
   end

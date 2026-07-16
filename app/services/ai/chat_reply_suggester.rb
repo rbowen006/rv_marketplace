@@ -24,7 +24,7 @@ module Ai
     def output_schema
       {
         "type"       => "object",
-        "required"   => ["reply"],
+        "required"   => [ "reply" ],
         "properties" => {
           "reply" => { "type" => "string", "minLength" => 1 }
         },

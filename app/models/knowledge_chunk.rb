@@ -19,6 +19,6 @@ class KnowledgeChunk < ApplicationRecord
   # SHA256 of "region\nheading\ncontent", used to skip re-embedding unchanged
   # sections (mirrors ListingEmbedding, ADR-0011).
   def self.content_hash_for(region:, heading:, content:)
-    Digest::SHA256.hexdigest([region, heading, content].join("\n"))
+    Digest::SHA256.hexdigest([ region, heading, content ].join("\n"))
   end
 end

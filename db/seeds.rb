@@ -9,7 +9,7 @@ TEST_LISTING_UPDATES = {
   8  => { title: 'Margaret River Weekend Retreat', rv_type: :caravan,       town: 'Margaret River', state: 'WA',  postcode: '6285', price_per_day: 165.00, max_guests: 2, pet_friendly: true  },
   10 => { title: 'Great Ocean Road Classic',       rv_type: :motorhome,     town: 'Lorne',          state: 'VIC', postcode: '3232', price_per_day: 210.00, max_guests: 2, pet_friendly: false },
   12 => { title: 'Kakadu Family Motorhome',        rv_type: :motorhome,     town: 'Darwin',         state: 'NT',  postcode: '0800', price_per_day: 220.00, max_guests: 6, pet_friendly: false },
-  13 => { title: 'Cosy Caravan',                   rv_type: :caravan,       town: 'Port Douglas',   state: 'QLD', postcode: '4877', price_per_day: 150.00, max_guests: 4, pet_friendly: false },
+  13 => { title: 'Cosy Caravan',                   rv_type: :caravan,       town: 'Port Douglas',   state: 'QLD', postcode: '4877', price_per_day: 150.00, max_guests: 4, pet_friendly: false }
 }.freeze
 
 IMAGE_ASSIGNMENTS = {
@@ -22,7 +22,7 @@ IMAGE_ASSIGNMENTS = {
   12 => '14523224.jpg',
   13 => '5809280.jpg',
   14 => '9143451.jpg',
-  15 => '210010.jpg',
+  15 => '210010.jpg'
 }.freeze
 
 puts "\n== Updating listing metadata =="
