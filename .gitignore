@@ -8,7 +8,6 @@
 # Ignore bundler config.
 /.bundle
 /.idea
-/.github
 
 # Frontend dependencies
 /frontend/node_modules

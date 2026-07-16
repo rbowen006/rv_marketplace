@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  rspec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build the web image
+        run: docker compose build web
+
+      # Only the dependencies the suite actually needs. Anthropic and Ollama are
+      # stubbed at the HTTP layer (WebMock disable_net_connect!), so no Ollama
+      # service and no secrets are required. --wait blocks until Postgres is
+      # healthy (compose healthcheck) before we touch the database.
+      - name: Start Postgres and Redis
+        run: docker compose up -d --wait db redis
+
+      # Fresh test database per run — loads schema.rb (incl. the pgvector
+      # extension) into rv_marketplace_test and sidesteps the cross-run row
+      # pollution seen locally. --no-deps keeps the Ollama service from starting.
+      - name: Prepare the test database
+        run: docker compose run --rm --no-deps -e RAILS_ENV=test web bundle exec rails db:test:prepare
+
+      - name: Run RSpec
+        run: docker compose run --rm --no-deps -e RAILS_ENV=test web bundle exec rspec
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # --legacy-peer-deps: the lockfile pins vite 8, which is newer than the
+      # peer range @vitejs/plugin-react@4.7.0 declares. The conflict is benign
+      # (the suite is green on this tree) and matches how the lockfile was
+      # authored; see #58 for resolving the peer range properly.
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
