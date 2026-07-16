@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  lint:
+  scan_ruby:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,6 +19,24 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      # Invoke brakeman via bundle, not bin/brakeman: the binstub forces
+      # --ensure-latest, which fails whenever a newer Brakeman ships upstream —
+      # a non-deterministic red build unrelated to this repo. bundle exec pins
+      # to the Gemfile.lock version instead.
+      - name: Scan for Rails security vulnerabilities (brakeman)
+        run: bundle exec brakeman --no-pager
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
       - name: Lint code for consistent style (rubocop-rails-omakase)
         run: bin/rubocop -f github
 
