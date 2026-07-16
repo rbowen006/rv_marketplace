@@ -63,12 +63,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      # --legacy-peer-deps: the lockfile pins vite 8, which is newer than the
-      # peer range @vitejs/plugin-react@4.7.0 declares. The conflict is benign
-      # (the suite is green on this tree) and matches how the lockfile was
-      # authored; see #58 for resolving the peer range properly.
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Run tests
         run: npm run test
