@@ -111,15 +111,29 @@ describe('ChatPage — Suggest reply (owner)', () => {
     const field = await screen.findByPlaceholderText('Type a message…');
     await userEvent.type(field, 'my own words');
 
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
     await userEvent.click(screen.getByRole('button', { name: /suggest reply/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(confirmSpy).toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(field).toHaveValue('my own words');
     const suggestCalls = vi
       .mocked(globalThis.fetch)
       .mock.calls.filter(([url]) => (url as string).includes('/suggest_reply'));
     expect(suggestCalls).toHaveLength(0);
+  });
+
+  it('overwrites the draft with the suggestion when the owner confirms', async () => {
+    mockFetch();
+    renderChatPage();
+
+    const field = await screen.findByPlaceholderText('Type a message…');
+    await userEvent.type(field, 'my own words');
+
+    await userEvent.click(screen.getByRole('button', { name: /suggest reply/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Replace draft' }));
+
+    await waitFor(() => expect(field).not.toHaveValue('my own words'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('shows an inline error and preserves the draft when the suggest request fails', async () => {

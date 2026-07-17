@@ -178,8 +178,7 @@ describe('ListingForm', () => {
       );
     });
 
-    it('does not call the API when the description is non-empty and the user cancels the confirm dialog', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
+    it('does not call the API when the description is non-empty and the user cancels the confirm dialog', async () => {
       renderForm({
         initialValues: {
           description: 'Existing description',
@@ -191,14 +190,14 @@ describe('ListingForm', () => {
       });
 
       fireEvent.click(screen.getByRole('button', { name: /generate description/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-      expect(window.confirm).toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(mockApiFetch).not.toHaveBeenCalled();
       expect(screen.getByLabelText(/description/i)).toHaveValue('Existing description');
     });
 
     it('calls the API when the description is non-empty and the user confirms', async () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
       mockApiFetch = vi.fn().mockResolvedValue({
         res: { ok: true },
         data: { status: 'success', data: { description: 'A fresh new description.' } },
@@ -214,8 +213,8 @@ describe('ListingForm', () => {
       });
 
       fireEvent.click(screen.getByRole('button', { name: /generate description/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Replace description' }));
 
-      expect(window.confirm).toHaveBeenCalled();
       await waitFor(() =>
         expect(screen.getByLabelText(/description/i)).toHaveValue('A fresh new description.'),
       );

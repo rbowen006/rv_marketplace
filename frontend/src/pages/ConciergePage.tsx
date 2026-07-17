@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { SignInModal } from '../components/SignInModal';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ListingCard } from '../components/ListingCard';
 import type { ConciergeData, ConciergeEnvelope } from '../types/concierge';
 
@@ -21,6 +22,7 @@ export function ConciergePage() {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showSignIn, setShowSignIn] = useState(false);
+  const [confirmingStartOver, setConfirmingStartOver] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const authHeaders = { Authorization: `Bearer ${token}` };
@@ -79,6 +81,7 @@ export function ConciergePage() {
   }
 
   async function startOver() {
+    setConfirmingStartOver(false);
     await apiFetch(URL, { method: 'DELETE', headers: authHeaders });
     setData({ status: 'none' });
     setError(null);
@@ -119,13 +122,24 @@ export function ConciergePage() {
         <h1 className="text-xl font-semibold text-gray-900">Concierge</h1>
         {hasConversation && (
           <button
-            onClick={startOver}
+            onClick={() => setConfirmingStartOver(true)}
             className="text-sm text-gray-500 hover:text-gray-800 underline underline-offset-2"
           >
             Start over
           </button>
         )}
       </div>
+
+      {confirmingStartOver && (
+        <ConfirmDialog
+          title="Start over?"
+          message="This permanently deletes this conversation, including every message in it. This can't be undone."
+          confirmLabel="Start over"
+          destructive
+          onConfirm={startOver}
+          onCancel={() => setConfirmingStartOver(false)}
+        />
+      )}
 
       <div className="flex-1 mt-4 space-y-3">
         {!hasConversation && !processing ? (
