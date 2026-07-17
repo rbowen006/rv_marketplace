@@ -77,6 +77,23 @@ RSpec.describe Ai::Agent do
     expect(row.input_tokens).to eq(50)
   end
 
+  it "still logs the spend when the conversation is destroyed mid-turn" do
+    stub_claude(text_turn("Hello!"))
+    agent = Ai::SpecAgent.new(conversation: conversation)
+
+    # "Start over" deletes the row from the web process, so the running job's
+    # in-memory conversation goes stale rather than destroyed? — destroy through
+    # a separate reference to reproduce that, not a friendlier fiction (#65).
+    ConciergeConversation.find(conversation.id).destroy
+
+    expect { agent.run("hi") }.to change(AiRequest, :count).by(1)
+
+    row = AiRequest.last
+    expect(row.conversation_id).to be_nil
+    expect(row.user).to eq(user)
+    expect(row.estimated_cost_usd).to be_present
+  end
+
   it "dispatches a tool call, feeds the structured result back, and logs a row per call" do
     stub_claude(
       tool_use_turn("echo", { "message" => "ping" }),

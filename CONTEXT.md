@@ -95,3 +95,7 @@ _Avoid_: Session, thread, Chat, history
 **Recommended listings**:
 The Listings the Concierge chooses to surface within a turn, recorded when the agent calls its `recommend_listings` tool and rendered as inline Listing cards in the chat. Distinct from what the agent merely searched — a deliberate, structured recommendation. Read-only: surfacing a Recommended listing takes no booking or payment action; the User clicking through does.
 _Avoid_: Results, matches, suggestions, picks
+
+**AI spend log**:
+The record of what the app's AI features cost. One entry per call to a model, capturing tokens, estimated cost, latency, and which feature made the call. An entry outlives whatever produced it: resetting a Concierge conversation does not erase the spend that conversation incurred, and an entry whose conversation is gone still counts — the money was spent either way. Estimated rather than billed — it is the app's own reckoning of cost, not an invoice.
+_Avoid_: AI log, request log, usage log, ledger, audit log

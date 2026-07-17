@@ -186,6 +186,30 @@ Nullable, so all existing single-shot features write `NULL` and are untouched.
 Modelling the relationship explicitly in the data follows the same instinct
 ADR-0013 used making `region` a real column rather than a query-time lookup.
 
+**Amendment (2026-07-17): the AI spend log outlives its conversation (#53, #65).**
+The paragraph above justifies nullability solely by single-shot features having no
+conversation to point at. That is true but incomplete, and the omission has now
+cost us twice: both #53 and `ConciergeConversation`'s own code comment cite *this
+ADR* for a rule it never stated — that audit rows survive their conversation.
+Stating it properly, as a decision rather than folklore:
+
+**An entry in the AI spend log is a record of money already spent, and nothing
+about its subject may erase it.** A conversation is context for an entry, not its
+owner. So "Start over" nullifies the link and keeps the rows (`dependent: :nullify`,
+#53), and a call whose conversation is destroyed *mid-turn* keeps its row the same
+way — the writer drops the dangling link rather than losing the entry (#65). A
+`NULL` `conversation_id` is therefore an ordinary, expected state with two distinct
+readings — "never had a conversation" (single-shot features) and "its conversation
+is gone" — and neither is an error.
+
+The alternative was `dependent: :destroy`: a reset erases its own history, which is
+defensible on privacy grounds and is what a naive reading of "Start over" suggests.
+We reject it because the spend is real whether or not the user still wants the
+transcript, and because the per-user and global caps deferred to #46 are computed
+from this log — a log that a user can shrink by resetting is not a basis for a
+spend cap. The FK itself stays: it is what guarantees a *non-*`NULL`
+`conversation_id` still points at something real.
+
 ### Guardrails: layered defence for the app's first agent
 
 An agent loop is a different risk surface than a single-shot call — it can loop
