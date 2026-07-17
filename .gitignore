@@ -9,9 +9,10 @@
 /.bundle
 /.idea
 
-# Frontend dependencies
-/frontend/node_modules
-/frontend/.vite
+# Frontend dependencies. Unanchored so a stray npx run outside frontend/ can't
+# leave a committable node_modules or vite cache at the repo root.
+node_modules/
+.vite/
 /frontend/dist
 /frontend/.env.local
 
