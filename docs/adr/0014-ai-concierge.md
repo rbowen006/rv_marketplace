@@ -227,6 +227,28 @@ only make the agent *recommend* a listing (read-only, no booking).
 Deferred and to be filed as issues: input content moderation, per-user/global
 spend caps, and guardrail-effectiveness evals.
 
+**Amendment (2026-07-17): input content moderation was considered and rejected
+(#45, closed `wontfix`).** The deferral above implied moderation was coming. On
+revisiting it, the case did not survive the containment argument this section
+already makes. The concierge transcript is **private to one user** — unlike
+`Chat`, nothing a traveller types is ever shown to another human, so abusive
+input has no second party to harm. The tools are read-only, so it cannot provoke
+an action. `claude-sonnet-5` refuses genuinely abusive prompts on its own, and
+the scope instruction already declines off-topic ones. A classifier in front of
+the model would mostly re-refuse what the model refuses anyway, in exchange for a
+moving part to maintain — and, if implemented as a Claude call, a second paid
+request on every turn. The residual risk is the
+reputational jailbreak-and-screenshot case, where the model's own refusal is the
+real defence and the harm lands on **output**, not input.
+
+Duty-of-care routing (detecting distress, surfacing crisis resources) was weighed
+separately and also dropped. It is the one thing a moderation pass would do that
+the model does not — but an RV-hire concierge is a narrow, task-focused surface,
+and half-built crisis infrastructure is worse than none.
+
+This narrows the deferral list to two live items: **spend caps (#46)** and
+**guardrail-effectiveness evals (#47)**.
+
 ### Service structure: a new `Ai::Agent` base + `Ai::Concierge` subclass
 
 `Ai::BaseAiService` is single-shot by shape (one invoke → one `ai_request` → parse
