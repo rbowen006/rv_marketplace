@@ -58,6 +58,14 @@ module Ai
       raise Ai::ApiError, "Ollama embeddings error: #{e.message}"
     end
 
+    # Deliberately NOT Ai::RequestLogging, despite the near-duplication (#71).
+    # Including that module is what marks a service as making *paid* calls priced
+    # through Ai::Pricing — the RATES-coverage spec keys off exactly that to find
+    # unpriced models (spec/services/ai/pricing_spec.rb). Ollama runs locally and
+    # is free, so sharing the writer would drag nomic-embed-text into the priced
+    # set and demand a rate for a model that has no price, forcing an exception
+    # by name. This copy is the cheaper half of that trade: it writes only the
+    # columns a free, promptless, token-less call can fill.
     def write_ai_request
       latency_ms = @started_at ? ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - @started_at) * 1000).round : nil
 
