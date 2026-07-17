@@ -249,6 +249,35 @@ and half-built crisis infrastructure is worse than none.
 This narrows the deferral list to two live items: **spend caps (#46)** and
 **guardrail-effectiveness evals (#47)**.
 
+**Amendment (2026-07-17): cancelling an in-flight turn when its conversation is
+destroyed was considered and rejected (#65, closed `wontfix`).** "Start over"
+during a running turn destroys the `ConciergeConversation` while
+`ConciergeTurnJob` keeps looping, making paid calls for a conversation nobody
+will ever read. The obvious fix is an existence check at the loop boundary.
+
+Rejected because **the table above already bounds the exposure**. `MAX_ITERATIONS
+= 8` and the ~90s wall-clock timeout cap the waste at a single turn; the in-flight
+lock allows one turn per conversation; the ~15/hour rate limit caps repetition.
+There is no unbounded case here — the worst outcome is one turn's cost, spent
+once, by a user who must be present to click the button. Measured rather than
+assumed: a live turn raced against a mid-flight reset wasted **$0.0082** of a
+$0.0272 turn.
+
+The serious half of #65 was that this spend went *unlogged*, and that is fixed
+(see the §Observability amendment): the calls now land in the AI spend log with a
+nulled conversation link, so they are counted. What remains is not a leak but an
+inefficiency — bounded, visible, and priced.
+
+The check itself would be cheap, so this is a judgement about value, not cost: a
+per-iteration existence query plus a new early-bail path (what the loop returns,
+whether the job then updates a destroyed record, how it composes with `Timeout`)
+to recover pennies from a rare, deliberate action.
+
+Reopen if the bound stops holding: a materially higher `MAX_ITERATIONS`,
+materially more expensive turns, a long-running or streaming turn shape, or
+evidence that mid-turn resets are common rather than incidental. The AI spend log
+can now answer that last question — before this fix, it could not.
+
 ### Service structure: a new `Ai::Agent` base + `Ai::Concierge` subclass
 
 `Ai::BaseAiService` is single-shot by shape (one invoke → one `ai_request` → parse
