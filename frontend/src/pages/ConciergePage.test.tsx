@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { ConciergePage } from './ConciergePage';
@@ -41,6 +41,18 @@ afterEach(() => vi.restoreAllMocks());
 
 const noneEnvelope = { status: 'success', data: { status: 'none' } };
 
+const conversationEnvelope = {
+  status: 'success',
+  data: {
+    status: 'idle',
+    messages: [
+      { role: 'user', text: 'find me a van' },
+      { role: 'assistant', text: 'Here is a great option.' },
+    ],
+    recommendations: [{ id: 7, title: 'Beach van', price_per_day: 150, max_guests: 4, images: [] }],
+  },
+};
+
 it('shows the empty state with example prompts', async () => {
   stubFetch({ get: noneEnvelope });
 
@@ -52,21 +64,7 @@ it('shows the empty state with example prompts', async () => {
 });
 
 it('renders assistant messages and hydrated recommendation cards', async () => {
-  stubFetch({
-    get: {
-      status: 'success',
-      data: {
-        status: 'idle',
-        messages: [
-          { role: 'user', text: 'find me a van' },
-          { role: 'assistant', text: 'Here is a great option.' },
-        ],
-        recommendations: [
-          { id: 7, title: 'Beach van', price_per_day: 150, max_guests: 4, images: [] },
-        ],
-      },
-    },
-  });
+  stubFetch({ get: conversationEnvelope });
 
   renderPage();
 
@@ -94,6 +92,36 @@ it('sends a message and optimistically shows it', async () => {
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ message: 'a camper for two' }) }),
     ),
   );
+});
+
+it('keeps the conversation when Start over is cancelled', async () => {
+  const fetchMock = stubFetch({ get: conversationEnvelope });
+
+  renderPage();
+  await waitFor(() => expect(screen.getByText('Here is a great option.')).toBeInTheDocument());
+
+  await userEvent.click(screen.getByRole('button', { name: 'Start over' }));
+  await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+
+  expect(fetchMock).not.toHaveBeenCalledWith('/api/v1/concierge', expect.objectContaining({ method: 'DELETE' }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByText('Here is a great option.')).toBeInTheDocument();
+});
+
+it('deletes the conversation when Start over is confirmed', async () => {
+  const fetchMock = stubFetch({ get: conversationEnvelope, del: noneEnvelope });
+
+  renderPage();
+  await waitFor(() => expect(screen.getByText('Here is a great option.')).toBeInTheDocument());
+
+  await userEvent.click(screen.getByRole('button', { name: 'Start over' }));
+  await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Start over' }));
+
+  await waitFor(() =>
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/concierge', expect.objectContaining({ method: 'DELETE' })),
+  );
+  await waitFor(() => expect(screen.queryByText('Here is a great option.')).not.toBeInTheDocument());
+  expect(screen.getByText(/Byron Bay/i)).toBeInTheDocument();
 });
 
 it('gates on authentication when signed out', () => {

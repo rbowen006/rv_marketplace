@@ -2,6 +2,7 @@ import { FormEvent, KeyboardEvent, useEffect, useRef, useState, useCallback } fr
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import type { ChatDetail, Message, MessageGroupItem } from '../types/chat';
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
@@ -53,6 +54,7 @@ export function ChatPage() {
   const [sending, setSending] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [confirmingSuggest, setConfirmingSuggest] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -141,10 +143,17 @@ export function ChatPage() {
     }
   }
 
-  async function handleSuggest() {
-    if (draft.trim() && !window.confirm('Replace your current draft with a suggested reply?')) {
+  // An existing draft is worth protecting; suggesting over an empty one needs no ceremony.
+  function handleSuggest() {
+    if (draft.trim()) {
+      setConfirmingSuggest(true);
       return;
     }
+    runSuggest();
+  }
+
+  async function runSuggest() {
+    setConfirmingSuggest(false);
     setSuggesting(true);
     setSuggestError(null);
     try {
@@ -217,6 +226,16 @@ export function ChatPage() {
         })}
         <div ref={bottomRef} />
       </div>
+
+      {confirmingSuggest && (
+        <ConfirmDialog
+          title="Replace your draft?"
+          message="Suggesting a reply will overwrite the message you've started writing."
+          confirmLabel="Replace draft"
+          onConfirm={runSuggest}
+          onCancel={() => setConfirmingSuggest(false)}
+        />
+      )}
 
       {/* Input */}
       {suggestError && (

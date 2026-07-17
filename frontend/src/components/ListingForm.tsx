@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import { ConfirmDialog } from './ConfirmDialog';
 import type { ListingAttachment } from '../types/listing';
 import type {
   ListingFormFields,
@@ -53,17 +54,21 @@ export function ListingForm({
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [confirmingGenerate, setConfirmingGenerate] = useState(false);
 
   const canGenerate = GENERATE_REQUIRED_FIELDS.every((f) => String(fields[f]).trim() !== '');
 
-  async function handleGenerateDescription() {
-    if (
-      fields.description.trim() !== '' &&
-      !window.confirm('This will replace the current description. Continue?')
-    ) {
+  // Only worth confirming when there's an existing description to lose.
+  function handleGenerateDescription() {
+    if (fields.description.trim() !== '') {
+      setConfirmingGenerate(true);
       return;
     }
+    runGenerateDescription();
+  }
 
+  async function runGenerateDescription() {
+    setConfirmingGenerate(false);
     setGenerating(true);
     setGenerateError(null);
     try {
@@ -154,6 +159,16 @@ export function ListingForm({
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
       {error && <p className="text-sm text-red-600">{error}</p>}
+
+      {confirmingGenerate && (
+        <ConfirmDialog
+          title="Replace the description?"
+          message="Generating a new description will overwrite the one you've written."
+          confirmLabel="Replace description"
+          onConfirm={runGenerateDescription}
+          onCancel={() => setConfirmingGenerate(false)}
+        />
+      )}
 
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
