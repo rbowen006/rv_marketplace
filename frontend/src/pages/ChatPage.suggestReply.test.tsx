@@ -104,6 +104,21 @@ describe('ChatPage — Suggest reply (owner)', () => {
     expect(screen.getByRole('button', { name: /suggest reply/i })).toBeDisabled();
   });
 
+  // These two buttons sit in one form and are the clearest statement of the
+  // AiSparkle rule: the mark tracks what the click does, not what page it is on.
+  // Suggest reply calls a model; Send posts the owner's own words.
+  it('marks Suggest reply with the AI sparkle and leaves Send unmarked', async () => {
+    mockFetch();
+    renderChatPage();
+
+    const suggest = await screen.findByRole('button', { name: /suggest reply/i });
+    const send = screen.getByRole('button', { name: /^send$/i });
+
+    // The sparkle is aria-hidden by design, so it has no role to query by.
+    expect(suggest.querySelector('svg')).toBeInTheDocument();
+    expect(send.querySelector('svg')).toBeNull();
+  });
+
   it('keeps the existing draft and makes no request when the owner cancels the overwrite confirm', async () => {
     mockFetch();
     renderChatPage();

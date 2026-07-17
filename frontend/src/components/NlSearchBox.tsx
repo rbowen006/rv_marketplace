@@ -1,6 +1,7 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useApiFetch } from '../lib/useApiFetch';
+import { AiSparkle } from './AiSparkle';
 import { ListingGrid } from './ListingGrid';
 import type { ListingSummary } from '../types/listing';
 
@@ -93,8 +94,9 @@ export function NlSearchBox() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-6 py-3 text-sm font-semibold transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full px-6 py-3 text-sm font-semibold transition-colors disabled:opacity-50"
           >
+            <AiSparkle />
             {loading ? 'Searching…' : 'Search'}
           </button>
           {query && (

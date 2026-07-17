@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
 import { SignInModal } from '../components/SignInModal';
+import { AiSparkle } from '../components/AiSparkle';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ListingCard } from '../components/ListingCard';
 import type { ConciergeData, ConciergeEnvelope } from '../types/concierge';
@@ -210,8 +211,9 @@ export function ConciergePage() {
         <button
           type="submit"
           disabled={processing || input.trim() === ''}
-          className="px-5 py-2 rounded-full bg-rose-500 text-white text-sm font-medium hover:bg-rose-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-rose-500 text-white text-sm font-medium hover:bg-rose-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
+          <AiSparkle />
           Send
         </button>
       </form>
