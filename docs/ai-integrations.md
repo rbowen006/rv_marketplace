@@ -171,8 +171,8 @@ When creating/editing a listing, show a recommended price range from comparable 
 
 ---
 
-### 6. AI Concierge (new)
-**Status:** Not started | **Teaches:** Agent loops, tool use, embeddings, context management, RAG
+### 6. AI Concierge
+**Status:** Shipped (PR #54, ADR-0014) | **Teaches:** Agent loops, tool use, embeddings, context management, RAG
 
 A conversational assistant that guides hirers toward a booking:
 
@@ -187,11 +187,13 @@ A conversational assistant that guides hirers toward a booking:
 - `get_listing_detail(id)` — full listing data
 - `check_availability(listing_id, start_date, end_date)` — booking overlap check
 - `calculate_price(listing_id, start_date, end_date)` — total cost estimate
+- `recommend_listings(listing_ids)` — surface listings to the traveller as cards
 
 All tools are **read-only**. No bookings are created without explicit user action.
 
-- **Backend:** `POST /api/v1/concierge/message` — stateful conversation via session or chat record.
-- **Frontend:** Chat-style UI (new page or modal); streaming responses.
+- **Backend:** `POST /api/v1/concierge/messages` enqueues a turn; `GET /api/v1/concierge` polls for status, messages, and recommendations; `DELETE` resets. One `ConciergeConversation` per user holds the durable transcript.
+- **Service:** `app/services/ai/agent.rb` (loop, per-call logging, iteration cap) + `app/services/ai/concierge.rb` (model, prompt, tools).
+- **Frontend:** Chat-style panel; polls for step status ("Searching listings…") and renders recommendations as cards.
 
 ---
 
