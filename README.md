@@ -30,7 +30,7 @@ Trekr is AI-native in two senses:
 | 💬 **Smart chat replies for owners** — drafts an owner reply from recent messages + listing context | ✅ Shipped |
 | 💲 Pricing suggestions | 🗺️ Planned |
 | 🧭 **Trip-planning assistant (RAG)** — day-by-day itinerary grounded in retrieved local knowledge | ✅ Shipped |
-| 🤖 AI concierge (agentic + tool use) | 🗺️ Planned |
+| 🤖 **AI concierge (agentic + tool use)** — multi-turn agent loop that searches, prices, and recommends real listings through read-only tools | ✅ Shipped |
 | 🔌 MCP server | 🗺️ Planned |
 
 See [docs/ai-integrations.md](docs/ai-integrations.md) for the full design brief.
