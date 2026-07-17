@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import { AiSparkle } from './AiSparkle';
 import type { Itinerary, TripPlan } from '../types/booking';
 
 interface TripPlanPanelProps {
@@ -110,7 +111,7 @@ export function TripPlanPanel({ bookingId, pollIntervalMs = 2500 }: TripPlanPane
           disabled={busy}
           className="mt-2 inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-rose-500 text-white font-medium hover:bg-rose-600 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {busy && <Spinner />}
+          {busy ? <Spinner /> : <AiSparkle />}
           {buttonLabel}
         </button>
       </form>

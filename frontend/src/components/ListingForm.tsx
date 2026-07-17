@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useApiFetch } from '../lib/useApiFetch';
+import { AiSparkle } from './AiSparkle';
 import { ConfirmDialog } from './ConfirmDialog';
 import type { ListingAttachment } from '../types/listing';
 import type {
@@ -202,8 +203,9 @@ export function ListingForm({
           type="button"
           disabled={!canGenerate || generating || submitting}
           onClick={handleGenerateDescription}
-          className="mt-2 text-sm px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          className="mt-2 inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
         >
+          <AiSparkle />
           {generating ? 'Generating…' : 'Generate description'}
         </button>
         {generateError && <p className="mt-1 text-sm text-red-600">{generateError}</p>}
