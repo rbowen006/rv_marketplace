@@ -81,6 +81,18 @@ module Ai
       @request_payload  = message_json
       @response_payload = content_block.text
 
+      # A max_tokens stop leaves a well-formed-but-severed text block: it clears
+      # the no-text guard above and would reach JSON.parse as "invalid JSON",
+      # blaming the model for our ceiling (#75). Raise truncation instead —
+      # Ai::Agent treats max_tokens as terminal too. (ApiError vs OutputError
+      # here is deliberate: truncation is severed output, like the parse/schema
+      # failures below.) Usage and payload are assigned first so the failure row
+      # keeps the evidence — output_tokens at the ceiling, the severed payload —
+      # that diagnosing this class of bug depends on.
+      if response.stop_reason.to_s == "max_tokens"
+        raise Ai::OutputError, "Output truncated at max_tokens (#{max_tokens})"
+      end
+
       content_block.text
     rescue Ai::Error
       raise
