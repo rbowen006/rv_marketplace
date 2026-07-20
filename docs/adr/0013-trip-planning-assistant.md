@@ -113,8 +113,20 @@ longer Bookings, add a closing note ("plus N more nights to explore"). This boun
 retrieval size, output tokens, latency, and cost predictably — the
 context-management goal made concrete. `BaseAiService`'s hardcoded `max_tokens: 1024`
 is made **overridable via a `MAX_TOKENS` constant** (default preserved);
-`TripPlanner` raises it to a fixed ceiling sized for N days. Model stays
-`claude-sonnet-4-6` (adequate, cost-conscious).
+`TripPlanner` raises it for N days. Model stays `claude-sonnet-4-6` (adequate,
+cost-conscious).
+
+**Amendment (issue #75):** `MAX_TOKENS` is now **derived** from `MAX_PLANNED_DAYS`
+(`BASE_OUTPUT_TOKENS + TOKENS_PER_PLANNED_DAY * MAX_PLANNED_DAYS`) rather than a
+fixed number. The original fixed `2048` was set independently of the 7-day cap,
+couldn't hold a full plan (~2389 measured output tokens), and truncated the last
+day — surfacing misleadingly as "Claude returned invalid JSON". Deriving the two
+from one constant makes them unable to drift. Because we are billed on tokens
+actually emitted, not on this ceiling, it is sized generously (~340 tokens/day
+measured; 500/day budgeted plus a fixed base). Truncation, if it ever recurs, now
+fails legibly: `BaseAiService` treats a `max_tokens` stop reason as an
+`Ai::OutputError` naming the limit, instead of letting the severed JSON reach the
+parser.
 
 ### Interests optional; retrieval query blends Booking context
 

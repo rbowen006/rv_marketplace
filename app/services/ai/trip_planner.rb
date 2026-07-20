@@ -7,13 +7,20 @@ module Ai
     PROMPT_FEATURE = "trip_plan"
     PROMPT_VERSION = "v1"
 
-    # Multi-day itineraries need far more than the base 1024-token ceiling.
-    MAX_TOKENS = 2048
-
     # Context management (ADR-0013): plan at most this many days regardless of
     # how long the booking is, bounding retrieval size, output tokens and cost.
     MAX_PLANNED_DAYS = 7
     RETRIEVAL_LIMIT  = 6
+
+    # Output budget, DERIVED from MAX_PLANNED_DAYS so the two can't drift apart
+    # (#75: a fixed 2048 was set independently, couldn't hold 7 days, and
+    # truncated the last day). We're billed on tokens actually emitted, not on
+    # this ceiling, so it's sized generously: a full plan measured ~340 output
+    # tokens/day, and 500/day plus a fixed base for the summary/disclaimer/JSON
+    # scaffolding leaves comfortable headroom (~4000 for 7 days vs ~2389 needed).
+    BASE_OUTPUT_TOKENS     = 512
+    TOKENS_PER_PLANNED_DAY = 500
+    MAX_TOKENS = BASE_OUTPUT_TOKENS + TOKENS_PER_PLANNED_DAY * MAX_PLANNED_DAYS
 
     def initialize(booking: nil, interests: nil, user: nil)
       @booking   = booking
