@@ -102,13 +102,19 @@ RSpec.describe Ai::TripPlanner do
     expect(result["summary"]).to eq("Two relaxed days along the coast.")
   end
 
-  it "raises the token ceiling above the base default for multi-day output" do
+  it "sends an output budget large enough to hold a full MAX_PLANNED_DAYS itinerary" do
+    # A complete 7-day plan measured ~2389 output tokens (#75). The old fixed
+    # 2048 ceiling was set independently of MAX_PLANNED_DAYS, truncated day 7,
+    # and surfaced as "invalid JSON". The budget must clear a full plan with
+    # headroom.
     described_class.call(booking: booking, user: hirer)
 
     body = nil
     expect(
       a_request(:post, "https://api.anthropic.com/v1/messages").with { |req| body = JSON.parse(req.body); true }
     ).to have_been_made
-    expect(body["max_tokens"]).to eq(2048)
+
+    full_seven_day_plan_tokens = 2389 # measured (#75)
+    expect(body["max_tokens"]).to be > full_seven_day_plan_tokens
   end
 end

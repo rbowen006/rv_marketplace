@@ -115,6 +115,29 @@ RSpec.describe Ai::DescriptionGenerator do
       end
     end
 
+    context "when Claude truncates the response at max_tokens" do
+      before do
+        truncated_body = {
+          id: "msg_trunc", type: "message", role: "assistant",
+          content: [ { type: "text", text: '{"description":"A beautiful caravan in Byron' } ],
+          model: "claude-sonnet-4-6", stop_reason: "max_tokens",
+          usage: { input_tokens: 120, output_tokens: 1024 }
+        }.to_json
+        stub_request(:post, "https://api.anthropic.com/v1/messages")
+          .to_return(status: 200, body: truncated_body, headers: { "Content-Type" => "application/json" })
+      end
+
+      it "raises Ai::OutputError naming the truncation, not invalid JSON" do
+        expect { Ai::DescriptionGenerator.call(**valid_params) }
+          .to raise_error(Ai::OutputError, /truncat/i)
+      end
+
+      it "writes a failure row to ai_requests" do
+        expect { Ai::DescriptionGenerator.call(**valid_params) }.to raise_error(Ai::OutputError)
+        expect(AiRequest.last.success).to be false
+      end
+    end
+
     context "when Claude refuses to respond" do
       before do
         refusal_body = {
