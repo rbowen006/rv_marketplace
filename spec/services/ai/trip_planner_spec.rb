@@ -87,6 +87,30 @@ RSpec.describe Ai::TripPlanner do
     expect(dates["additional_nights"]).to eq(13) # 20 nights - 7 planned
   end
 
+  it "accepts a segment whose optional detail is null (does not reject the whole plan)" do
+    # The model emits "detail": null ~24% of the time for the optional field
+    # instead of omitting it (#76). Null must be treated as absent, not rejected.
+    with_null_detail = {
+      summary: "Two relaxed days along the coast.",
+      disclaimer: "Suggestions only — confirm opening hours and conditions locally.",
+      days: [
+        { date: "2026-07-10", title: "Beaches and lookouts",
+          segments: [ { part_of_day: "evening", activity: "Seafood dinner in town", detail: nil } ] }
+      ]
+    }.to_json
+    stub_request(:post, "https://api.anthropic.com/v1/messages").to_return(
+      status: 200,
+      body: { id: "m", type: "message", role: "assistant",
+              content: [ { type: "text", text: with_null_detail } ],
+              model: "claude-sonnet-4-6", stop_reason: "end_turn",
+              usage: { input_tokens: 10, output_tokens: 10 } }.to_json,
+      headers: { "Content-Type" => "application/json" }
+    )
+
+    result = described_class.call(booking: booking, interests: "seafood", user: hirer)
+    expect(result["days"].first["segments"].first["detail"]).to be_nil
+  end
+
   it "parses the itinerary even when Claude wraps the JSON in a markdown code fence" do
     fenced = "```json\n#{itinerary_json}\n```"
     stub_request(:post, "https://api.anthropic.com/v1/messages").to_return(

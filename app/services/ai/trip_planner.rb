@@ -68,7 +68,11 @@ module Ai
                     "properties"           => {
                       "part_of_day" => { "type" => "string" },
                       "activity"    => { "type" => "string" },
-                      "detail"      => { "type" => "string" }
+                      # Optional. The model emits null ~24% of the time instead
+                      # of omitting the key (#76); accept null as equivalent to
+                      # absent rather than failing the whole plan. The frontend
+                      # already treats a falsy detail as no detail.
+                      "detail"      => { "type" => [ "string", "null" ] }
                     }
                   }
                 }
