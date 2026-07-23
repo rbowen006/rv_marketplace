@@ -31,7 +31,7 @@ export interface BookingDetail extends Booking {
 export interface ItinerarySegment {
   part_of_day: string;
   activity: string;
-  detail?: string;
+  detail?: string | null; // may be null, not just absent (#76); render guards on truthiness
 }
 
 export interface ItineraryDay {

@@ -62,6 +62,28 @@ describe('TripPlanPanel', () => {
     expect(screen.getByText(/Verify opening hours locally/)).toBeInTheDocument();
   });
 
+  it('renders a segment with a null detail as no detail (no em-dash) (#76)', async () => {
+    const nullDetailPlan = {
+      ...completedPlan,
+      itinerary: {
+        ...completedPlan.itinerary,
+        days: [
+          {
+            date: '2026-09-01',
+            title: 'Evening in Lorne',
+            segments: [{ part_of_day: 'evening', activity: 'Seafood dinner in town', detail: null }],
+          },
+        ],
+      },
+    };
+    mockApi({ getQueue: [nullDetailPlan] });
+    renderPanel();
+
+    const segment = await screen.findByText(/Seafood dinner in town/);
+    expect(segment).toBeInTheDocument();
+    expect(segment.textContent).not.toContain('—');
+  });
+
   it('generates an itinerary: submit → poll while processing → render on completion', async () => {
     mockApi({
       getQueue: [{ status: 'none' }, { status: 'processing' }, completedPlan],
