@@ -194,6 +194,38 @@ assert retrieval/region resolution, the coverage gate, the guards, the state
 machine, schema validation), quality-regression evals later at the cross-cutting
 build step.
 
+**Why this needs to get picked up — model upgrades (added 2026-07-21).** Model
+upgrades are ongoing maintenance, like Rails/gem bumps, but the safety net has to
+be different because **Claude model IDs are not semantic versioning.** `claude-<family>-<major>-<minor>`
+looks like semver but carries none of its compatibility contract: Opus 4.6 → 4.7
+(a "minor" bump) removed `budget_tokens`/sampling params/prefills and returns 400s,
+while 4.7 → 4.8 (also "minor") had no breaking API changes at all. Same-size
+increment, opposite impact — the version number tells you nothing.
+
+Worse, the changes that bite are usually **behavioral, not interface**: token-per-token
+counts (Sonnet 5 emits ~30% more tokens than 4.6 — which would silently break the
+derived `MAX_TOKENS` budget from #75), verbosity, tool-triggering rate, and JSON
+quirks like #76's `detail: null`. Two models with an identical request surface can
+produce different output. Our current specs stub Claude via WebMock, so they would
+pass green against a model that behaves completely differently — **unit specs cannot
+gate a model upgrade.** Only real-generation evals can.
+
+So the eval framework is the actual "model-upgrade support" surface, and it should:
+- **Pin dated snapshots** (e.g. `claude-sonnet-4-6-20251114`) in the eval baseline
+  and prod config, not floating aliases — aliases roll forward silently. This is
+  the `Gemfile.lock` analogue.
+- **Assert output properties** on real generations against a pinned snapshot (day
+  count, no truncation, valid schema, token budget within range) — the codified,
+  repeatable form of the `$0.03` live check done for #75. Treat every model bump as
+  potentially breaking regardless of the number; re-run evals + budget for prompt
+  re-tuning, not just an ID swap.
+- Track **retirement dates** — retired models return 404 on a published date, the
+  one hard forcing function (like a yanked gem).
+
+Related: #22 (structured output) requires a model that supports `output_config.format`
+(Sonnet 5 / Opus 4.8, not the current `claude-sonnet-4-6`), so it is itself gated on
+a model upgrade — another reason the eval harness is a prerequisite for that work.
+
 ## Deployment
 
 The corpus is committed as markdown but the `knowledge_chunks` (embeddings) are
